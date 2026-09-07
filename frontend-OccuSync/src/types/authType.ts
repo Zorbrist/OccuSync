@@ -33,6 +33,13 @@ export interface CustomerRegistrationPayload {
   password: string;
 }
 
+export interface LoginPayload {
+
+    email : string;
+    password : string;
+
+}
+
 export interface AuthResponse {
   message: string;
   user?: {
@@ -41,4 +48,17 @@ export interface AuthResponse {
     role: string;
   };
   business?: any;
+}
+
+export interface LoginResponse {
+
+  message: string;
+  user: {
+    id: number;
+    email: string;
+    role: string;
+    created_at: string;
+    updated_at: string;
+  };
+  token: any;
 }

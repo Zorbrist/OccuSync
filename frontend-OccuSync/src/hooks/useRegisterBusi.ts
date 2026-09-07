@@ -3,7 +3,7 @@ import type {ChangeEvent, FormEvent} from 'react'
 import { registerBusiness } from '../services/authService';
 import type { BusinessRegistrationPayload } from '../types/authType';
 
-export const useRegisterForm = () => {
+export const useRegisterBusiForm = () => {
   const [formData, setFormData] = useState({
     businessName: '',
     businessRegNo: '',

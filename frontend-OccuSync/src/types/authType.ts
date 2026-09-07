@@ -22,8 +22,23 @@ export interface BusinessRegistrationPayload {
   password: string;
 }
 
+export interface CustomerRegistrationPayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  country: string;
+  state: string;
+  postcode: string;
+  password: string;
+}
+
 export interface AuthResponse {
   message: string;
-  user?: any;
+  user?: {
+    id: number;
+    email: string;
+    role: string;
+  };
   business?: any;
 }

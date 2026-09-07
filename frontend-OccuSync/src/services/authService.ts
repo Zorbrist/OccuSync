@@ -1,7 +1,8 @@
 import axiosInstance from '../api/axiosInstance';
 import type {
   BusinessRegistrationPayload,
-  AuthResponse
+  CustomerRegistrationPayload,
+  AuthResponse,
 } from '../types/authType';
 
 export const registerBusiness = async (
@@ -18,7 +19,26 @@ export const registerBusiness = async (
   } catch (error: any) {
     throw new Error(
       error.response?.data?.message ||
-      'An error occurred during registration'
+      'An error occurred during business registration'
+    );
+  }
+};
+
+export const registerCustomer = async (
+  payload: CustomerRegistrationPayload
+): Promise<AuthResponse> => {
+  try {
+    const response = await axiosInstance.post(
+      '/auth/register/customer',
+      payload
+    );
+
+    return response.data;
+
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message ||
+      'An error occurred during customer registration'
     );
   }
 };

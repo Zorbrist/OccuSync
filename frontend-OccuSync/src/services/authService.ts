@@ -1,24 +1,24 @@
-import type { BusinessRegistrationPayload, AuthResponse } from '../types/authType';
-
-const API_BASE_URL = '/api/auth';
+import axiosInstance from '../api/axiosInstance';
+import type {
+  BusinessRegistrationPayload,
+  AuthResponse
+} from '../types/authType';
 
 export const registerBusiness = async (
   payload: BusinessRegistrationPayload
 ): Promise<AuthResponse> => {
-  
-  const response = await fetch(`${API_BASE_URL}/register-business`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
+  try {
+    const response = await axiosInstance.post(
+      '/auth/register/business',
+      payload
+    );
 
-  const data = await response.json();
+    return response.data;
 
-  if (!response.ok) {
-    throw new Error(data.message || 'An error occurred during registration');
+  } catch (error: any) {
+    throw new Error(
+      error.response?.data?.message ||
+      'An error occurred during registration'
+    );
   }
-
-  return data;
 };

@@ -1,24 +1,29 @@
+import Navbar from '../components/Navbar';
+import Hero from '../components/Hero';
+import Metrics from '../components/Metrics';
+import Categories from '../components/Categories';
+import ServicesGrid from '../components/ServicesGrid';
+import DashboardPreview from '../components/DashboardPreview';
+import ContactUs from '../components/ContactUs';
+import Footer from '../components/Footer';
 
-function Home() {
+export default function Home({ currentPage, onNavigate }: { currentPage?: string; onNavigate?: (page: string) => void }) {
   return (
-    <main className="min-h-screen bg-gray-50">
-      <section className="flex min-h-screen flex-col items-center justify-center px-6 text-center">
-        <h1 className="mb-4 text-4xl font-bold text-gray-900 md:text-6xl">
-          Welcome to OccuSync
-        </h1>
+    <main className="min-h-screen bg-gray-50 relative overflow-hidden flex flex-col justify-between">
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] gradient-blur rounded-full pointer-events-none -z-0"></div>
+      
+      <Navbar currentPage={currentPage} onNavigate={onNavigate} />
+      
+      <div className="relative z-10 flex-grow">
+        <Hero />
+        <Metrics />
+        <Categories />
+        <ServicesGrid />
+        <DashboardPreview />
+        <ContactUs />
+      </div>
 
-        <p className="mb-8 max-w-xl text-lg text-gray-600">
-          Find the services you need, connect with trusted providers, and get
-          things done with ease.
-        </p>
-
-        <button className="rounded-lg bg-blue-600 px-6 py-3 font-medium text-white transition hover:bg-blue-700">
-          Get Started
-        </button>
-      </section>
+      <Footer />
     </main>
   );
 }
-
-export default Home;
-

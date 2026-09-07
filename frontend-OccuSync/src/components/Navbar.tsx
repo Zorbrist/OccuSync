@@ -5,6 +5,7 @@ import logo from '../assets/OccuSync.png';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -115,12 +116,38 @@ export default function Navbar() {
           Sign In
         </Link>
 
-        <Link
-          to="/register"
-          className="btn-primary text-sm"
-        >
-          Register Business
-        </Link>
+        {/* Desktop Register Dropdown Fix */}
+        <div className="relative">
+          <button
+            onClick={() => setIsRegisterOpen(!isRegisterOpen)}
+            className="btn-primary flex items-center justify-center gap-2 whitespace-nowrap"
+          >
+            Register
+            <span className={`transition-transform ${isRegisterOpen ? 'rotate-180' : ''}`}>
+              ▼
+            </span>
+          </button>
+
+          {isRegisterOpen && (
+            <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-slate-200 rounded-xl shadow-xl p-2 flex flex-col gap-1 z-50">
+              <Link
+                to="/register/customer"
+                onClick={() => setIsRegisterOpen(false)}
+                className="w-full text-left px-4 py-2.5 rounded-lg text-slate-700 font-medium hover:bg-slate-50 hover:text-blue-600 transition text-sm"
+              >
+                Register as Customer
+              </Link>
+
+              <Link
+                to="/register/business"
+                onClick={() => setIsRegisterOpen(false)}
+                className="w-full text-left px-4 py-2.5 rounded-lg text-slate-700 font-medium hover:bg-slate-50 hover:text-blue-600 transition text-sm"
+              >
+                Register as Business
+              </Link>
+            </div>
+          )}
+        </div>
 
       </div>
 
@@ -158,15 +185,15 @@ export default function Navbar() {
           >
             About Us
           </Link>
-          <button onClick={() => scrollToSection('services')}>
+          <button onClick={() => scrollToSection('services')} className="text-left font-medium text-slate-700 hover:text-blue-600">
             Services
           </button>
 
-          <button onClick={() => scrollToSection('dashboard')}>
+          <button onClick={() => scrollToSection('dashboard')} className="text-left font-medium text-slate-700 hover:text-blue-600">
             Portal
           </button>
 
-          <button onClick={() => scrollToSection('contact')}>
+          <button onClick={() => scrollToSection('contact')} className="text-left font-medium text-slate-700 hover:text-blue-600">
             Contact Us
           </button>
 
@@ -180,13 +207,43 @@ export default function Navbar() {
             Sign In
           </Link>
 
-          <Link
-            to="/register"
-            onClick={() => setIsOpen(false)}
-            className="btn-primary w-full text-center"
-          >
-            Register Business
-          </Link>
+          <div className="w-full">
+            <button
+              onClick={() => setIsRegisterOpen(!isRegisterOpen)}
+              className="btn-primary w-full text-center flex items-center justify-center gap-2"
+            >
+              Register
+              <span className={`transition-transform ${isRegisterOpen ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
+            </button>
+
+            {isRegisterOpen && (
+              <div className="mt-2 flex flex-col gap-2">
+                <Link
+                  to="/register/customer"
+                  onClick={() => {
+                    setIsOpen(false);
+                    setIsRegisterOpen(false);
+                  }}
+                  className="w-full text-center py-2.5 rounded-lg bg-slate-50 text-slate-700 font-medium hover:bg-slate-100 transition"
+                >
+                  Register as Customer
+                </Link>
+
+                <Link
+                  to="/register/business"
+                  onClick={() => {
+                    setIsOpen(false);
+                    setIsRegisterOpen(false);
+                  }}
+                  className="w-full text-center py-2.5 rounded-lg bg-slate-50 text-slate-700 font-medium hover:bg-slate-100 transition"
+                >
+                  Register as Business
+                </Link>
+              </div>
+            )}
+          </div>
 
         </div>
       )}

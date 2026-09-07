@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
+const { signAccessToken } = require('../config/auth');
 
 //register customer
 exports.registerCustomer = async (req, res, next) => {
@@ -250,5 +251,62 @@ exports.registerBusiness = async (req, res, next) => {
 
   } finally {
     client.release();
+  }
+};
+
+exports.login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body || {};
+
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({
+        message: 'email and password are required'
+      });
+    }
+
+    const result = await pool.query(
+      `SELECT id, email, password_hash, role, created_at, updated_at
+       FROM users
+       WHERE email = $1`,
+      [email.trim().toLowerCase()]
+    );
+
+    const user = result.rows[0];
+
+    const passwordMatches = user
+      ? await bcrypt.compare(password, user.password_hash)
+      : false;
+
+    if (!user || !passwordMatches) {
+      return res.status(401).json({
+        message: 'Invalid email or password'
+      });
+    }
+
+    // Create user object without password_hash
+    const safeUser = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      created_at: user.created_at,
+      updated_at: user.updated_at
+    };
+
+    // Create JWT
+    const token = signAccessToken({
+      sub: String(safeUser.id),
+      email: safeUser.email,
+      role: safeUser.role
+    });
+
+    // Send user + token
+    res.json({
+      message: 'Login successful',
+      user: safeUser,
+      token
+    });
+
+  } catch (error) {
+    next(error);
   }
 };

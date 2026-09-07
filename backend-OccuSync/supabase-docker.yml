@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: occusync-postgres
+    restart: unless-stopped
+    ports:
+      - '5433:5432'
+    environment:
+      POSTGRES_DB: occusync
+      POSTGRES_USER: occusync
+      POSTGRES_PASSWORD: occusync_dev
+    volumes:
+      - occusync_pg_data:/var/lib/postgresql/data
+      - ./supabase/init.sql:/docker-entrypoint-initdb.d/00-init.sql:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U occusync -d occusync']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  occusync_pg_data:

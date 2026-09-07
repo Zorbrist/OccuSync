@@ -1,50 +1,54 @@
 const bcrypt = require('bcryptjs');
 const pool = require('../config/db');
 
-exports.register = async (req, res, next) => {
-  try {
-    const { name, email, password, role } = req.body || {};
+//register customer
+exports.registerCustomer = async (req, res, next) => {
+  const client = await pool.connect();
 
-    // Validate required fields
+  try {
+    const {
+      first_name,
+      last_name,
+      email,
+      phone,
+      country,
+      state,
+      postcode,
+      password
+    } = req.body;
+
+    // Check required fields
     if (
-      typeof name !== 'string' ||
-      typeof email !== 'string' ||
-      typeof password !== 'string' ||
-      typeof role !== 'string'
+      !first_name ||
+      !last_name ||
+      !email ||
+      !phone ||
+      !country ||
+      !state ||
+      !postcode ||
+      !password
     ) {
       return res.status(400).json({
-        message: 'Name, email, password and role are required'
+        message: 'All required fields must be provided'
       });
     }
 
-    const normalizedName = name.trim()
-
-    // Validate password
+    // Check password length
     if (password.length < 8) {
       return res.status(400).json({
         message: 'Password must be at least 8 characters'
       });
     }
 
-    // Validate role
-    const allowedRoles = ['CUSTOMER', 'BUSINESS_OWNER'];
-
-    if (!allowedRoles.includes(role)) {
-      return res.status(400).json({
-        message: 'Invalid role'
-      });
-    }
-
-    // Normalize email
     const normalizedEmail = email.trim().toLowerCase();
 
     // Check if email already exists
-    const existing = await pool.query(
+    const existingUser = await client.query(
       'SELECT id FROM users WHERE email = $1',
       [normalizedEmail]
     );
 
-    if (existing.rows[0]) {
+    if (existingUser.rows.length > 0) {
       return res.status(409).json({
         message: 'Email already registered'
       });
@@ -53,26 +57,198 @@ exports.register = async (req, res, next) => {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
+    // Start transaction
+    await client.query('BEGIN');
+
     // Create user
-    const result = await pool.query(
-      `INSERT INTO users (name, email, password_hash, role)
-       VALUES ($1, $2, $3, $4)
-       RETURNING id, name, email, role, created_at, updated_at`,
-      [normalizedName, normalizedEmail, passwordHash, role]
+    const userResult = await client.query(
+      `INSERT INTO users
+        (email, password_hash, role)
+       VALUES
+        ($1, $2, 'CUSTOMER')
+       RETURNING id, email, role`,
+      [normalizedEmail, passwordHash]
     );
 
-    res.status(201).json({
-      message: 'User registered successfully',
-      user: result.rows[0]
+    const user = userResult.rows[0];
+
+    // Create customer profile
+    await client.query(
+      `INSERT INTO customer_profiles
+        (
+          user_id,
+          first_name,
+          last_name,
+          phone,
+          country,
+          state,
+          postcode
+        )
+       VALUES
+        ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        user.id,
+        first_name.trim(),
+        last_name.trim(),
+        phone.trim(),
+        country.trim(),
+        state.trim(),
+        postcode.trim()
+      ]
+    );
+
+    // Save changes
+    await client.query('COMMIT');
+
+    return res.status(201).json({
+      message: 'Customer registered successfully',
+      user
     });
 
   } catch (error) {
-    if (error.code === '23505') {
+    await client.query('ROLLBACK');
+    next(error);
+
+  } finally {
+    client.release();
+  }
+};
+
+
+
+// register business
+
+exports.registerBusiness = async (req, res, next) => {
+  const client = await pool.connect();
+
+  try {
+    const {
+      business,
+      owner,
+      email,
+      password
+    } = req.body;
+
+    // Check required sections
+    if (!business || !owner || !email || !password) {
+      return res.status(400).json({
+        message: 'All required fields must be provided'
+      });
+    }
+
+    // Check password
+    if (password.length < 8) {
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters'
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check if login email already exists
+    const existingUser = await client.query(
+      'SELECT id FROM users WHERE email = $1',
+      [normalizedEmail]
+    );
+
+    if (existingUser.rows.length > 0) {
       return res.status(409).json({
         message: 'Email already registered'
       });
     }
 
+    // Check business registration number
+    const existingBusiness = await client.query(
+      `SELECT id
+       FROM businesses
+       WHERE registration_no = $1`,
+      [business.registration_no.trim()]
+    );
+
+    if (existingBusiness.rows.length > 0) {
+      return res.status(409).json({
+        message: 'Business registration number already exists'
+      });
+    }
+
+    // Hash password
+    const passwordHash = await bcrypt.hash(password, 12);
+
+    // Start transaction
+    await client.query('BEGIN');
+
+    // 1. Create user account
+    const userResult = await client.query(
+      `INSERT INTO users
+        (email, password_hash, role)
+       VALUES
+        ($1, $2, 'BUSINESS_OWNER')
+       RETURNING id, email, role`,
+      [normalizedEmail, passwordHash]
+    );
+
+    const user = userResult.rows[0];
+
+    // 2. Create business
+    const businessResult = await client.query(
+      `INSERT INTO businesses
+        (
+          name,
+          registration_no,
+          industry,
+          area_of_service,
+          phone,
+          email,
+          state,
+          postcode,
+          country
+        )
+       VALUES
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       RETURNING id, name, registration_no, phone, email`,
+      [
+        business.name.trim(),
+        business.registration_no.trim(),
+        business.industry.trim(),
+        business.area_of_service
+          ? business.area_of_service.trim()
+          : null,
+        business.phone.trim(),
+        business.email.trim().toLowerCase(),
+        business.state.trim(),
+        business.postcode.trim(),
+        business.country.trim(),
+      ]
+    );
+
+    const newBusiness = businessResult.rows[0];
+
+    // 3. Connect owner to business
+    await client.query(
+      `INSERT INTO business_members
+        (user_id, business_id, role)
+       VALUES
+        ($1, $2, 'OWNER')`,
+      [
+        user.id,
+        newBusiness.id
+      ]
+    );
+
+    // Save changes
+    await client.query('COMMIT');
+
+    return res.status(201).json({
+      message: 'Business registered successfully',
+      user,
+      business: newBusiness
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
     next(error);
+
+  } finally {
+    client.release();
   }
 };

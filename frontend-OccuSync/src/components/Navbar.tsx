@@ -1,22 +1,56 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import logo from '../assets/OccuSync.png';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const scrollToSection = (sectionId: string) => {
     setIsOpen(false);
 
-    const element = document.getElementById(sectionId);
+    // Already on Home
+    if (location.pathname === '/') {
+      const element = document.getElementById(sectionId);
 
-    if (element) {
-      element.scrollIntoView({
-        behavior: 'smooth',
-      });
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }
+
+      return;
     }
+
+    // On another page → go Home first
+    navigate('/', {
+      state: { scrollTo: sectionId },
+    });
   };
+
+  useEffect(() => {
+    if (location.pathname === '/' && location.state?.scrollTo) {
+      const sectionId = location.state.scrollTo;
+
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+
+        if (element) {
+          element.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+          });
+        }
+      }, 100);
+
+      // Clear the state so it doesn't scroll again
+      navigate('/', { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   return (
     <nav className="w-full max-w-7xl mx-auto px-6 py-4 flex items-center justify-between relative z-50">
@@ -56,24 +90,15 @@ export default function Navbar() {
           About Us
         </Link>
 
-        <button
-          onClick={() => scrollToSection('services')}
-          className="hover:text-blue-600 transition"
-        >
+        <button onClick={() => scrollToSection('services')}>
           Services
         </button>
 
-        <button
-          onClick={() => scrollToSection('dashboard')}
-          className="hover:text-blue-600 transition"
-        >
+        <button onClick={() => scrollToSection('dashboard')}>
           Portal
         </button>
 
-        <button
-          onClick={() => scrollToSection('contact')}
-          className="hover:text-blue-600 transition"
-        >
+        <button onClick={() => scrollToSection('contact')}>
           Contact Us
         </button>
 
@@ -133,25 +158,15 @@ export default function Navbar() {
           >
             About Us
           </Link>
-
-          <button
-            onClick={() => scrollToSection('services')}
-            className="text-left font-medium text-slate-700 hover:text-blue-600"
-          >
+          <button onClick={() => scrollToSection('services')}>
             Services
           </button>
 
-          <button
-            onClick={() => scrollToSection('dashboard')}
-            className="text-left font-medium text-slate-700 hover:text-blue-600"
-          >
+          <button onClick={() => scrollToSection('dashboard')}>
             Portal
           </button>
 
-          <button
-            onClick={() => scrollToSection('contact')}
-            className="text-left font-medium text-slate-700 hover:text-blue-600"
-          >
+          <button onClick={() => scrollToSection('contact')}>
             Contact Us
           </button>
 

@@ -1,16 +1,17 @@
 import Navbar from '../components/Navbar';
-import Hero from '../components/Hero';
-import Metrics from '../components/Metrics';
-import Categories from '../components/Categories';
-import ServicesGrid from '../components/ServicesGrid';
-import DashboardPreview from '../components/DashboardPreview';
-import ContactUs from '../components/ContactUs';
+import Hero from '../components/home_page/Hero';
+import Metrics from '../components/home_page/Metrics';
+import Categories from '../components/home_page/Categories';
+import ServicesGrid from '../components/home_page/ServicesGrid';
+import DashboardPreview from '../components/home_page/DashboardPreview';
+import ContactUs from '../components/home_page/ContactUs';
 import Footer from '../components/Footer';
 
 export default function Home() {
+
   return (
     <main className="min-h-screen bg-gray-50 relative overflow-hidden flex flex-col justify-between">
-      
+
       <div className="absolute top-0 right-0 w-[500px] h-[500px] gradient-blur rounded-full pointer-events-none -z-0"></div>
 
       <Navbar />
@@ -19,9 +20,19 @@ export default function Home() {
         <Hero />
         <Metrics />
         <Categories />
-        <ServicesGrid />
-        <DashboardPreview />
-        <ContactUs />
+
+
+        <section id="services">
+          <ServicesGrid />
+        </section>
+
+        <section id="dashboard">
+          <DashboardPreview />
+        </section>
+
+        <section id="contact">
+          <ContactUs />
+        </section>
       </div>
 
       <Footer />

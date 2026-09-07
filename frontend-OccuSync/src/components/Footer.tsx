@@ -1,4 +1,4 @@
-import { Layers } from 'lucide-react';
+import logo from '../assets/OccuSync.png';
 
 export default function Footer() {
   return (
@@ -6,8 +6,12 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <div className="bg-blue-600 text-white p-1.5 rounded-lg">
-              <Layers className="w-5 h-5" />
+            <div className=" p-1.5 ">
+              <img
+                src={logo}
+                alt="OccuSync Logo"
+                className="h-10 w-auto object-contain rounded-lg"
+              />
             </div>
             <span className="text-xl font-extrabold text-white">OccuSync</span>
           </div>
@@ -38,9 +42,9 @@ export default function Footer() {
           <h4 className="text-sm font-bold text-white mb-4">Newsletter</h4>
           <p className="text-xs text-slate-400 mb-3">Subscribe for management tips.</p>
           <div className="flex gap-2">
-            <input 
-              type="email" 
-              placeholder="Your email address" 
+            <input
+              type="email"
+              placeholder="Your email address"
               className="bg-slate-900 border border-slate-800 rounded-lg text-xs px-3 py-2 text-white focus:outline-none w-full"
             />
             <button className="bg-blue-600 text-white text-xs px-3 py-2 rounded-lg font-medium hover:bg-blue-500">

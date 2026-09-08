@@ -1,8 +1,8 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
-import { Target, ShieldCheck, Users, Zap, Award, Sparkles } from 'lucide-react';
+import { Target, ShieldCheck, Users, Zap, Sparkles } from 'lucide-react';
 
-export default function AboutUs({ currentPage, onNavigate }: { currentPage?: string; onNavigate?: (page: string) => void }) {
+export default function AboutUs({  }: { currentPage?: string; onNavigate?: (page: string) => void }) {
   const values = [
     {
       icon: Target,
@@ -37,7 +37,7 @@ export default function AboutUs({ currentPage, onNavigate }: { currentPage?: str
     <main className="min-h-screen bg-gray-50 flex flex-col justify-between relative overflow-hidden">
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-100/50 rounded-full blur-3xl pointer-events-none -z-0"></div>
 
-      <Navbar currentPage={currentPage} onNavigate={onNavigate} />
+      <Navbar />
 
       <div className="relative z-10 flex-grow max-w-7xl mx-auto px-6 py-12">
         {/* Hero Section */}

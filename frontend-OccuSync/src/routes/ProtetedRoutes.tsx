@@ -6,9 +6,22 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
   const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  let user = null;
 
-  // Not logged in
+  try {
+    const userStr = localStorage.getItem('user');
+    if (userStr) {
+      user = JSON.parse(userStr);
+    }
+  } catch (error) {
+    console.error("Corrupted user data found. Forcing logout.");
+    // If the JSON parse fails, wipe the corrupted data so it doesn't get stuck
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('userRole');
+  }
+
+  // Not logged in or data was corrupted
   if (!token || !user) {
     return <Navigate to="/login" replace />;
   }

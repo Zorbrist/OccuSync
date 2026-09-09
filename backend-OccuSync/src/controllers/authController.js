@@ -183,7 +183,7 @@ exports.registerBusiness = async (req, res, next) => {
       `INSERT INTO users
         (email, password_hash, role)
        VALUES
-        ($1, $2, 'BUSINESS_OWNER')
+        ($1, $2, 'SERVICE_PROVIDER')
        RETURNING id, email, role`,
       [normalizedEmail, passwordHash]
     );

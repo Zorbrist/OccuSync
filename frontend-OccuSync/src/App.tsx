@@ -15,7 +15,7 @@ import AboutUs from './pages/AboutUs';
 
 // Dashboard Pages
 import AdminPage from './pages/AdminPage';
-        
+
 // Business Pages
 import BusinessPage from './pages/Business/BusinessPage';
 import ListingsPage from './pages/Business/ListingsPage';
@@ -41,26 +41,7 @@ import ProtectedRoute from "./routes/ProtetedRoutes";
 export default function App() {
   return (
     <Router>
-
       <Routes>
-        {/* BUSINESS ROUTES */}
-        <Route
-          path="/business"
-          element={
-            <ProtectedRoute allowedRoles={['BUSINESS_OWNER', 'STAFF']}>
-              <Layout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<BusinessPage />} />
-          <Route path="listings" element={<ListingsPage />} />
-          <Route path="quotations" element={<QuotationsPage />} />
-          <Route path="orders" element={<CustomerOrdersPage />} />
-          <Route path="notifications" element={<NotificationsPage />} />
-          <Route path="support" element={<MerchantSupportPage />} />
-        </Route>  
-
-
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/register/business" element={<RegisterBusiness />} />
@@ -71,12 +52,15 @@ export default function App() {
           <Route path="/admin" element={<AdminPage />} />
         </Route>
 
-        <Route
-          element={
-            <ProtectedRoute allowedRoles={["BUSINESS_OWNER", "STAFF"]} />
-          }
-        >
-          <Route path="/business" element={<BusinessPage />} />
+        <Route element={<ProtectedRoute allowedRoles={['BUSINESS_OWNER', 'STAFF']} />}>
+          <Route path="/business" element={<Layout />}>
+            <Route index element={<BusinessPage />} />
+            <Route path="listings" element={<ListingsPage />} />
+            <Route path="quotations" element={<QuotationsPage />} />
+            <Route path="orders" element={<CustomerOrdersPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="support" element={<MerchantSupportPage />} />
+          </Route>
         </Route>
 
         {/* Updated Customer Routes Block */}

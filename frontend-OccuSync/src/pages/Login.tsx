@@ -25,8 +25,7 @@ const Login = () => {
                 navigate('/admin');
                 break;
 
-            case 'BUSINESS_OWNER':
-            case 'STAFF':
+            case 'SERVICE_PROVIDER':
                 navigate('/business');
                 break;
 

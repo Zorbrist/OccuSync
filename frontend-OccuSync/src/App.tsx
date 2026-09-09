@@ -1,12 +1,31 @@
-import "./App.css";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import RegisterBusiness from "./pages/RegisterBusiness";
-import RegisterCustomer from "./pages/RegisterCustomer";
-import Login from "./pages/Login";
-import AboutUs from "./pages/AboutUs";
-import AdminPage from "./pages/AdminPage";
-import BusinessPage from "./pages/BusinessPage";
+import './App.css';
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from 'react-router-dom';
+
+// Public Pages
+import Home from './pages/Home';
+import RegisterBusiness from './pages/RegisterBusiness';
+import RegisterCustomer from './pages/RegisterCustomer';
+import Login from './pages/Login';
+import AboutUs from './pages/AboutUs';
+
+// Dashboard Pages
+import AdminPage from './pages/AdminPage';
+        
+// Business Pages
+import BusinessPage from './pages/Business/BusinessPage';
+import ListingsPage from './pages/Business/ListingsPage';
+import QuotationsPage from './pages/Business/QuotationsPage';
+import CustomerOrdersPage from './pages/Business/CustOrdersPage';
+import NotificationsPage from './pages/Business/NotificationsPage';
+import MerchantSupportPage from './pages/Business/MerchantSupportPage';
+
+// Business Layout
+import Layout from './components/business_dashboard/Layout';
 
 // Import all Customer Pages
 import CustomerDashboard from "./pages/Customer/CustomerDashboard";
@@ -22,7 +41,26 @@ import ProtectedRoute from "./routes/ProtetedRoutes";
 export default function App() {
   return (
     <Router>
+
       <Routes>
+        {/* BUSINESS ROUTES */}
+        <Route
+          path="/business"
+          element={
+            <ProtectedRoute allowedRoles={['BUSINESS_OWNER', 'STAFF']}>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<BusinessPage />} />
+          <Route path="listings" element={<ListingsPage />} />
+          <Route path="quotations" element={<QuotationsPage />} />
+          <Route path="orders" element={<CustomerOrdersPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="support" element={<MerchantSupportPage />} />
+        </Route>  
+
+
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<AboutUs />} />
         <Route path="/register/business" element={<RegisterBusiness />} />

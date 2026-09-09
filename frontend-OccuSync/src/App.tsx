@@ -15,8 +15,7 @@ import AboutUs from './pages/AboutUs';
 
 // Dashboard Pages
 import AdminPage from './pages/AdminPage';
-import CustomerPage from './pages/CustomerPage';
-
+        
 // Business Pages
 import BusinessPage from './pages/Business/BusinessPage';
 import ListingsPage from './pages/Business/ListingsPage';
@@ -28,144 +27,69 @@ import MerchantSupportPage from './pages/Business/MerchantSupportPage';
 // Business Layout
 import Layout from './components/business_dashboard/Layout';
 
-// Protected Route
-import ProtectedRoute from './routes/ProtetedRoutes';
+// Import all Customer Pages
+import CustomerDashboard from "./pages/Customer/CustomerDashboard";
+import CustomerServices from "./pages/Customer/CustomerServices";
+import CustomerInquiries from "./pages/Customer/CustomerInquiries";
+import CustomerOrder from "./pages/Customer/CustomerOrder";
+import CustomerCompare from "./pages/Customer/CustomerCompare";
+import CustomerSave from "./pages/Customer/CustomerSave";
+import CustomerNotification from "./pages/Customer/CustomerNotification";
+
+import ProtectedRoute from "./routes/ProtetedRoutes";
 
 export default function App() {
   return (
     <Router>
 
       <Routes>
-
-        {/* ========================= */}
-        {/* PUBLIC ROUTES */}
-        {/* ========================= */}
-
-        <Route
-          path="/"
-          element={<Home />}
-        />
-
-        <Route
-          path="/about"
-          element={<AboutUs />}
-        />
-
-        <Route
-          path="/register/business"
-          element={<RegisterBusiness />}
-        />
-
-        <Route
-          path="/register/customer"
-          element={<RegisterCustomer />}
-        />
-
-        <Route
-          path="/login"
-          element={<Login />}
-        />
-
-
-        {/* ========================= */}
-        {/* ADMIN ROUTES */}
-        {/* ========================= */}
-
-        <Route
-          element={
-            <ProtectedRoute
-              allowedRoles={['ADMIN']}
-            />
-          }
-        >
-
-          <Route
-            path="/admin"
-            element={<AdminPage />}
-          />
-
-        </Route>
-
-
-        {/* ========================= */}
         {/* BUSINESS ROUTES */}
-        {/* ========================= */}
+        <Route
+          path="/business"
+          element={
+            <ProtectedRoute allowedRoles={['BUSINESS_OWNER', 'STAFF']}>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<BusinessPage />} />
+          <Route path="listings" element={<ListingsPage />} />
+          <Route path="quotations" element={<QuotationsPage />} />
+          <Route path="orders" element={<CustomerOrdersPage />} />
+          <Route path="notifications" element={<NotificationsPage />} />
+          <Route path="support" element={<MerchantSupportPage />} />
+        </Route>  
+
+
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="/register/business" element={<RegisterBusiness />} />
+        <Route path="/register/customer" element={<RegisterCustomer />} />
+        <Route path="/login" element={<Login />} />
+
+        <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+          <Route path="/admin" element={<AdminPage />} />
+        </Route>
 
         <Route
           element={
-            <ProtectedRoute
-              allowedRoles={['BUSINESS_OWNER', 'STAFF']}
-            />
+            <ProtectedRoute allowedRoles={["BUSINESS_OWNER", "STAFF"]} />
           }
         >
-
-          <Route
-            path="/business"
-            element={<Layout />}
-          >
-
-            {/* Business Dashboard */}
-            <Route
-              index
-              element={<BusinessPage />}
-            />
-
-            {/* Listings */}
-            <Route
-              path="listings"
-              element={<ListingsPage />}
-            />
-
-            {/* Quotations */}
-            <Route
-              path="quotations"
-              element={<QuotationsPage />}
-            />
-
-            {/* Customer Orders */}
-            <Route
-              path="orders"
-              element={<CustomerOrdersPage />}
-            />
-
-            {/* Notifications */}
-            <Route
-              path="notifications"
-              element={<NotificationsPage />}
-            />
-
-            {/* Merchant Support */}
-            <Route
-              path="support"
-              element={<MerchantSupportPage />}
-            />
-
-          </Route>
-
+          <Route path="/business" element={<BusinessPage />} />
         </Route>
 
-
-        {/* ========================= */}
-        {/* CUSTOMER ROUTES */}
-        {/* ========================= */}
-
-        <Route
-          element={
-            <ProtectedRoute
-              allowedRoles={['CUSTOMER']}
-            />
-          }
-        >
-
-          <Route
-            path="/customer"
-            element={<CustomerPage />}
-          />
-
+        {/* Updated Customer Routes Block */}
+        <Route element={<ProtectedRoute allowedRoles={["CUSTOMER"]} />}>
+          <Route path="/customerDashboard" element={<CustomerDashboard />} />
+          <Route path="/customerServices" element={<CustomerServices />} />
+          <Route path="/customerInquiries" element={<CustomerInquiries />} />
+          <Route path="/customerOrders" element={<CustomerOrder />} />
+          <Route path="/customerCompare" element={<CustomerCompare />} />
+          <Route path="/customerSaved" element={<CustomerSave />} />
+          <Route path="/customerNotifications" element={<CustomerNotification />} />
         </Route>
-
       </Routes>
-
     </Router>
   );
 }

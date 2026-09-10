@@ -1,6 +1,7 @@
-
-import React from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useRegisterCustForm } from '../hooks/useRegisterCust';
+import SuccessModal from '../components/SuccessModal';
 
 const INPUT_LABEL =
   "block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 ml-1";
@@ -11,10 +12,36 @@ const INPUT_FIELD =
 const RegisterCustomer: React.FC = () => {
   const { formData, error, loading, handleChange, handleSubmit } =
     useRegisterCustForm();
+    
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // IMPORTANT: Ensure your useRegisterCustForm hook's handleSubmit returns a boolean!
+    // It should return true if the registration was successful.
+    const isSuccess = await handleSubmit(e);
+    
+    // If your hook returns void, you will need to change the hook to return true on success.
+    if (isSuccess) {
+      setShowSuccessModal(true);
+    }
+  };
 
   return (
-    <div className="min-h-screen relative flex justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-[850px] w-full z-10 bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+    <div className="min-h-screen relative flex justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-white via-[#091540]/100 to-[#7692FF]/100">
+      
+      {/* Top Left Sticky Back to Home Button */}
+      <div className="fixed top-6 left-6 sm:top-8 sm:left-8 z-40">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#1a0bba] bg-white/90 backdrop-blur-sm py-2 px-4 rounded-full shadow-sm border border-gray-200 transition-all hover:shadow-md"
+        >
+          <span className="text-lg leading-none">&larr;</span> Back to Home
+        </Link>
+      </div>
+
+      <div className="max-w-[850px] w-full z-10 bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mt-12 md:mt-0">
 
         {/* Header */}
         <div className="bg-gray-50/50 border-b border-gray-100 px-8 py-10 md:px-12">
@@ -29,16 +56,11 @@ const RegisterCustomer: React.FC = () => {
         </div>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleFormSubmit}
           className="px-8 py-10 md:px-12 space-y-10"
         >
 
-          {/* Error */}
-          {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 font-medium text-sm">
-              {error}
-            </div>
-          )}
+         
 
           {/* Personal Details */}
           <section>
@@ -47,75 +69,25 @@ const RegisterCustomer: React.FC = () => {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-              {/* First Name */}
               <div>
-                <label className={INPUT_LABEL}>
-                  First Name
-                </label>
-
-                <input
-                  required
-                  type="text"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  placeholder="Ali"
-                  className={INPUT_FIELD}
-                />
+                <label className={INPUT_LABEL}>First Name</label>
+                <input required type="text" name="first_name" value={formData.first_name} onChange={handleChange} placeholder="Ali" className={INPUT_FIELD} />
               </div>
 
-              {/* Last Name */}
               <div>
-                <label className={INPUT_LABEL}>
-                  Last Name
-                </label>
-
-                <input
-                  required
-                  type="text"
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                  placeholder="Ahmad"
-                  className={INPUT_FIELD}
-                />
+                <label className={INPUT_LABEL}>Last Name</label>
+                <input required type="text" name="last_name" value={formData.last_name} onChange={handleChange} placeholder="Ahmad" className={INPUT_FIELD} />
               </div>
 
-              {/* Email */}
               <div>
-                <label className={INPUT_LABEL}>
-                  Email Address
-                </label>
-
-                <input
-                  required
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="ali@example.com"
-                  className={INPUT_FIELD}
-                />
+                <label className={INPUT_LABEL}>Email Address</label>
+                <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="ali@example.com" className={INPUT_FIELD} />
               </div>
 
-              {/* Phone */}
               <div>
-                <label className={INPUT_LABEL}>
-                  Phone Number
-                </label>
-
-                <input
-                  required
-                  type="tel"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="0123456789"
-                  className={INPUT_FIELD}
-                />
+                <label className={INPUT_LABEL}>Phone Number</label>
+                <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="0123456789" className={INPUT_FIELD} />
               </div>
-
             </div>
           </section>
 
@@ -126,58 +98,20 @@ const RegisterCustomer: React.FC = () => {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-
-              {/* Country */}
               <div>
-                <label className={INPUT_LABEL}>
-                  Country
-                </label>
-
-                <input
-                  required
-                  type="text"
-                  name="country"
-                  value={formData.country}
-                  onChange={handleChange}
-                  placeholder="Malaysia"
-                  className={INPUT_FIELD}
-                />
+                <label className={INPUT_LABEL}>Country</label>
+                <input required type="text" name="country" value={formData.country} onChange={handleChange} placeholder="Malaysia" className={INPUT_FIELD} />
               </div>
 
-              {/* State */}
               <div>
-                <label className={INPUT_LABEL}>
-                  State
-                </label>
-
-                <input
-                  required
-                  type="text"
-                  name="state"
-                  value={formData.state}
-                  onChange={handleChange}
-                  placeholder="Selangor"
-                  className={INPUT_FIELD}
-                />
+                <label className={INPUT_LABEL}>State</label>
+                <input required type="text" name="state" value={formData.state} onChange={handleChange} placeholder="Selangor" className={INPUT_FIELD} />
               </div>
 
-              {/* Postcode */}
               <div>
-                <label className={INPUT_LABEL}>
-                  Postcode
-                </label>
-
-                <input
-                  required
-                  type="text"
-                  name="postcode"
-                  value={formData.postcode}
-                  onChange={handleChange}
-                  placeholder="40000"
-                  className={INPUT_FIELD}
-                />
+                <label className={INPUT_LABEL}>Postcode</label>
+                <input required type="text" name="postcode" value={formData.postcode} onChange={handleChange} placeholder="40000" className={INPUT_FIELD} />
               </div>
-
             </div>
           </section>
 
@@ -212,6 +146,13 @@ const RegisterCustomer: React.FC = () => {
                 </span>
               </label>
 
+               {/* Error */}
+          {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 font-medium text-sm">
+              {error}
+            </div>
+          )}
+
               <button 
                 type="submit" 
                 disabled={loading}
@@ -224,10 +165,14 @@ const RegisterCustomer: React.FC = () => {
 
         </form>
       </div>
+
+      <SuccessModal 
+        isOpen={showSuccessModal} 
+        message="Welcome to OccuSync. Your customer account has been created successfully. You can now login to get started."
+      />
+
     </div>
   );
 };
 
 export default RegisterCustomer;
-
-

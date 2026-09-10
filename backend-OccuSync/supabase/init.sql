@@ -1,5 +1,4 @@
 
-
 CREATE SEQUENCE customer_id_seq START 1;
 CREATE SEQUENCE business_id_seq START 1;
 CREATE SEQUENCE member_id_seq START 1;
@@ -15,8 +14,7 @@ CREATE TABLE users (
     role VARCHAR(30) NOT NULL CHECK (
         role IN (
             'CUSTOMER',
-            'BUSINESS_OWNER',
-            'STAFF',
+            'SERVICE_PROVIDER',
             'ADMIN'
         )
     ),
@@ -24,7 +22,6 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 
 CREATE TABLE customer_profiles (
@@ -46,8 +43,6 @@ CREATE TABLE customer_profiles (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-
 
 
 CREATE TABLE businesses (
@@ -85,7 +80,12 @@ CREATE TABLE business_members (
     business_id VARCHAR(20) NOT NULL
         REFERENCES businesses(id) ON DELETE CASCADE,
 
-    role VARCHAR(30) NOT NULL DEFAULT 'OWNER',
+    role VARCHAR(30) NOT NULL DEFAULT 'STAFF' CHECK (
+        role IN (
+            'OWNER',
+            'STAFF'
+        )
+    ),
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
@@ -93,8 +93,203 @@ CREATE TABLE business_members (
 );
 
 
-CREATE INDEX idx_business_members_user
-ON business_members(user_id);
 
-CREATE INDEX idx_business_members_business
-ON business_members(business_id);
+CREATE TABLE services (
+    id SERIAL PRIMARY KEY,
+
+    business_id VARCHAR(20) NOT NULL
+        REFERENCES businesses(id) ON DELETE CASCADE,
+
+    name VARCHAR(255) NOT NULL,
+
+    description TEXT,
+
+    base_price NUMERIC(10,2) NOT NULL
+        CHECK (base_price >= 0),
+
+    estimated_duration INTEGER NOT NULL
+        CHECK (estimated_duration > 0),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+CREATE TABLE staff_skills (
+    id SERIAL PRIMARY KEY,
+
+    member_id VARCHAR(20) NOT NULL
+        REFERENCES business_members(id) ON DELETE CASCADE,
+
+    service_id INTEGER NOT NULL
+        REFERENCES services(id) ON DELETE CASCADE,
+
+    proficiency VARCHAR(50),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE (member_id, service_id)
+);
+
+
+
+CREATE TABLE jobs (
+    id SERIAL PRIMARY KEY,
+
+    business_id VARCHAR(20) NOT NULL
+        REFERENCES businesses(id) ON DELETE CASCADE,
+
+    customer_id VARCHAR(20) NOT NULL
+        REFERENCES customer_profiles(id) ON DELETE CASCADE,
+
+    service_id INTEGER NOT NULL
+        REFERENCES services(id) ON DELETE RESTRICT,
+
+    assigned_member_id VARCHAR(20)
+        REFERENCES business_members(id) ON DELETE SET NULL,
+
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING' CHECK (
+        status IN (
+            'PENDING',
+            'CONFIRMED',
+            'ASSIGNED',
+            'IN_PROGRESS',
+            'COMPLETED',
+            'CANCELLED'
+        )
+    ),
+
+    scheduled_start TIMESTAMP NOT NULL,
+
+    scheduled_end TIMESTAMP,
+
+    notes TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CHECK (
+        scheduled_end IS NULL
+        OR scheduled_end > scheduled_start
+    )
+);
+
+CREATE TABLE job_logs (
+    id SERIAL PRIMARY KEY,
+
+    job_id INTEGER NOT NULL
+        REFERENCES jobs(id) ON DELETE CASCADE,
+
+    user_id INTEGER NOT NULL
+        REFERENCES users(id) ON DELETE CASCADE,
+
+    notes TEXT,
+
+    photo_url TEXT,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE invoices (
+    id SERIAL PRIMARY KEY,
+
+    business_id VARCHAR(20) NOT NULL
+        REFERENCES businesses(id) ON DELETE CASCADE,
+
+    job_id INTEGER UNIQUE NOT NULL
+        REFERENCES jobs(id) ON DELETE CASCADE,
+
+    status VARCHAR(30) NOT NULL DEFAULT 'DRAFT' CHECK (
+        status IN (
+            'DRAFT',
+            'ISSUED',
+            'PAID',
+            'OVERDUE',
+            'CANCELLED'
+        )
+    ),
+
+    issue_date DATE NOT NULL DEFAULT CURRENT_DATE,
+
+    due_date DATE NOT NULL,
+
+    total_amount NUMERIC(10,2) NOT NULL
+        CHECK (total_amount >= 0),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CHECK (due_date >= issue_date)
+);
+
+
+CREATE TABLE invoice_items (
+    id SERIAL PRIMARY KEY,
+
+    invoice_id INTEGER NOT NULL
+        REFERENCES invoices(id) ON DELETE CASCADE,
+
+    description VARCHAR(255) NOT NULL,
+
+    unit_price NUMERIC(10,2) NOT NULL
+        CHECK (unit_price >= 0),
+
+    quantity INTEGER NOT NULL
+        CHECK (quantity > 0),
+
+    subtotal NUMERIC(10,2) NOT NULL
+        CHECK (subtotal >= 0)
+);
+
+
+CREATE TABLE payments (
+    id SERIAL PRIMARY KEY,
+
+    invoice_id INTEGER NOT NULL
+        REFERENCES invoices(id) ON DELETE CASCADE,
+
+    amount NUMERIC(10,2) NOT NULL
+        CHECK (amount > 0),
+
+    method VARCHAR(30) NOT NULL CHECK (
+        method IN (
+            'CASH',
+            'CARD',
+            'ONLINE_BANKING',
+            'E_WALLET'
+        )
+    ),
+
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING' CHECK (
+        status IN (
+            'PENDING',
+            'COMPLETED',
+            'FAILED',
+            'REFUNDED'
+        )
+    ),
+
+    reference VARCHAR(255),
+
+    paid_at TIMESTAMP,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE notifications (
+    id SERIAL PRIMARY KEY,
+
+    user_id INTEGER NOT NULL
+        REFERENCES users(id) ON DELETE CASCADE,
+
+    type VARCHAR(50) NOT NULL,
+
+    message TEXT NOT NULL,
+
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

@@ -1,5 +1,5 @@
-import  { useState,  } from 'react';
-import type {ChangeEvent, FormEvent} from 'react'
+import { useState } from 'react';
+import type { ChangeEvent, FormEvent } from 'react';
 import { registerBusiness } from '../services/authService';
 import type { BusinessRegistrationPayload } from '../types/authType';
 
@@ -33,18 +33,21 @@ export const useRegisterBusiForm = () => {
     }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent): Promise<boolean> => {
     e.preventDefault();
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      return setError('Passwords do not match.');
+      setError('Passwords do not match.');
+      return false;
     }
     if (formData.password.length < 8) {
-      return setError('Password must be at least 8 characters.'); 
+      setError('Password must be at least 8 characters.'); 
+      return false;
     }
     if (!formData.termsAgreed) {
-      return setError('You must agree to the Terms & Conditions.');
+      setError('You must agree to the Terms & Conditions.');
+      return false;
     }
 
     const payload: BusinessRegistrationPayload = {
@@ -70,10 +73,10 @@ export const useRegisterBusiForm = () => {
     try {
       setLoading(true);
       await registerBusiness(payload);
-      alert('Business registered successfully!');
-      // TODO: Redirect user to login page
+      return true;
     } catch (err: any) {
       setError(err.message);
+      return false;
     } finally {
       setLoading(false);
     }

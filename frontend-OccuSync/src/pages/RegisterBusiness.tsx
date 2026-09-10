@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { useRegisterBusiForm } from '../hooks/useRegisterBusi';
+import SuccessModal from '../components/SuccessModal';
 
 const INPUT_LABEL = "block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 ml-1";
 const INPUT_FIELD = "w-full py-3 px-4 rounded-xl bg-gray-50 border border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#1a0bba] focus:border-transparent transition-all shadow-sm";
@@ -11,10 +13,31 @@ const RegisterBusiness: React.FC = () => {
   // State for toggling password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const isSuccess = await handleSubmit(e);
+    
+    if (isSuccess) {
+      setShowSuccessModal(true);
+    }
+  };
 
   return (
-    <div className="min-h-screen relative flex justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-[850px] w-full z-10 bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+    <div className="min-h-screen relative flex justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-white via-[#091540]/100 to-[#7692FF]/100">
+      
+      {/* Top Left Sticky Back to Home Button */}
+      <div className="fixed top-6 left-6 sm:top-8 sm:left-8 z-40">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#1a0bba] bg-white/90 backdrop-blur-sm py-2 px-4 rounded-full shadow-sm border border-gray-200 transition-all hover:shadow-md"
+        >
+          <span className="text-lg leading-none">&larr;</span> Back to Home
+        </Link>
+      </div>
+
+      <div className="max-w-[850px] w-full z-10 bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mt-12 md:mt-0">
         
         <div className="bg-gray-50/50 border-b border-gray-100 px-8 py-10 md:px-12">
           <h1 className="text-4xl font-extrabold text-[#1a0bba] tracking-tight mb-3">
@@ -25,8 +48,10 @@ const RegisterBusiness: React.FC = () => {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-8 py-10 md:px-12 space-y-10">
+        <form onSubmit={handleFormSubmit} className="px-8 py-10 md:px-12 space-y-10">
           
+         
+
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-5 border-b pb-2">Company Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -166,6 +191,12 @@ const RegisterBusiness: React.FC = () => {
                 </span>
               </label>
 
+               {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 font-medium text-sm">
+              {error}
+            </div>
+          )}
+
               <button 
                 type="submit" 
                 disabled={loading}
@@ -174,10 +205,20 @@ const RegisterBusiness: React.FC = () => {
                 {loading ? 'Submitting...' : 'Submit for Verification'}
               </button>
             </div>
+            
           </section>
+
+          
 
         </form>
       </div>
+
+      <SuccessModal 
+        isOpen={showSuccessModal} 
+        title="Business Registered!"
+        message="Welcome to OccuSync. Your business account has been submitted successfully. You can now login to access your workspace."
+      />
+
     </div>
   );
 };

@@ -1,48 +1,46 @@
+// hooks/useDashboardData.ts
 import { useState, useEffect } from 'react';
-
-// Define Types matching your backend SQL tables
-export interface CustomerProfile {
-  id: string;
-  first_name: string;
-  last_name: string;
-}
-
-export interface Business {
-  id: string;
-  name: string;
-  industry: string;
-  area_of_service: string;
-}
+import { 
+  getCustomerDashboard, 
+  getCustomerServices, 
+  getCustomerOrders,
+  getCustomerNotifications
+} from '../services/customerService';
+import type { 
+  CustomerProfile, 
+  ServiceListing, 
+  OrderResponse,
+  NotificationResponse
+} from '../types/customerType';
 
 export function useDashboardData() {
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
-  const [services, setServices] = useState<Business[]>([]);
+  const [services, setServices] = useState<ServiceListing[]>([]);
+  const [orders, setOrders] = useState<OrderResponse[]>([]);
+  const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
+      setIsLoading(true);
       try {
-        // ---------------------------------------------------------
-        // PLACEHOLDER: Replace these with your actual backend API calls
-        // Example: const profileRes = await axios.get('/api/profile');
-        // Example: const businessRes = await axios.get('/api/businesses');
-        // ---------------------------------------------------------
-        
-        // Simulating data fetched from the customer_profiles table
-        setProfile({
-          id: 'CUST001',
-          first_name: 'Haziq',
-          last_name: 'Amani'
-        });
-
-        // Simulating data fetched from the businesses table
-        setServices([
-          { id: 'BUS001', name: 'CoolPro Services', industry: 'Aircond Repair', area_of_service: 'Klang, Selangor' },
-          { id: 'BUS002', name: 'Anak Cerdik', industry: 'Mathematic Class', area_of_service: 'Online' }
+        // Fetch all required data concurrently 
+        const [dashboardData, servicesData, ordersData, notificationsData] = await Promise.all([
+          getCustomerDashboard(),
+          getCustomerServices(),
+          getCustomerOrders(),
+          getCustomerNotifications()
         ]);
 
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
+        setProfile(dashboardData.profile);
+        setServices(servicesData);
+        setOrders(ordersData);
+        setNotifications(notificationsData);
+
+      } catch (err: any) {
+        console.error("Failed to fetch dashboard data:", err);
+        setError(err.response?.data?.message || 'Failed to load dashboard data');
       } finally {
         setIsLoading(false);
       }
@@ -51,5 +49,5 @@ export function useDashboardData() {
     fetchDashboardData();
   }, []);
 
-  return { profile, services, isLoading };
+  return { profile, services, orders, notifications, isLoading, error };
 }

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import { useRegisterBusiForm } from '../hooks/useRegisterBusi';
 
 const INPUT_LABEL = "block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-1.5 ml-1";
@@ -6,6 +7,10 @@ const INPUT_FIELD = "w-full py-3 px-4 rounded-xl bg-gray-50 border border-gray-2
 
 const RegisterBusiness: React.FC = () => {
   const { formData, error, loading, handleChange, handleSubmit } = useRegisterBusiForm();
+  
+  // State for toggling password visibility
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
     <div className="min-h-screen relative flex justify-center items-center py-12 px-4 sm:px-6 lg:px-8">
@@ -22,12 +27,6 @@ const RegisterBusiness: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="px-8 py-10 md:px-12 space-y-10">
           
-          {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 font-medium text-sm">
-              {error}
-            </div>
-          )}
-
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-5 border-b pb-2">Company Details</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -96,16 +95,61 @@ const RegisterBusiness: React.FC = () => {
             <h2 className="text-lg font-bold text-gray-900 mb-5">Security</h2>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+               {/* Password Field with Eye Toggle */}
                <div>
                   <label className={INPUT_LABEL}>Password</label>
-                  <input required type="password" name="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className={INPUT_FIELD} />
+                  <div className="relative">
+                    <input 
+                      required 
+                      type={showPassword ? 'text' : 'password'} 
+                      name="password" 
+                      value={formData.password} 
+                      onChange={handleChange} 
+                      placeholder="••••••••" 
+                      className={`${INPUT_FIELD} pr-11`} 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition"
+                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                </div>
+
+               {/* Confirm Password Field with Eye Toggle */}
                <div>
                   <label className={INPUT_LABEL}>Confirm Password</label>
-                  <input required type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} placeholder="••••••••" className={INPUT_FIELD} />
+                  <div className="relative">
+                    <input 
+                      required 
+                      type={showConfirmPassword ? 'text' : 'password'} 
+                      name="confirmPassword" 
+                      value={formData.confirmPassword} 
+                      onChange={handleChange} 
+                      placeholder="••••••••" 
+                      className={`${INPUT_FIELD} pr-11`} 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition"
+                      aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
+                  </div>
                </div>
             </div>
 
+            {error && (
+            <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 font-medium text-sm">
+              {error}
+            </div>
+          )}
+          <br />
             <div className="flex flex-col items-center space-y-6">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <div className="relative flex items-center justify-center">

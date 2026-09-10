@@ -1,0 +1,741 @@
+const pool = require('../config/db');
+
+
+// =====================================================
+// DASHBOARD
+// =====================================================
+
+exports.getBusinessDashboard = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Find the business belonging to the logged-in user
+    const businessResult = await pool.query(
+      `SELECT
+        businesses.id,
+        businesses.name,
+        businesses.industry
+       FROM businesses
+       JOIN business_members
+         ON businesses.id = business_members.business_id
+       WHERE business_members.user_id = $1
+       LIMIT 1`,
+      [userId]
+    );
+
+    if (businessResult.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Business not found'
+      });
+    }
+
+    const business = businessResult.rows[0];
+    const businessId = business.id;
+
+
+    // Active orders
+    const activeOrdersResult = await pool.query(
+      `SELECT COUNT(*) AS count
+       FROM jobs
+       WHERE business_id = $1
+       AND status IN (
+         'PENDING',
+         'CONFIRMED',
+         'ASSIGNED',
+         'IN_PROGRESS'
+       )`,
+      [businessId]
+    );
+
+
+    // Pending orders
+    const pendingOrdersResult = await pool.query(
+      `SELECT COUNT(*) AS count
+       FROM jobs
+       WHERE business_id = $1
+       AND status = 'PENDING'`,
+      [businessId]
+    );
+
+
+    // Completed orders this month
+    const completedOrdersResult = await pool.query(
+      `SELECT COUNT(*) AS count
+       FROM jobs
+       WHERE business_id = $1
+       AND status = 'COMPLETED'
+       AND scheduled_start >= DATE_TRUNC('month', CURRENT_DATE)
+       AND scheduled_start < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'`,
+      [businessId]
+    );
+
+
+    // Monthly revenue
+    const revenueResult = await pool.query(
+      `SELECT COALESCE(SUM(payments.amount), 0) AS revenue
+       FROM payments
+       JOIN invoices
+         ON payments.invoice_id = invoices.id
+       JOIN jobs
+         ON invoices.job_id = jobs.id
+       WHERE jobs.business_id = $1
+       AND payments.status = 'COMPLETED'
+       AND payments.paid_at >= DATE_TRUNC('month', CURRENT_DATE)
+       AND payments.paid_at < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'`,
+      [businessId]
+    );
+
+
+    // Recent active orders
+    const activeOrdersListResult = await pool.query(
+      `SELECT
+        jobs.id,
+        services.name AS service_name,
+        customer_profiles.first_name,
+        customer_profiles.last_name,
+        jobs.status,
+        jobs.scheduled_start,
+        jobs.scheduled_end
+       FROM jobs
+       JOIN services
+         ON jobs.service_id = services.id
+       JOIN customer_profiles
+         ON jobs.customer_id = customer_profiles.id
+       WHERE jobs.business_id = $1
+       AND jobs.status IN (
+         'PENDING',
+         'CONFIRMED',
+         'ASSIGNED',
+         'IN_PROGRESS'
+       )
+       ORDER BY jobs.scheduled_start ASC
+       LIMIT 5`,
+      [businessId]
+    );
+
+
+    return res.json({
+      business: {
+        id: business.id,
+        name: business.name,
+        industry: business.industry
+      },
+
+      metrics: {
+        active_orders: Number(activeOrdersResult.rows[0].count),
+        pending_orders: Number(pendingOrdersResult.rows[0].count),
+        completed_orders_this_month:
+          Number(completedOrdersResult.rows[0].count),
+        monthly_revenue:
+          Number(revenueResult.rows[0].revenue)
+      },
+
+      active_orders: activeOrdersListResult.rows
+
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// =====================================================
+// LISTINGS
+// =====================================================
+
+exports.getBusinessListings = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const search = req.query.search || '';
+
+
+    const result = await pool.query(
+      `SELECT
+        services.id,
+        services.name,
+        services.description,
+        services.base_price,
+        services.estimated_duration,
+
+        (
+          SELECT COUNT(*)
+          FROM jobs
+          WHERE jobs.service_id = services.id
+        ) AS booking_count
+
+       FROM services
+
+       JOIN businesses
+         ON services.business_id = businesses.id
+
+       JOIN business_members
+         ON businesses.id = business_members.business_id
+
+       WHERE business_members.user_id = $1
+       AND (
+         services.name ILIKE $2
+         OR services.description ILIKE $2
+       )
+
+       ORDER BY services.name ASC`,
+      [userId, `%${search}%`]
+    );
+
+
+    return res.json({
+      total_listings: result.rows.length,
+
+      // Your current schema does not have an active/inactive
+      // column, so all existing listings are treated as active.
+      active_listings: result.rows.length,
+
+      listings: result.rows
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.getBusinessListing = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const listingId = req.params.id;
+
+
+    const result = await pool.query(
+      `SELECT
+        services.id,
+        services.name,
+        services.description,
+        services.base_price,
+        services.estimated_duration,
+
+        (
+          SELECT COUNT(*)
+          FROM jobs
+          WHERE jobs.service_id = services.id
+        ) AS booking_count
+
+       FROM services
+
+       JOIN businesses
+         ON services.business_id = businesses.id
+
+       JOIN business_members
+         ON businesses.id = business_members.business_id
+
+       WHERE services.id = $1
+       AND business_members.user_id = $2`,
+      [listingId, userId]
+    );
+
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Listing not found'
+      });
+    }
+
+
+    return res.json(result.rows[0]);
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.createBusinessListing = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const {
+      name,
+      description,
+      base_price,
+      estimated_duration
+    } = req.body;
+
+
+    if (
+      !name ||
+      base_price === undefined ||
+      !estimated_duration
+    ) {
+      return res.status(400).json({
+        message: 'name, base_price and estimated_duration are required'
+      });
+    }
+
+
+    // Find the business
+    const businessResult = await pool.query(
+      `SELECT business_id
+       FROM business_members
+       WHERE user_id = $1
+       LIMIT 1`,
+      [userId]
+    );
+
+
+    if (businessResult.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Business not found'
+      });
+    }
+
+
+    const businessId = businessResult.rows[0].business_id;
+
+
+    const result = await pool.query(
+      `INSERT INTO services
+        (
+          business_id,
+          name,
+          description,
+          base_price,
+          estimated_duration
+        )
+       VALUES
+        ($1, $2, $3, $4, $5)
+       RETURNING
+        id,
+        business_id,
+        name,
+        description,
+        base_price,
+        estimated_duration,
+        created_at`,
+      [
+        businessId,
+        name.trim(),
+        description ? description.trim() : null,
+        base_price,
+        estimated_duration
+      ]
+    );
+
+
+    return res.status(201).json({
+      message: 'Listing created successfully',
+      listing: result.rows[0]
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.updateBusinessListing = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const listingId = req.params.id;
+
+    const {
+      name,
+      description,
+      base_price,
+      estimated_duration
+    } = req.body;
+
+
+    const result = await pool.query(
+      `UPDATE services
+       SET
+         name = COALESCE($1, name),
+         description = COALESCE($2, description),
+         base_price = COALESCE($3, base_price),
+         estimated_duration = COALESCE($4, estimated_duration),
+         updated_at = CURRENT_TIMESTAMP
+       WHERE id = $5
+       AND business_id = (
+         SELECT business_id
+         FROM business_members
+         WHERE user_id = $6
+         LIMIT 1
+       )
+       RETURNING
+         id,
+         business_id,
+         name,
+         description,
+         base_price,
+         estimated_duration,
+         updated_at`,
+      [
+        name ? name.trim() : null,
+        description !== undefined
+          ? (description ? description.trim() : null)
+          : null,
+        base_price !== undefined ? base_price : null,
+        estimated_duration !== undefined
+          ? estimated_duration
+          : null,
+        listingId,
+        userId
+      ]
+    );
+
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Listing not found'
+      });
+    }
+
+
+    return res.json({
+      message: 'Listing updated successfully',
+      listing: result.rows[0]
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.deleteBusinessListing = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const listingId = req.params.id;
+
+
+    const result = await pool.query(
+      `DELETE FROM services
+       WHERE id = $1
+       AND business_id = (
+         SELECT business_id
+         FROM business_members
+         WHERE user_id = $2
+         LIMIT 1
+       )
+       RETURNING id, name`,
+      [listingId, userId]
+    );
+
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Listing not found'
+      });
+    }
+
+
+    return res.json({
+      message: 'Listing deleted successfully',
+      listing: result.rows[0]
+    });
+
+  } catch (error) {
+
+    // A service cannot be deleted if existing jobs
+    // still reference it because of ON DELETE RESTRICT.
+    if (error.code === '23503') {
+      return res.status(409).json({
+        message: 'This listing cannot be deleted because it is linked to existing orders'
+      });
+    }
+
+    next(error);
+  }
+};
+
+
+// =====================================================
+// CUSTOMER ORDERS
+// =====================================================
+
+exports.getBusinessOrders = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const status = req.query.status;
+
+
+    let query = `
+      SELECT
+        jobs.id,
+        services.id AS service_id,
+        services.name AS service_name,
+
+        customer_profiles.id AS customer_id,
+        customer_profiles.first_name,
+        customer_profiles.last_name,
+        customer_profiles.phone,
+
+        jobs.status,
+        jobs.scheduled_start,
+        jobs.scheduled_end,
+        jobs.notes,
+
+        services.base_price
+
+      FROM jobs
+
+      JOIN services
+        ON jobs.service_id = services.id
+
+      JOIN customer_profiles
+        ON jobs.customer_id = customer_profiles.id
+
+      WHERE jobs.business_id = (
+        SELECT business_id
+        FROM business_members
+        WHERE user_id = $1
+        LIMIT 1
+      )
+    `;
+
+    const values = [userId];
+
+
+    if (status) {
+      query += ` AND jobs.status = $2`;
+      values.push(status);
+    }
+
+
+    query += `
+      ORDER BY jobs.scheduled_start DESC
+    `;
+
+
+    const result = await pool.query(query, values);
+
+
+    return res.json(result.rows);
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.getBusinessOrder = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+
+
+    const result = await pool.query(
+      `SELECT
+        jobs.id,
+
+        services.id AS service_id,
+        services.name AS service_name,
+        services.description AS service_description,
+        services.base_price,
+
+        customer_profiles.id AS customer_id,
+        customer_profiles.first_name,
+        customer_profiles.last_name,
+        customer_profiles.phone,
+
+        jobs.status,
+        jobs.scheduled_start,
+        jobs.scheduled_end,
+        jobs.notes,
+
+        business_members.id AS assigned_member_id,
+        business_members.role AS assigned_member_role
+
+       FROM jobs
+
+       JOIN services
+         ON jobs.service_id = services.id
+
+       JOIN customer_profiles
+         ON jobs.customer_id = customer_profiles.id
+
+       LEFT JOIN business_members
+         ON jobs.assigned_member_id = business_members.id
+
+       WHERE jobs.id = $1
+       AND jobs.business_id = (
+         SELECT business_id
+         FROM business_members
+         WHERE user_id = $2
+         LIMIT 1
+       )`,
+      [orderId, userId]
+    );
+
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Order not found'
+      });
+    }
+
+
+    return res.json(result.rows[0]);
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.updateBusinessOrderStatus = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+
+    const allowedStatuses = [
+      'PENDING',
+      'CONFIRMED',
+      'ASSIGNED',
+      'IN_PROGRESS',
+      'COMPLETED',
+      'CANCELLED'
+    ];
+
+
+    if (!status || !allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: 'Invalid order status'
+      });
+    }
+
+
+    const result = await pool.query(
+      `UPDATE jobs
+       SET
+         status = $1,
+         updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       AND business_id = (
+         SELECT business_id
+         FROM business_members
+         WHERE user_id = $3
+         LIMIT 1
+       )
+       RETURNING
+         id,
+         status,
+         scheduled_start,
+         scheduled_end,
+         notes,
+         updated_at`,
+      [status, orderId, userId]
+    );
+
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Order not found'
+      });
+    }
+
+
+    return res.json({
+      message: 'Order status updated successfully',
+      order: result.rows[0]
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// =====================================================
+// NOTIFICATIONS
+// =====================================================
+
+exports.getBusinessNotifications = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+
+    const result = await pool.query(
+      `SELECT
+        id,
+        type,
+        message,
+        is_read,
+        created_at
+       FROM notifications
+       WHERE user_id = $1
+       ORDER BY created_at DESC`,
+      [userId]
+    );
+
+
+    return res.json(result.rows);
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.markBusinessNotificationAsRead = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const notificationId = req.params.id;
+
+
+    const result = await pool.query(
+      `UPDATE notifications
+       SET is_read = TRUE
+       WHERE id = $1
+       AND user_id = $2
+       RETURNING
+         id,
+         type,
+         message,
+         is_read,
+         created_at`,
+      [notificationId, userId]
+    );
+
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Notification not found'
+      });
+    }
+
+
+    return res.json({
+      message: 'Notification marked as read',
+      notification: result.rows[0]
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+exports.markAllBusinessNotificationsAsRead = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+
+    const result = await pool.query(
+      `UPDATE notifications
+       SET is_read = TRUE
+       WHERE user_id = $1
+       AND is_read = FALSE`,
+      [userId]
+    );
+
+
+    return res.json({
+      message: 'All notifications marked as read',
+      updated_count: result.rowCount
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};

@@ -135,6 +135,16 @@ const Login = () => {
                     </Link>
                 </p>
 
+                {/* Back to Home Button */}
+                <div className="mt-4 text-center">
+                    <Link 
+                        to="/" 
+                        className="inline-flex items-center justify-center text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
+                    >
+                        &larr; Back to Home
+                    </Link>
+                </div>
+
             </div>
         </div>
     );

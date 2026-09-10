@@ -29,20 +29,23 @@ export const useRegisterCustForm = () => {
     }));
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent): Promise<boolean> => {
     e.preventDefault();
     setError('');
 
     if (formData.password !== formData.confirmPassword) {
-      return setError('Passwords do not match.');
+      setError('Passwords do not match.');
+      return false;
     }
 
     if (formData.password.length < 8) {
-      return setError('Password must be at least 8 characters.');
+      setError('Password must be at least 8 characters.');
+      return false;
     }
 
     if (!formData.termsAgreed) {
-      return setError('You must agree to the Terms & Conditions.');
+      setError('You must agree to the Terms & Conditions.');
+      return false;
     }
 
     const payload: CustomerRegistrationPayload = {
@@ -61,7 +64,8 @@ export const useRegisterCustForm = () => {
 
       await registerCustomer(payload);
 
-      alert('Account registered successfully!');
+      // Return true to trigger the success modal in the component
+      return true;
 
     } catch (err: any) {
       setError(
@@ -69,6 +73,7 @@ export const useRegisterCustForm = () => {
         err.message ||
         'Registration failed. Please try again.'
       );
+      return false;
     } finally {
       setLoading(false);
     }

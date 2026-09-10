@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { X, Eye, EyeOff, Building2, User, ArrowLeft } from 'lucide-react';
+import { X, Eye, EyeOff } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLogin } from '../hooks/useLogin';
+import SelectProfileModal from '../components/authentication/SelectProfileModal';
 
 type ViewMode = 'login' | 'select-profile';
 
@@ -35,21 +36,13 @@ const Login = () => {
     };
 
     return (
+        <>
+        {/* VIEW 1: LOGIN FORM */}
+        {viewMode === 'login' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
 
             {/* Main Single Card Container */}
             <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl p-8 transition-all duration-300">
-
-                {/* Back Button (Only visible on profile select) */}
-                {viewMode === 'select-profile' && (
-                    <button
-                        onClick={() => setViewMode('login')}
-                        className="absolute left-4 top-4 p-2 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-700 transition"
-                        aria-label="Back to login"
-                    >
-                        <ArrowLeft className="w-5 h-5" />
-                    </button>
-                )}
 
                 {/* Close Modal Button */}
                 <button
@@ -60,8 +53,6 @@ const Login = () => {
                     <X className="w-5 h-5" />
                 </button>
 
-                {/* VIEW 1: LOGIN FORM */}
-                {viewMode === 'login' && (
                     <div>
                         {/* Header */}
                         <div className="text-center mb-8">
@@ -160,71 +151,6 @@ const Login = () => {
                             </button>
                         </p>
                     </div>
-                )}
-
-                {/* VIEW 2: PROFILE SELECTION */}
-                {viewMode === 'select-profile' && (
-                    <div className="pt-2">
-                        <div className="text-center mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">
-                                Choose Profile Type
-                            </h2>
-                            <p className="text-gray-500 text-sm mt-1">
-                                Select how you would like to register with OccuSync
-                            </p>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-4">
-                            {/* Customer Option */}
-                            <Link
-                                to="/registerCustomer"
-                                className="group flex items-center gap-4 p-4 rounded-2xl border-2 border-gray-100 bg-gray-50/50 hover:bg-white hover:border-blue-600 hover:shadow-md transition-all"
-                            >
-                                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                    <User className="w-6 h-6" />
-                                </div>
-                                <div className="text-left">
-                                    <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                        Customer Account
-                                    </h3>
-                                    <p className="text-xs text-gray-500">
-                                        Book services and track requests
-                                    </p>
-                                </div>
-                            </Link>
-
-                            {/* Business Option */}
-                            <Link
-                                to="/registerBusiness"
-                                className="group flex items-center gap-4 p-4 rounded-2xl border-2 border-gray-100 bg-gray-50/50 hover:bg-white hover:border-blue-600 hover:shadow-md transition-all"
-                            >
-                                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                                    <Building2 className="w-6 h-6" />
-                                </div>
-                                <div className="text-left">
-                                    <h3 className="font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
-                                        Business Account
-                                    </h3>
-                                    <p className="text-xs text-gray-500">
-                                        Offer services and manage operations
-                                    </p>
-                                </div>
-                            </Link>
-                        </div>
-
-                        {/* Back Link */}
-                        <p className="text-center text-sm text-gray-500 mt-6">
-                            Already have an account?{' '}
-                            <button
-                                type="button"
-                                onClick={() => setViewMode('login')}
-                                className="text-blue-600 font-semibold hover:underline focus:outline-none"
-                            >
-                                Back to Login
-                            </button>
-                        </p>
-                    </div>
-                )}
 
                 {/* Back to Home Button */}
                 <div className="mt-4 text-center">
@@ -238,6 +164,14 @@ const Login = () => {
 
             </div>
         </div>
+        )}
+
+        {/* VIEW 2: PROFILE SELECTION (reuses the shared SelectProfileModal) */}
+        <SelectProfileModal
+            isOpen={viewMode === 'select-profile'}
+            onClose={() => setViewMode('login')}
+        />
+        </>
     );
 };
 

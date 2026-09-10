@@ -14,7 +14,7 @@ const SelectProfileModal: React.FC<SelectProfileModalProps> = ({ isOpen, onClose
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
       {/* Modal Container */}
       <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in zoom-in duration-200">
-        
+
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -36,7 +36,7 @@ const SelectProfileModal: React.FC<SelectProfileModalProps> = ({ isOpen, onClose
 
         {/* Selection Cards */}
         <div className="px-8 pb-8 pt-4 grid grid-cols-1 gap-4">
-          
+
           {/* Customer Option */}
           <Link
             to="/register/customer"
@@ -74,6 +74,15 @@ const SelectProfileModal: React.FC<SelectProfileModalProps> = ({ isOpen, onClose
               </p>
             </div>
           </Link>
+
+          <div className="mt-4 text-center">
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center text-sm font-medium text-gray-500 hover:text-gray-800 transition-colors"
+            >
+              &larr; Back to Home
+            </Link>
+          </div>
 
         </div>
       </div>

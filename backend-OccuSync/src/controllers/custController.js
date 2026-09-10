@@ -305,10 +305,11 @@ exports.createCustomerOrder = async (req, res, next) => {
 
 		const customerId = customerResult.rows[0].id;
 
-		// Get service and its business
+		// Get service and its business (Added 'name' to the SELECT statement)
 		const serviceResult = await pool.query(
 			`SELECT
         id,
+        name,
         business_id
        FROM services
        WHERE id = $1`,
@@ -357,6 +358,19 @@ exports.createCustomerOrder = async (req, res, next) => {
 			]
 		);
 
+		// NEW: Generate an automated notification for the customer
+		await pool.query(
+			`INSERT INTO notifications
+        (user_id, type, message, is_read)
+       VALUES
+        ($1, $2, $3, false)`,
+			[
+				userId,
+				'ORDER_UPDATE',
+				`Your service request for ${service.name} (Order #${jobResult.rows[0].id}) has been successfully placed and is pending confirmation.`
+			]
+		);
+
 		return res.status(201).json({
 			message: 'Order created successfully',
 			order: jobResult.rows[0]
@@ -386,7 +400,10 @@ exports.getCustomerNotifications = async (req, res, next) => {
       [userId]
     );
 
-    return res.json(result.rows);
+    return res.json({
+  count: result.rowCount,
+  notifications: result.rows
+});
 
   } catch (error) {
     next(error);

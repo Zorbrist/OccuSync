@@ -1,5 +1,5 @@
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Navbar from '../components/home_page/Navbar';
+import Footer from '../components/home_page/Footer';
 import { Target, ShieldCheck, Users, Zap, Sparkles } from 'lucide-react';
 
 export default function AboutUs({  }: { currentPage?: string; onNavigate?: (page: string) => void }) {

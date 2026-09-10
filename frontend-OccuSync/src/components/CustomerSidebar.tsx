@@ -5,7 +5,7 @@ import {
   ArrowLeftRight, Bookmark, Bell, HelpCircle, 
   Menu, LogOut 
 } from 'lucide-react';
-import LogoutModal from './LogoutModal';
+import LogoutModal from './authentication/LogoutModal';
 
 export default function CustomerSidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);

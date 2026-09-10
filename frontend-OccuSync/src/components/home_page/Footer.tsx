@@ -1,5 +1,4 @@
-import logo from '../assets/OccuSync.png';
-
+import logo from "../../assets/OccuSync.png";
 export default function Footer() {
   return (
     <footer className="bg-slate-950 text-slate-400 py-12 border-t border-slate-800 mt-auto">

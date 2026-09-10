@@ -1,11 +1,11 @@
-import Navbar from '../components/Navbar';
+import Navbar from '../components/home_page/Navbar';
 import Hero from '../components/home_page/Hero';
 import Metrics from '../components/home_page/Metrics';
 import Categories from '../components/home_page/Categories';
 import ServicesGrid from '../components/home_page/ServicesGrid';
 import DashboardPreview from '../components/home_page/DashboardPreview';
 import ContactUs from '../components/home_page/ContactUs';
-import Footer from '../components/Footer';
+import Footer from '../components/home_page/Footer';
 
 export default function Home() {
 

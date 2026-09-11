@@ -1,22 +1,24 @@
-// AdminLayout.tsx
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
-import AdminNavBar from '../../components/admin_components/admin_navbar';
+
+import { Outlet } from 'react-router-dom';
+import Sidebar from '../../components/SidebarTemplate';
+import { LayoutDashboard, UserCheck } from 'lucide-react';
+
+const NavItems = [
+  { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+  { name: 'User Management', path: '/admin/users', icon: UserCheck },
+
+];
 
 export default function AdminLayout() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // Map the current path to a nav key so AdminNavBar highlights correctly
-  const activeKey = location.pathname.split('/')[2] ?? 'dashboard';
-
   return (
     <div className="flex h-screen w-full font-sans bg-zinc-950 text-zinc-100">
-      <AdminNavBar
-        activeKey={activeKey}
-        onNavigate={(key) => navigate(`/admin/${key === 'dashboard' ? '' : key}`)}
-        onLogout={() => {/* clear auth, redirect */}}
+      <Sidebar
+        variant="admin"
+        navItems={NavItems}
       />
-      <Outlet />
+      <main className="flex-1 overflow-y-auto">
+        <Outlet />
+      </main>
     </div>
   );
 }

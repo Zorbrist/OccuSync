@@ -27,7 +27,7 @@ import NotificationsPage from './pages/Business/NotificationsPage';
 import MerchantSupportPage from './pages/Business/MerchantSupportPage';
 
 // Business Layout
-import Layout from './components/business_dashboard/Layout';
+import Layout from './components/business_dashboard/Business_Layout';
 
 // Import all Customer Pages
 import CustomerDashboard from "./pages/Customer/CustomerDashboard";

@@ -29,7 +29,7 @@ export default function Sidebar() {
   const navItems = [
     { name: 'Dashboard', path: '/business', icon: LayoutDashboard },
     { name: 'Listings', path: '/business/listings', icon: Briefcase },
-    { name: 'Quotations', path: '/business/quotations', icon: FileText },
+    // { name: 'Quotations', path: '/business/quotations', icon: FileText },
     { name: 'Customer Orders', path: '/business/orders', icon: ShoppingBag },
     { name: 'Notifications', path: '/business/notifications', icon: Bell },
   ];

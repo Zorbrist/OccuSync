@@ -1,4 +1,7 @@
-//Business Dashboard
+// ============================================================
+// BUSINESS DASHBOARD
+// ============================================================
+
 export interface BusinessDashboardResponse {
   business: BusinessDashboardInfo;
   metrics: BusinessMetrics;
@@ -28,9 +31,10 @@ export interface ActiveOrder {
   scheduled_end: string;
 }
 
-/* ========================= */
-/* BUSINESS LISTINGS */
-/* ========================= */
+
+// ============================================================
+// BUSINESS LISTINGS
+// ============================================================
 
 export interface BusinessListingsResponse {
   total_listings: number;
@@ -47,8 +51,9 @@ export interface BusinessListing {
   booking_count: string;
 }
 
+
 // ============================================================
-// LISTING - VIEW SERVICE DETAILS
+// LISTING DETAILS
 // ============================================================
 
 export interface BusinessListingDetails {
@@ -58,4 +63,88 @@ export interface BusinessListingDetails {
   base_price: string;
   estimated_duration: number;
   booking_count: string;
+}
+
+
+// ============================================================
+// CUSTOMER ORDERS
+// ============================================================
+
+export interface CustomerOrder {
+  id: number;
+  service_id: number;
+  service_name: string;
+
+  customer_id: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+
+  status: string;
+
+  scheduled_start: string;
+  scheduled_end: string;
+
+  notes: string | null;
+
+  base_price: string;
+}
+
+
+// ============================================================
+// CUSTOMER ORDER DETAILS
+// ============================================================
+
+export interface CustomerOrderDetails {
+  id: number;
+
+  service_id: number;
+  service_name: string;
+  service_description: string | null;
+  base_price: string;
+
+  customer_id: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+
+  status: string;
+
+  scheduled_start: string;
+  scheduled_end: string;
+
+  notes: string | null;
+
+  assigned_member_id: number | null;
+  assigned_member_role: string | null;
+}
+
+
+// ============================================================
+// UPDATE ORDER STATUS
+// ============================================================
+
+export interface UpdateOrderStatusResponse {
+  message: string;
+
+  order: {
+    id: number;
+    status: string;
+    scheduled_start: string;
+    scheduled_end: string;
+    notes: string | null;
+    updated_at: string;
+  };
+}
+
+// ============================================================
+// BUSINESS NOTIFICATIONS
+// ============================================================
+
+export interface BusinessNotification {
+  id: number;
+  type: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
 }

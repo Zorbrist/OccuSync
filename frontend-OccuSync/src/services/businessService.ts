@@ -1,55 +1,89 @@
-import axiosInstance from "../api/axiosInstance";
-import type { BusinessDashboardResponse } from "../types/businessTypes";
-import type { BusinessListingsResponse } from "../types/businessTypes";
+import axiosInstance from '../api/axiosInstance';
 
-//dashboard 
+// ============================================================
+// BUSINESS DASHBOARD
+// ============================================================
 
-export const getBusinessDashboard = async (): Promise<BusinessDashboardResponse> => {
-  try {
-    const token = window.localStorage.getItem('token');
-
-    const response = await axiosInstance.get('/business/dashboard', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const data: BusinessDashboardResponse = response.data;
-
-    console.log("Business dashboard response:", data);
-
-    return data;
-  } catch (error: any) {
-    throw new Error(
-      error.response?.data?.message ||
-      'Failed to fetch business dashboard. Please try again.'
-    );
-  }
+export const getBusinessDashboard = async () => {
+  const response = await axiosInstance.get('/business/dashboard');
+  return response.data;
 };
 
+// ============================================================
+// BUSINESS LISTINGS
+// ============================================================
 
-/* ========================= */
-/* BUSINESS LISTINGS */
-/* ========================= */
-
-export const getBusinessListings = async (): Promise<BusinessListingsResponse> => {
+export const getBusinessListings = async () => {
   const response = await axiosInstance.get('/business/listings');
+  return response.data;
+};
+
+// ============================================================
+// LISTING DETAILS
+// ============================================================
+
+export const getBusinessListingDetails = async (id: number) => {
+  const response = await axiosInstance.get(`/business/listings/${id}`);
+  return response.data;
+};
+
+// ============================================================
+// CUSTOMER ORDERS
+// ============================================================
+
+export const getBusinessOrders = async (status = '') => {
+  const response = await axiosInstance.get('/business/orders', {
+    params: status ? { status } : {},
+  });
 
   return response.data;
 };
 
 // ============================================================
-// LISTING - VIEW SERVICE DETAILS
-// ============================================================
-// Get details of one specific service using its ID.
-//
-// Example:
-// GET /business/listings/1
+// CUSTOMER ORDER DETAILS
 // ============================================================
 
-export const getBusinessListingDetails = async (id: number) => {
-  const response = await axiosInstance.get(
-    `/business/listings/${id}`
+export const getBusinessOrder = async (id: number) => {
+  const response = await axiosInstance.get(`/business/orders/${id}`);
+  return response.data;
+};
+
+// ============================================================
+// UPDATE CUSTOMER ORDER STATUS
+// ============================================================
+
+export const updateBusinessOrderStatus = async (
+  id: number,
+  status: string
+) => {
+  const response = await axiosInstance.put(
+    `/business/orders/${id}/status`,
+    { status }
+  );
+
+  return response.data;
+};
+
+// ============================================================
+// BUSINESS NOTIFICATIONS
+// ============================================================
+
+export const getBusinessNotifications = async () => {
+  const response = await axiosInstance.get('/business/notifications');
+  return response.data;
+};
+
+export const markBusinessNotificationAsRead = async (id: number) => {
+  const response = await axiosInstance.put(
+    `/business/notifications/${id}/read`
+  );
+
+  return response.data;
+};
+
+export const markAllBusinessNotificationsAsRead = async () => {
+  const response = await axiosInstance.put(
+    '/business/notifications/read-all'
   );
 
   return response.data;

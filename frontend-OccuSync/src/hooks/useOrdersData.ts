@@ -1,3 +1,4 @@
+// hooks/useOrdersData.ts
 import { useState, useEffect, useMemo } from 'react';
 import { getCustomerOrders } from '../services/customerService';
 import type { OrderResponse } from '../types/customerType';
@@ -7,11 +8,8 @@ export function useOrdersData() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Filtering states
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
-
-  // Modal states
   const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null);
 
   useEffect(() => {
@@ -28,10 +26,19 @@ export function useOrdersData() {
     fetchOrders();
   }, []);
 
-  // Define available statuses based on the backend API specifications
   const availableStatuses = ['ALL', 'PENDING', 'CONFIRMED', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED'];
 
-  // Apply search and filter
+  // Calculate counts for each status to power the tab indicators
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { ALL: orders.length };
+    availableStatuses.forEach(status => {
+      if (status !== 'ALL') {
+        counts[status] = orders.filter(o => o.status === status).length;
+      }
+    });
+    return counts;
+  }, [orders]);
+
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
       const orderIdStr = order.id.toString();
@@ -49,6 +56,7 @@ export function useOrdersData() {
   return {
     filteredOrders,
     availableStatuses,
+    statusCounts, // Expose the counts to the UI
     searchQuery,
     setSearchQuery,
     statusFilter,

@@ -7,17 +7,20 @@ import {
   getCustomerNotifications
 } from '../services/customerService';
 import type { 
-  CustomerProfile, 
+  CustomerSummary, // Ensure this was updated in customerType.ts
   ServiceListing, 
   OrderResponse,
   NotificationResponse
 } from '../types/customerType';
 
 export function useDashboardData() {
-  const [profile, setProfile] = useState<CustomerProfile | null>(null);
+  // Use 'customer' instead of 'profile'
+  const [customer, setCustomer] = useState<CustomerSummary | null>(null);
   const [services, setServices] = useState<ServiceListing[]>([]);
   const [orders, setOrders] = useState<OrderResponse[]>([]);
   const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
+  // Add state for unpaid invoices returned by the dashboard endpoint
+  const [unpaidInvoices, setUnpaidInvoices] = useState<any[]>([]); 
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -25,7 +28,6 @@ export function useDashboardData() {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        // Fetch all required data concurrently 
         const [dashboardData, servicesData, ordersData, notificationsData] = await Promise.all([
           getCustomerDashboard(),
           getCustomerServices(),
@@ -33,7 +35,10 @@ export function useDashboardData() {
           getCustomerNotifications()
         ]);
 
-        setProfile(dashboardData.profile);
+        // Map the backend response properly
+        setCustomer(dashboardData.customer); 
+        setUnpaidInvoices(dashboardData.unpaid_invoices || []);
+        
         setServices(servicesData);
         setOrders(ordersData);
         setNotifications(notificationsData);
@@ -49,5 +54,5 @@ export function useDashboardData() {
     fetchDashboardData();
   }, []);
 
-  return { profile, services, orders, notifications, isLoading, error };
+  return { customer, unpaidInvoices, services, orders, notifications, isLoading, error };
 }

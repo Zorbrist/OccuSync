@@ -19,4 +19,8 @@ router.post("/orders", custController.createCustomerOrder);
 router.get("/notifications", custController.getCustomerNotifications);
 router.put("/notifications/:id/read", custController.markNotificationAsRead);
 
+// INVOICES
+router.get("/invoices", custController.getCustomerInvoices);
+router.get("/invoices/:id", custController.getCustomerInvoice);
+
 module.exports = router;

@@ -37,6 +37,7 @@ import CustomerSave from "./pages/Customer/CustomerSave";
 import CustomerNotification from "./pages/Customer/CustomerNotification";
 
 import ProtectedRoute from "./routes/ProtetedRoutes";
+import ListingDetailsPage from './pages/Business/ListingDetailsPage';
 
 export default function App() {
   return (
@@ -56,6 +57,7 @@ export default function App() {
           <Route path="/business" element={<Layout />}>
             <Route index element={<BusinessPage />} />
             <Route path="listings" element={<ListingsPage />} />
+            <Route path="listings/:id" element={<ListingDetailsPage />} />
             <Route path="quotations" element={<QuotationsPage />} />
             <Route path="orders" element={<CustomerOrdersPage />} />
             <Route path="notifications" element={<NotificationsPage />} />

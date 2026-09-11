@@ -1,3 +1,6 @@
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import {
   Plus,
   Pencil,
@@ -6,49 +9,134 @@ import {
   MoreVertical,
 } from 'lucide-react';
 
+import { useBusinessListings } from '../../hooks/useBusinessData';
+
+
+
 export default function ListingsPage() {
 
-  const services = [
-    {
-      id: 1,
-      name: 'Aircond Repair',
-      category: 'Repair & Maintenance',
-      description: 'General air conditioning repair and troubleshooting.',
-      price: 'RM80 - RM250',
-      bookings: 24,
-      status: 'Active',
-    },
-    {
-      id: 2,
-      name: 'Chemical Cleaning',
-      category: 'Cleaning',
-      description: 'Deep chemical cleaning for residential air conditioners.',
-      price: 'RM120 - RM350',
-      bookings: 18,
-      status: 'Active',
-    },
-    {
-      id: 3,
-      name: 'Aircond Installation',
-      category: 'Installation',
-      description: 'Professional installation for new air conditioning units.',
-      price: 'RM250 - RM600',
-      bookings: 12,
-      status: 'Active',
-    },
-    {
-      id: 4,
-      name: 'Aircond Gas Refill',
-      category: 'Repair & Maintenance',
-      description: 'Air conditioning gas refill and pressure inspection.',
-      price: 'RM90 - RM180',
-      bookings: 9,
-      status: 'Inactive',
-    },
-  ];
+  /* ========================= */
+  /* HOOK */
+  /* ========================= */
+
+  const navigate = useNavigate();
+
+  const {
+    data,
+    loading,
+    error,
+    fetchBusinessListings,
+  } = useBusinessListings();
+
+
+  /* ========================= */
+  /* LOCAL UI STATE */
+  /* ========================= */
+
+  const [search, setSearch] = useState('');
+
+  const [statusFilter, setStatusFilter] =
+    useState('All Status');
+
+
+  /* ========================= */
+  /* FETCH LISTINGS */
+  /* ========================= */
+
+  useEffect(() => {
+
+    fetchBusinessListings();
+
+  }, []);
+
+
+  /* ========================= */
+  /* FILTER LISTINGS */
+  /* ========================= */
+
+  const filteredListings = useMemo(() => {
+
+    if (!data?.listings) {
+      return [];
+    }
+
+    return data.listings.filter((listing) => {
+
+      const matchesSearch =
+        listing.name
+          .toLowerCase()
+          .includes(search.toLowerCase()) ||
+
+        listing.description
+          .toLowerCase()
+          .includes(search.toLowerCase());
+
+
+      /*
+       * Your current backend response does not contain
+       * a status field.
+       *
+       * Therefore, status filtering cannot be fully
+       * implemented until the backend returns status.
+       */
+
+      const matchesStatus =
+        statusFilter === 'All Status';
+
+
+      return matchesSearch && matchesStatus;
+
+    });
+
+  }, [data, search, statusFilter]);
+
+
+  /* ========================= */
+  /* LOADING */
+  /* ========================= */
+
+  if (loading) {
+
+    return (
+      <div className="p-8">
+
+        <p className="text-slate-500">
+          Loading services...
+        </p>
+
+      </div>
+    );
+
+  }
+
+
+  /* ========================= */
+  /* ERROR */
+  /* ========================= */
+
+  if (error) {
+
+    return (
+      <div className="p-8">
+
+        <p className="text-red-600 font-semibold">
+          {error}
+        </p>
+
+      </div>
+    );
+
+  }
+
+
+  /* ========================= */
+  /* PAGE */
+  /* ========================= */
 
   return (
+
     <div className="p-8 space-y-8">
+
 
       {/* ========================= */}
       {/* HEADER */}
@@ -68,7 +156,10 @@ export default function ListingsPage() {
 
         </div>
 
-        <button className="flex items-center justify-center gap-2 bg-rose-950 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-rose-900 transition">
+
+        <button
+          className="flex items-center justify-center gap-2 bg-rose-950 text-white px-5 py-3 rounded-2xl font-semibold hover:bg-rose-900 transition"
+        >
 
           <Plus size={18} />
 
@@ -85,6 +176,9 @@ export default function ListingsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
 
+
+        {/* TOTAL LISTINGS */}
+
         <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
 
           <p className="text-xs uppercase font-bold tracking-wider text-slate-400">
@@ -92,7 +186,7 @@ export default function ListingsPage() {
           </p>
 
           <h2 className="text-3xl font-black text-rose-950 mt-2">
-            8
+            {data?.total_listings ?? 0}
           </h2>
 
           <p className="text-xs text-slate-400 mt-1">
@@ -102,6 +196,8 @@ export default function ListingsPage() {
         </div>
 
 
+        {/* ACTIVE LISTINGS */}
+
         <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
 
           <p className="text-xs uppercase font-bold tracking-wider text-slate-400">
@@ -109,7 +205,7 @@ export default function ListingsPage() {
           </p>
 
           <h2 className="text-3xl font-black text-green-600 mt-2">
-            7
+            {data?.active_listings ?? 0}
           </h2>
 
           <p className="text-xs text-slate-400 mt-1">
@@ -119,6 +215,8 @@ export default function ListingsPage() {
         </div>
 
 
+        {/* TOTAL BOOKINGS */}
+
         <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
 
           <p className="text-xs uppercase font-bold tracking-wider text-slate-400">
@@ -126,7 +224,13 @@ export default function ListingsPage() {
           </p>
 
           <h2 className="text-3xl font-black text-rose-950 mt-2">
-            63
+
+            {data?.listings?.reduce(
+              (total, listing) =>
+                total + Number(listing.booking_count || 0),
+              0
+            )}
+
           </h2>
 
           <p className="text-xs text-slate-400 mt-1">
@@ -146,7 +250,9 @@ export default function ListingsPage() {
 
         <div className="flex flex-col md:flex-row gap-4">
 
+
           {/* SEARCH */}
+
           <div className="relative flex-1">
 
             <Search
@@ -156,6 +262,8 @@ export default function ListingsPage() {
 
             <input
               type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search services..."
               className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-3 pl-11 pr-4 text-sm outline-none focus:border-rose-300"
             />
@@ -163,30 +271,13 @@ export default function ListingsPage() {
           </div>
 
 
-          {/* CATEGORY */}
-          <select className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-600 outline-none">
-
-            <option>
-              All Categories
-            </option>
-
-            <option>
-              Repair & Maintenance
-            </option>
-
-            <option>
-              Cleaning
-            </option>
-
-            <option>
-              Installation
-            </option>
-
-          </select>
-
-
           {/* STATUS */}
-          <select className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-600 outline-none">
+
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="bg-slate-50 border border-slate-200 rounded-2xl px-4 py-3 text-sm text-slate-600 outline-none"
+          >
 
             <option>
               All Status
@@ -213,6 +304,7 @@ export default function ListingsPage() {
 
       <div className="space-y-4">
 
+
         <div className="flex items-center justify-between">
 
           <h2 className="text-lg font-bold text-slate-900">
@@ -220,125 +312,172 @@ export default function ListingsPage() {
           </h2>
 
           <span className="text-xs text-slate-400">
-            Showing 4 of 8 services
+            Showing {filteredListings.length} of {data?.total_listings ?? 0} services
           </span>
 
         </div>
 
 
-        {services.map((service) => (
+        {/* ========================= */}
+        {/* LISTINGS */}
+        {/* ========================= */}
 
-          <div
-            key={service.id}
-            className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5 hover:shadow-2xl transition"
-          >
+        {filteredListings.length > 0 ? (
 
-            <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+          filteredListings.map((service) => (
 
-              {/* SERVICE ICON */}
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-rose-100 to-amber-100 flex items-center justify-center shrink-0">
+            <div
+              key={service.id}
+              onClick={() => navigate(`/business/listings/${service.id}`)}
+              className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5 hover:shadow-2xl transition"
+            >
 
-                <span className="text-2xl">
-                  ❄️
-                </span>
-
-              </div>
+              <div className="flex flex-col lg:flex-row lg:items-center gap-6">
 
 
-              {/* SERVICE DETAILS */}
-              <div className="flex-1">
+                {/* SERVICE ICON */}
 
-                <div className="flex items-center gap-3 flex-wrap">
+                <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-rose-100 to-amber-100 flex items-center justify-center shrink-0">
 
-                  <h3 className="text-lg font-bold text-slate-900">
-                    {service.name}
-                  </h3>
-
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      service.status === 'Active'
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-slate-100 text-slate-500'
-                    }`}
-                  >
-                    {service.status}
+                  <span className="text-2xl">
+                    ❄️
                   </span>
 
                 </div>
 
-                <p className="text-xs font-semibold text-rose-950 mt-1">
-                  {service.category}
-                </p>
 
-                <p className="text-sm text-slate-400 mt-2">
-                  {service.description}
-                </p>
+                {/* SERVICE DETAILS */}
 
+                <div className="flex-1">
 
-                <div className="flex flex-wrap items-center gap-6 mt-4">
+                  <div className="flex items-center gap-3 flex-wrap">
 
-                  <div>
+                    <h3 className="text-lg font-bold text-slate-900">
+                      {service.name}
+                    </h3>
 
-                    <p className="text-xs text-slate-400">
-                      Price Range
-                    </p>
-
-                    <p className="text-sm font-bold text-rose-950">
-                      {service.price}
-                    </p>
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700">
+                      Active
+                    </span>
 
                   </div>
 
 
-                  <div>
+                  <p className="text-sm text-slate-400 mt-2">
+                    {service.description}
+                  </p>
 
-                    <p className="text-xs text-slate-400">
-                      Bookings
-                    </p>
 
-                    <p className="text-sm font-bold text-slate-900">
-                      {service.bookings}
-                    </p>
+                  <div className="flex flex-wrap items-center gap-6 mt-4">
+
+
+                    {/* PRICE */}
+
+                    <div>
+
+                      <p className="text-xs text-slate-400">
+                        Base Price
+                      </p>
+
+                      <p className="text-sm font-bold text-rose-950">
+                        RM{Number(service.base_price).toLocaleString()}
+                      </p>
+
+                    </div>
+
+
+                    {/* DURATION */}
+
+                    <div>
+
+                      <p className="text-xs text-slate-400">
+                        Duration
+                      </p>
+
+                      <p className="text-sm font-bold text-slate-900">
+                        {service.estimated_duration} mins
+                      </p>
+
+                    </div>
+
+
+                    {/* BOOKINGS */}
+
+                    <div>
+
+                      <p className="text-xs text-slate-400">
+                        Bookings
+                      </p>
+
+                      <p className="text-sm font-bold text-slate-900">
+                        {service.booking_count}
+                      </p>
+
+                    </div>
 
                   </div>
 
                 </div>
 
-              </div>
+
+                {/* ACTIONS */}
+
+                <div className="flex items-center gap-2">
 
 
-              {/* ACTIONS */}
-              <div className="flex items-center gap-2">
+                  <button
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200"
+                    onClick={() => navigate(`/business/listings/${service.id}`)}
+                  >
 
-                <button
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200"
-                >
-                  <Pencil size={15} />
-                  Edit
-                </button>
+                    <Pencil size={15} />
 
-                <button
-                  className="p-2.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-100"
-                >
-                  <Trash2 size={17} />
-                </button>
+                    Edit
 
-                <button
-                  className="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500"
-                >
-                  <MoreVertical size={17} />
-                </button>
+                  </button>
+
+
+                  <button
+                    className="p-2.5 rounded-xl bg-red-50 text-red-500 hover:bg-red-100"
+                  >
+
+                    <Trash2 size={17} />
+
+                  </button>
+
+
+                  <button
+                    className="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500"
+                  >
+
+                    <MoreVertical size={17} />
+
+                  </button>
+
+                </div>
 
               </div>
 
             </div>
 
+          ))
+
+        ) : (
+
+          <div className="bg-white rounded-3xl p-8 border border-rose-100 shadow-xl shadow-rose-950/5 text-center">
+
+            <p className="text-sm text-slate-400">
+              No services found.
+            </p>
+
           </div>
 
-        ))}
+        )}
 
       </div>
 
     </div>
+
   );
+
 }

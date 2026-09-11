@@ -1,3 +1,5 @@
+
+import { useEffect } from 'react';
 import {
   Briefcase,
   Clock,
@@ -8,7 +10,38 @@ import {
   Star,
 } from 'lucide-react';
 
+import { useBusinessDashboard } from '../../hooks/useBusinessData';
+
 export default function BusinessPage() {
+  const {
+    data,
+    loading,
+    error,
+    fetchBusinessDashboard,
+  } = useBusinessDashboard();
+
+  useEffect(() => {
+    fetchBusinessDashboard();
+  }, []);
+
+  // Loading state
+  if (loading) {
+    return (
+      <div className="p-8">
+        <p className="text-slate-500">Loading dashboard...</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="p-8">
+        <p className="text-red-600 font-semibold">{error}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="p-8 space-y-8">
 
@@ -17,7 +50,7 @@ export default function BusinessPage() {
 
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-rose-950">
-            Hello, CoolPro Vendor
+            Hello, {data?.business.id || 'Vendor'}
           </h1>
 
           <p className="text-xs font-semibold tracking-wider text-slate-400 uppercase mt-1">
@@ -60,7 +93,7 @@ export default function BusinessPage() {
           </p>
 
           <h2 className="text-3xl font-black text-rose-950 mt-1">
-            12
+            {data?.metrics.active_orders ?? 0}
           </h2>
 
         </div>
@@ -86,7 +119,7 @@ export default function BusinessPage() {
           </p>
 
           <h2 className="text-3xl font-black text-rose-950 mt-1">
-            4
+            {data?.metrics.pending_orders ?? 0}
           </h2>
 
         </div>
@@ -112,7 +145,7 @@ export default function BusinessPage() {
           </p>
 
           <h2 className="text-3xl font-black text-rose-950 mt-1">
-            38
+            {data?.metrics.completed_orders_this_month ?? 0}
           </h2>
 
         </div>
@@ -139,7 +172,7 @@ export default function BusinessPage() {
           </p>
 
           <h2 className="text-3xl font-black text-rose-950 mt-1">
-            RM8,420
+            RM{data?.metrics.monthly_revenue?.toLocaleString() ?? '0'}
           </h2>
 
         </div>
@@ -170,118 +203,59 @@ export default function BusinessPage() {
           </div>
 
 
-          {/* ORDER 1 */}
-          <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
+          {/* ACTIVE ORDER LIST */}
+          {data?.active_orders && data.active_orders.length > 0 ? (
+            data.active_orders.map((order) => (
+              <div
+                key={order.id}
+                className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5"
+              >
 
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-              <div>
+                  <div>
 
-                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
 
-                  <span className="text-xs font-black text-rose-950">
-                    #ORD-9021
-                  </span>
+                      <span className="text-xs font-black text-rose-950">
+                        #ORD-{order.id}
+                      </span>
 
-                  <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
-                    Pending Acceptance
-                  </span>
+                      <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+                        {order.status}
+                      </span>
 
-                </div>
+                    </div>
 
-                <h3 className="text-lg font-bold text-slate-900 mt-3">
-                  Aircond Repair
-                </h3>
+                    <h3 className="text-lg font-bold text-slate-900 mt-3">
+                      {order.service_name}
+                    </h3>
 
-                <p className="text-sm text-slate-400 mt-1">
-                  Customer: Natas
-                </p>
+                    <p className="text-sm text-slate-400 mt-1">
+                      Customer: {order.first_name} {order.last_name}
+                    </p>
 
-              </div>
+                    <p className="text-xs text-slate-400 mt-2">
+                      {new Date(order.scheduled_start).toLocaleString()}
+                    </p>
 
-              <button className="px-4 py-2.5 rounded-xl bg-rose-950 text-white text-xs font-bold hover:bg-rose-900">
-                Manage Order
-              </button>
+                  </div>
 
-            </div>
-
-          </div>
-
-
-          {/* ORDER 2 */}
-          <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
-
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-              <div>
-
-                <div className="flex items-center gap-3">
-
-                  <span className="text-xs font-black text-rose-950">
-                    #ORD-8900
-                  </span>
-
-                  <span className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
-                    Scheduled
-                  </span>
+                  <button className="px-4 py-2.5 rounded-xl bg-rose-950 text-white text-xs font-bold hover:bg-rose-900">
+                    Manage Order
+                  </button>
 
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-900 mt-3">
-                  Chemical Cleaning
-                </h3>
-
-                <p className="text-sm text-slate-400 mt-1">
-                  Customer: Sarah
-                </p>
-
               </div>
-
-              <button className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200">
-                View Order
-              </button>
-
+            ))
+          ) : (
+            <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
+              <p className="text-sm text-slate-400">
+                No active orders at the moment.
+              </p>
             </div>
-
-          </div>
-
-
-          {/* ORDER 3 */}
-          <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
-
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-              <div>
-
-                <div className="flex items-center gap-3">
-
-                  <span className="text-xs font-black text-rose-950">
-                    #ORD-8872
-                  </span>
-
-                  <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold">
-                    Completed
-                  </span>
-
-                </div>
-
-                <h3 className="text-lg font-bold text-slate-900 mt-3">
-                  Aircond Installation
-                </h3>
-
-                <p className="text-sm text-slate-400 mt-1">
-                  Customer: Daniel
-                </p>
-
-              </div>
-
-              <span className="text-sm font-bold text-slate-500">
-                RM450.00
-              </span>
-
-            </div>
-
-          </div>
+          )}
 
         </div>
 
@@ -384,6 +358,7 @@ export default function BusinessPage() {
                 </span>
 
                 <div>
+
                   <p className="text-sm font-semibold">
                     Payout Processed
                   </p>
@@ -391,9 +366,11 @@ export default function BusinessPage() {
                   <p className="text-xs text-slate-400">
                     RM1,250.00 · Today
                   </p>
+
                 </div>
 
               </div>
+
 
               <div className="flex items-start gap-3">
 
@@ -402,6 +379,7 @@ export default function BusinessPage() {
                 </span>
 
                 <div>
+
                   <p className="text-sm font-semibold">
                     New Review
                   </p>
@@ -409,6 +387,7 @@ export default function BusinessPage() {
                   <p className="text-xs text-slate-400">
                     5 Stars · Yesterday
                   </p>
+
                 </div>
 
               </div>

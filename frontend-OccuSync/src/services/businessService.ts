@@ -19,6 +19,57 @@ export const getBusinessListings = async () => {
 };
 
 // ============================================================
+// CREATE BUSINESS LISTING
+// ============================================================
+
+export const createBusinessListing = async (listing: {
+  name: string;
+  description: string;
+  base_price: number;
+  estimated_duration: number;
+}) => {
+  const response = await axiosInstance.post(
+    '/business/listings',
+    listing
+  );
+
+  return response.data;
+};
+
+// ============================================================
+// UPDATE BUSINESS LISTING
+// ============================================================
+
+export const updateBusinessListing = async (
+  id: number,
+  listing: {
+    name: string;
+    description: string;
+    base_price: number;
+    estimated_duration: number;
+  }
+) => {
+  const response = await axiosInstance.put(
+    `/business/listings/${id}`,
+    listing
+  );
+
+  return response.data;
+};
+
+// ============================================================
+// DELETE BUSINESS LISTING
+// ============================================================
+
+export const deleteBusinessListing = async (id: number) => {
+  const response = await axiosInstance.delete(
+    `/business/listings/${id}`
+  );
+
+  return response.data;
+};
+
+// ============================================================
 // LISTING DETAILS
 // ============================================================
 

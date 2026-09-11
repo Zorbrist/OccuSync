@@ -8,9 +8,16 @@ export interface CustomerProfile {
   phone: string;
 }
 
+export interface CustomerSummary {
+  name: string;
+  phone: string;
+}
+
 export interface CustomerDashboardResponse {
-  profile: CustomerProfile;
-  // Additional dashboard summary stats can be added here
+  customer: CustomerSummary;
+  upcoming_jobs: any[]; // or define a Job interface
+  recent_jobs: any[];
+  unpaid_invoices: any[];
 }
 
 export interface ServiceListing {
@@ -28,16 +35,16 @@ export interface ServiceListing {
   area_of_service: string;
 }
 export interface OrderPayload {
-  service_id: number;
+  service_id: string | number;
   scheduled_start: string;
   scheduled_end: string;
   notes: string;
 }
 
 export interface OrderResponse {
-  id: number;
-  service_id: number;
-  status: 'PENDING' | 'CONFIRMED' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED';
+  id: number | string; 
+  service_id: number | string;
+  status: 'PENDING' | 'CONFIRMED' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
   scheduled_start: string;
   scheduled_end: string;
   notes: string;
@@ -49,4 +56,33 @@ export interface NotificationResponse {
   message: string;
   is_read: boolean;
   created_at: string;
+  type: string;
+
+}
+
+export interface InvoiceSummary {
+  id: number | string;
+  job_id: number | string;
+  total_amount: string | number;
+  status: 'DRAFT' | 'ISSUED' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+  due_date: string;
+  service_name: string;
+  business_name: string;
+}
+
+export interface InvoiceDetail {
+  invoice_id: number | string;
+  total_amount: string | number;
+  invoice_status: 'DRAFT' | 'ISSUED' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+  due_date: string;
+  invoice_date: string;
+  job_id: number | string;
+  scheduled_start: string;
+  scheduled_end: string;
+  service_name: string;
+  service_description: string;
+  base_price: string | number;
+  business_name: string;
+  business_phone: string;
+  business_email: string;
 }

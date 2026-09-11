@@ -14,8 +14,8 @@ import Login from './pages/Login';
 import AboutUs from './pages/AboutUs';
 
 // Dashboard Pages
-import AdminPage from './pages/AdminPage';
-
+import AdminDashboardPage from './pages/Admin/AdminDashboard';
+import UserManagementPage from './pages/Admin/UserManagementPage';
 // Business Pages
 import BusinessPage from './pages/Business/BusinessPage';
 import ListingsPage from './pages/Business/ListingsPage';
@@ -39,6 +39,7 @@ import CustomerSave from "./pages/Customer/CustomerSave";
 import CustomerNotification from "./pages/Customer/CustomerNotification";
 
 import ProtectedRoute from "./routes/ProtetedRoutes";
+import AdminLayout from './pages/Admin/AdminLayout';
 
 
 export default function App() {
@@ -52,7 +53,10 @@ export default function App() {
         <Route path="/login" element={<Login />} />
 
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin" element={<AdminLayout/>}>
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="users" element={<UserManagementPage />} />
+          </Route>
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['SERVICE_PROVIDER']} />}>

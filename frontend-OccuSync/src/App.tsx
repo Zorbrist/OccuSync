@@ -19,8 +19,10 @@ import AdminPage from './pages/AdminPage';
 // Business Pages
 import BusinessPage from './pages/Business/BusinessPage';
 import ListingsPage from './pages/Business/ListingsPage';
+import ListingDetailsPage from './pages/Business/ListingDetailsPage';
 import QuotationsPage from './pages/Business/QuotationsPage';
 import CustomerOrdersPage from './pages/Business/CustOrdersPage';
+import CustomerOrdersDetailsPage from './pages/Business/CustOrdersDetailsPage';
 import NotificationsPage from './pages/Business/NotificationsPage';
 import MerchantSupportPage from './pages/Business/MerchantSupportPage';
 
@@ -37,7 +39,7 @@ import CustomerSave from "./pages/Customer/CustomerSave";
 import CustomerNotification from "./pages/Customer/CustomerNotification";
 
 import ProtectedRoute from "./routes/ProtetedRoutes";
-import ListingDetailsPage from './pages/Business/ListingDetailsPage';
+
 
 export default function App() {
   return (
@@ -60,6 +62,7 @@ export default function App() {
             <Route path="listings/:id" element={<ListingDetailsPage />} />
             <Route path="quotations" element={<QuotationsPage />} />
             <Route path="orders" element={<CustomerOrdersPage />} />
+            <Route path="orders/:id" element={<CustomerOrdersDetailsPage />} />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="support" element={<MerchantSupportPage />} />
           </Route>

@@ -1,54 +1,82 @@
+import { useEffect } from 'react';
 import {
   ShoppingBag,
   FileText,
   CreditCard,
   Star,
   AlertCircle,
+  Bell,
 } from 'lucide-react';
 
-export default function NotificationsPage() {
+import { useBusinessNotifications } from '../../hooks/useBusinessData';
 
-  const notifications = [
-    {
-      icon: <ShoppingBag size={20} />,
-      title: 'New Customer Order',
-      message: 'Natas submitted a new Aircond Repair order.',
-      time: '2 hours ago',
-    },
-    {
-      icon: <FileText size={20} />,
-      title: 'Quotation Accepted',
-      message: 'Sarah accepted quotation #QUO-1018.',
-      time: '5 hours ago',
-    },
-    {
-      icon: <CreditCard size={20} />,
-      title: 'Payout Processed',
-      message: 'Your payout of RM1,250.00 has been processed.',
-      time: 'Today',
-    },
-    {
-      icon: <Star size={20} />,
-      title: 'New Review',
-      message: 'Tasha left a 5-star review for your service.',
-      time: 'Yesterday',
-    },
-    {
-      icon: <AlertCircle size={20} />,
-      title: 'Quotation Expiring',
-      message: 'Quotation #QUO-1008 will expire tomorrow.',
-      time: 'Yesterday',
-    },
-  ];
+export default function NotificationsPage() {
+  const {
+    notifications,
+    loading,
+    error,
+    unreadCount,
+    fetchBusinessNotifications,
+    markAsRead,
+    markAllAsRead,
+  } = useBusinessNotifications();
+
+  // Fetch notifications when page loads
+  useEffect(() => {
+    fetchBusinessNotifications();
+  }, []);
+
+  // Get notification icon
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'ORDER':
+        return <ShoppingBag size={20} />;
+      case 'QUOTATION':
+        return <FileText size={20} />;
+      case 'PAYMENT':
+        return <CreditCard size={20} />;
+      case 'REVIEW':
+        return <Star size={20} />;
+      case 'WARNING':
+        return <AlertCircle size={20} />;
+      default:
+        return <Bell size={20} />;
+    }
+  };
+
+  // Get notification title
+  const getNotificationTitle = (type: string) => {
+    switch (type) {
+      case 'ORDER':
+        return 'New Customer Order';
+      case 'QUOTATION':
+        return 'Quotation Update';
+      case 'PAYMENT':
+        return 'Payment Update';
+      case 'REVIEW':
+        return 'New Review';
+      case 'WARNING':
+        return 'Important Notice';
+      default:
+        return 'Notification';
+    }
+  };
+
+  // Format notification date
+  const formatTime = (date: string | number | Date | null | undefined) => {
+    if (!date) return '';
+
+    return new Date(date).toLocaleString('en-MY', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+  };
 
   return (
     <div className="p-8">
-
-      {/* HEADER */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
-
         <div>
-
           <h1 className="text-3xl font-extrabold text-rose-950">
             Notifications
           </h1>
@@ -57,61 +85,110 @@ export default function NotificationsPage() {
             Stay updated with your business activities.
           </p>
 
+          {unreadCount > 0 && (
+            <p className="text-xs text-rose-600 font-semibold mt-2">
+              {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+            </p>
+          )}
         </div>
 
-        <button className="text-sm font-bold text-rose-950 hover:underline">
+        <button
+          type="button"
+          onClick={markAllAsRead}
+          disabled={unreadCount === 0 || loading}
+          className="text-sm font-bold text-rose-950 hover:underline disabled:text-slate-300 disabled:no-underline"
+        >
           Mark all as read
         </button>
-
       </div>
 
-      {/* NOTIFICATIONS */}
-      <div className="bg-white rounded-3xl border border-rose-100 shadow-xl shadow-rose-950/5 overflow-hidden">
+      {/* Loading */}
+      {loading && (
+        <div className="bg-white rounded-3xl border border-rose-100 p-8">
+          <p className="text-sm text-slate-500">
+            Loading notifications...
+          </p>
+        </div>
+      )}
 
-        {notifications.map((notification, index) => (
+      {/* Error */}
+      {error && (
+        <div className="bg-red-50 rounded-3xl border border-red-100 p-6">
+          <p className="text-sm text-red-600">{error}</p>
 
-          <div
-            key={index}
-            className="p-6 flex gap-4 border-b border-slate-100 last:border-b-0 hover:bg-slate-50 transition"
+          <button
+            type="button"
+            onClick={fetchBusinessNotifications}
+            className="mt-3 px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700"
           >
+            Try Again
+          </button>
+        </div>
+      )}
 
-            <div className="h-11 w-11 rounded-2xl bg-rose-100 text-rose-950 flex items-center justify-center shrink-0">
-              {notification.icon}
-            </div>
+      {/* Empty State */}
+      {!loading && !error && notifications.length === 0 && (
+        <div className="bg-white rounded-3xl border border-rose-100 p-8 text-center">
+          <Bell className="mx-auto text-slate-300" size={32} />
 
-            <div className="flex-1">
+          <p className="text-sm text-slate-500 mt-3">
+            No notifications yet.
+          </p>
+        </div>
+      )}
 
-              <div className="flex justify-between gap-4">
-
-                <h3 className="font-bold text-slate-900">
-                  {notification.title}
-                </h3>
-
-                <span className="text-xs text-slate-400 whitespace-nowrap">
-                  {notification.time}
-                </span>
-
+      {/* Notifications */}
+      {!loading && !error && notifications.length > 0 && (
+        <div className="bg-white rounded-3xl border border-rose-100 shadow-xl shadow-rose-950/5 overflow-hidden">
+          {notifications.map((notification) => (
+            <div
+              key={notification.id}
+              className={`p-6 flex gap-4 border-b border-slate-100 last:border-b-0 transition ${
+                notification.is_read
+                  ? 'hover:bg-slate-50'
+                  : 'bg-rose-50/40 hover:bg-rose-50'
+              }`}
+            >
+              {/* Icon */}
+              <div className="h-11 w-11 rounded-2xl bg-rose-100 text-rose-950 flex items-center justify-center shrink-0">
+                {getNotificationIcon(notification.type)}
               </div>
 
-              <p className="text-sm text-slate-500 mt-1">
-                {notification.message}
-              </p>
+              {/* Content */}
+              <div className="flex-1">
+                <div className="flex justify-between gap-4">
+                  <h3 className="font-bold text-slate-900">
+                    {getNotificationTitle(notification.type)}
+                  </h3>
 
-              <button className="text-xs font-bold text-rose-950 mt-3 hover:underline">
-                View details →
-              </button>
+                  <span className="text-xs text-slate-400 whitespace-nowrap">
+                    {formatTime(notification.created_at)}
+                  </span>
+                </div>
 
+                <p className="text-sm text-slate-500 mt-1">
+                  {notification.message}
+                </p>
+
+                {!notification.is_read && (
+                  <button
+                    type="button"
+                    onClick={() => markAsRead(notification.id)}
+                    className="text-xs font-bold text-rose-950 mt-3 hover:underline"
+                  >
+                    Mark as read
+                  </button>
+                )}
+              </div>
+
+              {/* Unread Dot */}
+              {!notification.is_read && (
+                <div className="h-2 w-2 rounded-full bg-rose-600 mt-2 shrink-0" />
+              )}
             </div>
-
-            {/* UNREAD DOT */}
-            <div className="h-2 w-2 rounded-full bg-rose-600 mt-2 shrink-0" />
-
-          </div>
-
-        ))}
-
-      </div>
-
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,14 +1,39 @@
 import { useState } from 'react';
-import { getBusinessDashboard } from '../services/businessService';
-import type { BusinessDashboardResponse } from '../types/businessTypes';
-import { getBusinessListings } from '../services/businessService';
-import type { BusinessListingsResponse } from '../types/businessTypes';
-import { getBusinessListingDetails } from '../services/businessService';
+
+import {
+  getBusinessDashboard,
+  getBusinessListings,
+  getBusinessListingDetails,
+  getBusinessOrders,
+  getBusinessOrder,
+  updateBusinessOrderStatus,
+  getBusinessNotifications,
+  markBusinessNotificationAsRead,
+  markAllBusinessNotificationsAsRead,
+} from '../services/businessService';
+
+import type {
+  BusinessDashboardResponse,
+  BusinessListingsResponse,
+  CustomerOrder,
+  CustomerOrderDetails,
+  BusinessNotification
+} from '../types/businessTypes';
+
+
+// ============================================================
+// BUSINESS DASHBOARD
+// ============================================================
 
 export const useBusinessDashboard = () => {
-  const [data, setData] = useState<BusinessDashboardResponse | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [data, setData] =
+    useState<BusinessDashboardResponse | null>(null);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState('');
 
   const fetchBusinessDashboard = async () => {
     setError('');
@@ -39,12 +64,12 @@ export const useBusinessDashboard = () => {
   };
 };
 
-/* ========================= */
-/* BUSINESS LISTINGS */
-/* ========================= */
+
+// ============================================================
+// BUSINESS LISTINGS
+// ============================================================
 
 export const useBusinessListings = () => {
-
   const [data, setData] =
     useState<BusinessListingsResponse | null>(null);
 
@@ -54,35 +79,26 @@ export const useBusinessListings = () => {
   const [error, setError] =
     useState('');
 
-
   const fetchBusinessListings = async () => {
-
     setError('');
     setLoading(true);
 
     try {
-
       const data = await getBusinessListings();
 
       setData(data);
 
       return data;
-
     } catch (error: any) {
-
       setError(
         error.response?.data?.message ||
         error.message ||
         'Failed to fetch business listings. Please try again.'
       );
-
     } finally {
-
       setLoading(false);
-
     }
   };
-
 
   return {
     data,
@@ -92,22 +108,33 @@ export const useBusinessListings = () => {
   };
 };
 
+
 // ============================================================
-// LISTING - VIEW SERVICE DETAILS
+// LISTING DETAILS
 // ============================================================
+
 export const useBusinessListingDetails = () => {
   const [data, setData] = useState<
-    Awaited<ReturnType<typeof getBusinessListingDetails>> | null
+    Awaited<
+      ReturnType<typeof getBusinessListingDetails>
+    > | null
   >(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
-  const fetchBusinessListingDetails = async (id: number) => {
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState('');
+
+  const fetchBusinessListingDetails = async (
+    id: number
+  ) => {
     setError('');
     setLoading(true);
 
     try {
-      const data = await getBusinessListingDetails(id);
+      const data =
+        await getBusinessListingDetails(id);
 
       setData(data);
 
@@ -115,8 +142,8 @@ export const useBusinessListingDetails = () => {
     } catch (error: any) {
       setError(
         error.response?.data?.message ||
-          error.message ||
-          'Failed to fetch service details.'
+        error.message ||
+        'Failed to fetch service details.'
       );
     } finally {
       setLoading(false);
@@ -128,5 +155,238 @@ export const useBusinessListingDetails = () => {
     loading,
     error,
     fetchBusinessListingDetails,
+  };
+};
+
+
+// ============================================================
+// CUSTOMER ORDERS
+// ============================================================
+
+export const useBusinessOrders = () => {
+  const [data, setData] =
+    useState<CustomerOrder[]>([]);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState('');
+
+  const fetchBusinessOrders = async (
+    status = ''
+  ) => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const data =
+        await getBusinessOrders(status);
+
+      setData(data);
+
+      return data;
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to fetch customer orders.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    data,
+    loading,
+    error,
+    fetchBusinessOrders,
+  };
+};
+
+
+// ============================================================
+// CUSTOMER ORDER DETAILS
+// ============================================================
+
+export const useBusinessOrder = () => {
+  const [data, setData] =
+    useState<CustomerOrderDetails | null>(null);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState('');
+
+  const fetchBusinessOrder = async (
+    id: number
+  ) => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const data =
+        await getBusinessOrder(id);
+
+      setData(data);
+
+      return data;
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to fetch order details.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    data,
+    loading,
+    error,
+    fetchBusinessOrder,
+  };
+};
+
+
+// ============================================================
+// UPDATE CUSTOMER ORDER STATUS
+// ============================================================
+
+export const useUpdateBusinessOrderStatus = () => {
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState('');
+
+  const updateOrderStatus = async (
+    id: number,
+    status: string
+  ) => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const data =
+        await updateBusinessOrderStatus(
+          id,
+          status
+        );
+
+      return data;
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to update order status.'
+      );
+
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    error,
+    updateOrderStatus,
+  };
+};
+
+// ============================================================
+// BUSINESS NOTIFICATIONS
+// ============================================================
+
+export const useBusinessNotifications = () => {
+  const [notifications, setNotifications] = useState<BusinessNotification[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  // Fetch business notifications
+  const fetchBusinessNotifications = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const data = await getBusinessNotifications();
+
+      setNotifications(data);
+
+      return data;
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to fetch notifications.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Mark one notification as read
+  const markAsRead = async (id: number) => {
+    try {
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === id
+            ? { ...notification, is_read: true }
+            : notification
+        )
+      );
+
+      await markBusinessNotificationAsRead(id);
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to mark notification as read.'
+      );
+
+      await fetchBusinessNotifications();
+    }
+  };
+
+  // Mark all notifications as read
+  const markAllAsRead = async () => {
+    try {
+      setNotifications(prev =>
+        prev.map(notification => ({
+          ...notification,
+          is_read: true,
+        }))
+      );
+
+      await markAllBusinessNotificationsAsRead();
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to mark notifications as read.'
+      );
+
+      await fetchBusinessNotifications();
+    }
+  };
+
+  // Count unread notifications
+  const unreadCount = notifications.filter(
+    notification => !notification.is_read
+  ).length;
+
+  return {
+    notifications,
+    loading,
+    error,
+    unreadCount,
+    fetchBusinessNotifications,
+    markAsRead,
+    markAllAsRead,
   };
 };

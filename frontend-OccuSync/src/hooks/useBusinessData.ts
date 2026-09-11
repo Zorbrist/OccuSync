@@ -10,6 +10,9 @@ import {
   getBusinessNotifications,
   markBusinessNotificationAsRead,
   markAllBusinessNotificationsAsRead,
+  createBusinessListing,
+  updateBusinessListing,
+  deleteBusinessListing
 } from '../services/businessService';
 
 import type {
@@ -158,6 +161,120 @@ export const useBusinessListingDetails = () => {
   };
 };
 
+// ============================================================
+// CREATE BUSINESS LISTING
+// ============================================================
+
+export const useCreateBusinessListing = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const createListing = async (listing: {
+    name: string;
+    description: string;
+    base_price: number;
+    estimated_duration: number;
+  }) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const data = await createBusinessListing(listing);
+      return data;
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to create service.'
+      );
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    error,
+    createListing,
+  };
+};
+
+// ============================================================
+// UPDATE BUSINESS LISTING
+// ============================================================
+
+export const useUpdateBusinessListing = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const updateListing = async (
+    id: number,
+    listing: {
+      name: string;
+      description: string;
+      base_price: number;
+      estimated_duration: number;
+    }
+  ) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const data = await updateBusinessListing(id, listing);
+      return data;
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to update service.'
+      );
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    error,
+    updateListing,
+  };
+};
+
+// ============================================================
+// DELETE BUSINESS LISTING
+// ============================================================
+
+export const useDeleteBusinessListing = () => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const deleteListing = async (id: number) => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const data = await deleteBusinessListing(id);
+      return data;
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to delete service.'
+      );
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    error,
+    deleteListing,
+  };
+};
 
 // ============================================================
 // CUSTOMER ORDERS

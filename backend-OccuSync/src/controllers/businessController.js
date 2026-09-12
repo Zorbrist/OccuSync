@@ -604,7 +604,7 @@ exports.updateBusinessOrderStatus = async (req, res, next) => {
       });
     }
 
-
+    // 1. Update the status and retrieve necessary data for the notification
     const result = await pool.query(
       `UPDATE jobs
        SET
@@ -618,12 +618,14 @@ exports.updateBusinessOrderStatus = async (req, res, next) => {
          LIMIT 1
        )
        RETURNING
-         id,
-         status,
+         id AS job_id,
+         status AS new_status,
          scheduled_start,
          scheduled_end,
          notes,
-         updated_at`,
+         updated_at,
+         (SELECT user_id FROM customer_profiles WHERE id = jobs.customer_id) AS customer_user_id,
+         (SELECT name FROM services WHERE id = jobs.service_id) AS service_name`,
       [status, orderId, userId]
     );
 
@@ -634,10 +636,54 @@ exports.updateBusinessOrderStatus = async (req, res, next) => {
       });
     }
 
+    // 2. Extract returned data
+    const { job_id, new_status, customer_user_id, service_name } = result.rows[0];
+
+    // 3. Generate the automated notification message
+    let notificationMessage = '';
+    
+    switch (new_status) {
+        case 'CONFIRMED':
+            notificationMessage = `Good news! Your service request for ${service_name} (Order #${job_id}) has been confirmed.`;
+            break;
+        case 'ASSIGNED':
+            notificationMessage = `A professional has been assigned to your order #${job_id} for ${service_name}.`;
+            break;
+        case 'IN_PROGRESS':
+            notificationMessage = `Work has officially started on your order #${job_id}.`;
+            break;
+        case 'COMPLETED':
+            notificationMessage = `Your order #${job_id} for ${service_name} is now complete!`;
+            break;
+        case 'CANCELLED':
+            notificationMessage = `Notice: Your order #${job_id} for ${service_name} has been cancelled.`;
+            break;
+    }
+
+    // 4. Insert the notification into the database
+    if (notificationMessage) {
+        await pool.query(
+            `INSERT INTO notifications 
+              (user_id, type, message, is_read)
+             VALUES 
+              ($1, $2, $3, false)`,
+            [customer_user_id, 'ORDER_UPDATE', notificationMessage]
+        );
+    }
+
+    // 5. Clean up the response object before sending it to the client
+    const orderResponse = {
+      id: job_id,
+      status: new_status,
+      scheduled_start: result.rows[0].scheduled_start,
+      scheduled_end: result.rows[0].scheduled_end,
+      notes: result.rows[0].notes,
+      updated_at: result.rows[0].updated_at
+    };
 
     return res.json({
       message: 'Order status updated successfully',
-      order: result.rows[0]
+      order: orderResponse
     });
 
   } catch (error) {

@@ -72,35 +72,35 @@ export default function ServiceBookingModal({ service, isOpen, onClose, onSubmit
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Requested Start</label>
-                <input 
-                  type="datetime-local" 
-                  value={scheduledStart}
-                  onChange={(e) => setScheduledStart(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-gray-200 shadow-sm text-sm focus:ring-2 focus:ring-[#233876] outline-none"
-                  required
-                />
+               <input 
+  type="datetime-local" 
+  value={scheduledStart}
+  onChange={(e) => setScheduledStart(e.target.value)}
+  className="w-full p-3 rounded-xl border border-gray-200 shadow-sm text-sm text-gray-900 focus:ring-2 focus:ring-[#233876] outline-none"
+  required
+/>
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Estimated End</label>
                 <input 
-                  type="datetime-local" 
-                  value={scheduledEnd}
-                  onChange={(e) => setScheduledEnd(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-gray-200 shadow-sm text-sm focus:ring-2 focus:ring-[#233876] outline-none"
-                  required
-                />
+  type="datetime-local" 
+  value={scheduledEnd}
+  onChange={(e) => setScheduledEnd(e.target.value)}
+  className="w-full p-3 rounded-xl border border-gray-200 shadow-sm text-sm text-gray-900 focus:ring-2 focus:ring-[#233876] outline-none"
+  required
+/>
               </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Additional Notes (Optional)</label>
               <textarea 
-                rows={3}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="E.g., Please call when you arrive at the gate."
-                className="w-full p-3 rounded-xl border border-gray-200 shadow-sm text-sm focus:ring-2 focus:ring-[#233876] outline-none resize-none"
-              />
+  rows={3}
+  value={notes}
+  onChange={(e) => setNotes(e.target.value)}
+  placeholder="E.g., Please call when you arrive at the gate."
+  className="w-full p-3 rounded-xl border border-gray-200 shadow-sm text-sm text-gray-900 focus:ring-2 focus:ring-[#233876] outline-none resize-none"
+/>
             </div>
           </form>
         </div>

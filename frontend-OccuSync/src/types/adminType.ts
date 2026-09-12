@@ -131,3 +131,126 @@ export interface AdminDashboardResponse {
   success: boolean;
   data: AdminDashboardData;
 }
+
+// =========================
+// Admin Users Management
+// =========================
+
+export interface AdminUsersSummary {
+  total_users: number;
+  total_customers: number;
+  total_owners: number;
+  total_staff: number;
+}
+
+export interface AdminCustomer {
+  id: number;
+  email: string;
+  role: 'CUSTOMER';
+  created_at: string;
+  customer_id: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  country: string;
+  state: string;
+  postcode: string;
+}
+
+export interface AdminBusinessUser {
+  user_id: number;
+  user_email: string;
+  created_at: string;
+
+  member_id: string;
+  member_role: 'OWNER' | 'STAFF';
+
+  business_id: string;
+  business_name: string;
+  business_email: string;
+  business_phone: string;
+  registration_no: string;
+  industry: string;
+  area_of_service: string | null;
+  state: string;
+  postcode: string;
+  country: string;
+}
+
+export interface AdminUsersData {
+  summary: AdminUsersSummary;
+  customers: AdminCustomer[];
+  business_owners: AdminBusinessUser[];
+  business_staff: AdminBusinessUser[];
+}
+
+export interface AdminUsersResponse {
+  success: boolean;
+  data: AdminUsersData;
+  message?: string;
+}
+
+// Individual user
+
+export interface AdminUser {
+  id: number;
+  email: string;
+  role: 'CUSTOMER' | 'SERVICE_PROVIDER' | 'ADMIN';
+  created_at: string;
+}
+
+export interface AdminCustomerDetails {
+  id: string;
+  user_id: number;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  country: string;
+  state: string;
+  postcode: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminBusinessDetails {
+  member_id: string;
+  member_role: 'OWNER' | 'STAFF';
+
+  business_id: string;
+  business_name: string;
+  registration_no: string;
+  industry: string;
+  area_of_service: string | null;
+  business_phone: string;
+  business_email: string;
+  state: string;
+  postcode: string;
+  country: string;
+}
+
+export interface AdminUserDetailsData {
+  user: AdminUser;
+  details: AdminCustomerDetails | AdminBusinessDetails[] | null;
+}
+
+export interface AdminUserDetailsResponse {
+  success: boolean;
+  data: AdminUserDetailsData;
+  message?: string;
+}
+
+export interface AdminUserUpdateData {
+  email?: string;
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  country?: string;
+  state?: string;
+  postcode?: string;
+  business_name?: string;
+  registration_no?: string;
+  industry?: string;
+  area_of_service?: string;
+  business_email?: string;
+  business_phone?: string;
+}

@@ -27,7 +27,7 @@ const Login = () => {
                 break;
 
             case 'CUSTOMER':
-                navigate('/customerDashboard');
+                navigate('/customer');
                 break;
 
             default:

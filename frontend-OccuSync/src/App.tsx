@@ -14,8 +14,8 @@ import Login from './pages/Login';
 import AboutUs from './pages/AboutUs';
 
 // Dashboard Pages
-import AdminPage from './pages/AdminPage';
-
+import AdminDashboardPage from './pages/Admin/AdminDashboard';
+import UserManagementPage from './pages/Admin/UserManagementPage';
 // Business Pages
 import BusinessPage from './pages/Business/BusinessPage';
 import ListingsPage from './pages/Business/ListingsPage';
@@ -27,7 +27,8 @@ import NotificationsPage from './pages/Business/NotificationsPage';
 import MerchantSupportPage from './pages/Business/MerchantSupportPage';
 
 // Business Layout
-import Layout from './components/business_dashboard/Layout';
+import BusinessLayout from './pages/Business/Business_Layout';
+import CustomerLayout from './pages/Customer/CustomerLayout';
 
 // Import all Customer Pages
 import CustomerDashboard from "./pages/Customer/CustomerDashboard";
@@ -40,6 +41,7 @@ import CustomerNotification from "./pages/Customer/CustomerNotification";
 import CustomerInvoices from './pages/Customer/CustomerInvoices';
 
 import ProtectedRoute from "./routes/ProtetedRoutes";
+import AdminLayout from './pages/Admin/AdminLayout';
 
 
 export default function App() {
@@ -53,11 +55,14 @@ export default function App() {
         <Route path="/login" element={<Login />} />
 
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
-          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<AdminDashboardPage />} />
+            <Route path="users" element={<UserManagementPage />} />
+          </Route>
         </Route>
 
         <Route element={<ProtectedRoute allowedRoles={['SERVICE_PROVIDER']} />}>
-          <Route path="/business" element={<Layout />}>
+          <Route path="/business" element={<BusinessLayout />}>
             <Route index element={<BusinessPage />} />
             <Route path="listings" element={<ListingsPage />} />
             <Route path="listings/:id" element={<ListingDetailsPage />} />
@@ -71,14 +76,16 @@ export default function App() {
 
         {/* Updated Customer Routes Block */}
         <Route element={<ProtectedRoute allowedRoles={["CUSTOMER"]} />}>
-          <Route path="/customerDashboard" element={<CustomerDashboard />} />
-          <Route path="/customerServices" element={<CustomerServices />} />
-          <Route path="/customerInquiries" element={<CustomerInquiries />} />
-          <Route path="/customerOrders" element={<CustomerOrder />} />
-          <Route path="/customerCompare" element={<CustomerCompare />} />
-          <Route path="/customerSaved" element={<CustomerSave />} />
-          <Route path="/customerNotifications" element={<CustomerNotification />} />
-          <Route path="/customerInvoices" element={<CustomerInvoices />} />
+          <Route path="/customer" element={<CustomerLayout />}>
+            <Route index element={<CustomerDashboard />} />
+            <Route path="services" element={<CustomerServices />} />
+            <Route path="inquiries" element={<CustomerInquiries />} />
+            <Route path="orders" element={<CustomerOrder />} />
+            <Route path="compare" element={<CustomerCompare />} />
+            <Route path="saved" element={<CustomerSave />} />
+            <Route path="notifications" element={<CustomerNotification />} />
+            <Route path="invoices" element={<CustomerInvoices />} />
+          </Route>
         </Route>
       </Routes>
     </Router>

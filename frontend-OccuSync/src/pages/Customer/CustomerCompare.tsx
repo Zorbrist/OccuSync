@@ -1,9 +1,8 @@
-import CustomerSidebar from '../../components/CustomerSidebar';
+
 
 export default function CustomerCompare() {
   return (
     <div className="flex min-h-screen bg-[#f4f7f9] font-sans">
-      <CustomerSidebar />
       <div className="flex-1 p-10">
         <h1 className="text-4xl font-extrabold text-[#233876] mb-8">Compare Services</h1>
         

@@ -1,10 +1,8 @@
-import CustomerSidebar from '../../components/CustomerSidebar';
 import { Bookmark } from 'lucide-react';
 
 export default function CustomerSave() {
   return (
     <div className="flex min-h-screen bg-[#f4f7f9] font-sans">
-      <CustomerSidebar />
       <div className="flex-1 p-10">
         <h1 className="text-4xl font-extrabold text-[#233876] mb-8">Saved Services</h1>
         

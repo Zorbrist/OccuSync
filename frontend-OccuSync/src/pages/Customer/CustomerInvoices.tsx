@@ -1,6 +1,6 @@
 // pages/CustomerInvoices.tsx
 import { Search, FileText, Sparkles } from 'lucide-react';
-import CustomerSidebar from '../../components/CustomerSidebar';
+
 import { useInvoicesData } from '../../hooks/useInvoicesData';
 import InvoiceDetailsModal from '../../components/InvoiceDetailsModal';
 
@@ -38,7 +38,7 @@ export default function CustomerInvoices() {
       <div className="fixed top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-indigo-900/15 rounded-full blur-[120px] pointer-events-none -z-10"></div>
       <div className="fixed bottom-[-10%] left-[-5%] w-[35rem] h-[35rem] bg-emerald-900/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
-      <CustomerSidebar />
+
 
       {/* 1. Add this new scrolling container */}
 <div className="flex-1 h-full overflow-y-auto relative z-10">

@@ -1,6 +1,5 @@
 // pages/CustomerNotification.tsx
 import { Bell, Check, Sparkles, AlertCircle, CalendarClock, CreditCard, Box } from 'lucide-react';
-import CustomerSidebar from '../../components/CustomerSidebar';
 import { useNotificationsData } from '../../hooks/useNotificationsData';
 
 export default function CustomerNotification() {
@@ -53,7 +52,6 @@ export default function CustomerNotification() {
       <div className="fixed top-[-10%] right-[-5%] w-[40rem] h-[40rem] bg-indigo-900/15 rounded-full blur-[120px] pointer-events-none -z-10"></div>
       <div className="fixed bottom-[-10%] left-[-5%] w-[35rem] h-[35rem] bg-blue-900/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
-      <CustomerSidebar />
 
       {/* 1. Add this new scrolling container */}
 <div className="flex-1 h-full overflow-y-auto relative z-10">

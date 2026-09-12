@@ -1,6 +1,6 @@
 
 import { Outlet } from 'react-router-dom';
-import Sidebar from '../SidebarTemplate';
+import Sidebar from '../../components/SidebarTemplate';
 import { LayoutDashboard, Briefcase, ShoppingBag, Bell, HelpCircle } from 'lucide-react';
 
 const businessNavItems = [

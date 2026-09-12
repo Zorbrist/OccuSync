@@ -37,6 +37,7 @@ import CustomerOrder from "./pages/Customer/CustomerOrder";
 import CustomerCompare from "./pages/Customer/CustomerCompare";
 import CustomerSave from "./pages/Customer/CustomerSave";
 import CustomerNotification from "./pages/Customer/CustomerNotification";
+import CustomerInvoices from './pages/Customer/CustomerInvoices';
 
 import ProtectedRoute from "./routes/ProtetedRoutes";
 import AdminLayout from './pages/Admin/AdminLayout';
@@ -81,6 +82,7 @@ export default function App() {
           <Route path="/customerCompare" element={<CustomerCompare />} />
           <Route path="/customerSaved" element={<CustomerSave />} />
           <Route path="/customerNotifications" element={<CustomerNotification />} />
+          <Route path="/customerInvoices" element={<CustomerInvoices />} />
         </Route>
       </Routes>
     </Router>

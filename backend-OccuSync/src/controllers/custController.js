@@ -440,6 +440,94 @@ exports.markNotificationAsRead = async (req, res, next) => {
   }
 };
 
+// INVOICES
+
+// Get all invoices for the logged-in customer
+exports.getCustomerInvoices = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const result = await pool.query(
+      `SELECT
+        invoices.id,
+        invoices.job_id,
+        invoices.total_amount,
+        invoices.status,
+        invoices.due_date,
+        services.name AS service_name,
+        businesses.name AS business_name
+       FROM invoices
+       JOIN jobs
+         ON invoices.job_id = jobs.id
+       JOIN services
+         ON jobs.service_id = services.id
+       JOIN businesses
+         ON jobs.business_id = businesses.id
+       WHERE jobs.customer_id = (
+         SELECT id
+         FROM customer_profiles
+         WHERE user_id = $1
+       )
+       ORDER BY invoices.due_date DESC`,
+      [userId]
+    );
+
+    return res.json(result.rows);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Get details for a specific invoice
+exports.getCustomerInvoice = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const invoiceId = req.params.id;
+
+    const result = await pool.query(
+      `SELECT
+        invoices.id AS invoice_id,
+        invoices.total_amount,
+        invoices.status AS invoice_status,
+        invoices.due_date,
+        invoices.created_at AS invoice_date,
+        jobs.id AS job_id,
+        jobs.scheduled_start,
+        jobs.scheduled_end,
+        services.name AS service_name,
+        services.description AS service_description,
+        services.base_price,
+        businesses.name AS business_name,
+        businesses.phone AS business_phone,
+        businesses.email AS business_email
+       FROM invoices
+       JOIN jobs
+         ON invoices.job_id = jobs.id
+       JOIN services
+         ON jobs.service_id = services.id
+       JOIN businesses
+         ON jobs.business_id = businesses.id
+       WHERE invoices.id = $1
+       AND jobs.customer_id = (
+         SELECT id
+         FROM customer_profiles
+         WHERE user_id = $2
+       )`,
+      [invoiceId, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Invoice not found'
+      });
+    }
+
+    return res.json(result.rows[0]);
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 
 

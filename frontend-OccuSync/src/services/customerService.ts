@@ -5,7 +5,9 @@ import type {
   ServiceListing, 
   OrderResponse, 
   OrderPayload,
-  NotificationResponse 
+  NotificationResponse, 
+  InvoiceSummary, // Add this
+  InvoiceDetail   // Add this
 } from '../types/customerType';
 
 export const getCustomerDashboard = async (): Promise<CustomerDashboardResponse> => {
@@ -27,8 +29,8 @@ export const getCustomerOrders = async (): Promise<OrderResponse[]> => {
 
 export const createOrder = async (payload: OrderPayload): Promise<OrderResponse> => {
   const response = await axiosInstance.post('/customer/orders', payload);
-  return response.data;
-};
+  return response.data.order;
+}
 
 export const getCustomerNotifications = async (): Promise<NotificationResponse[]> => {
   const response = await axiosInstance.get('/customer/notifications');
@@ -39,4 +41,14 @@ export const getCustomerNotifications = async (): Promise<NotificationResponse[]
 
 export const markNotificationAsRead = async (id: number): Promise<void> => {
   await axiosInstance.put(`/customer/notifications/${id}/read`);
+};
+
+export const getCustomerInvoices = async (): Promise<InvoiceSummary[]> => {
+  const response = await axiosInstance.get('/customer/invoices');
+  return response.data;
+};
+
+export const getCustomerInvoice = async (id: string | number): Promise<InvoiceDetail> => {
+  const response = await axiosInstance.get(`/customer/invoices/${id}`);
+  return response.data;
 };

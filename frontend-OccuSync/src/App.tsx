@@ -25,6 +25,7 @@ import CustomerOrdersPage from './pages/Business/CustOrdersPage';
 import CustomerOrdersDetailsPage from './pages/Business/CustOrdersDetailsPage';
 import NotificationsPage from './pages/Business/NotificationsPage';
 import MerchantSupportPage from './pages/Business/MerchantSupportPage';
+import StaffInvitePage from './pages/Business/StaffPage';
 
 // Business Layout
 import BusinessLayout from './pages/Business/Business_Layout';
@@ -42,6 +43,9 @@ import CustomerInvoices from './pages/Customer/CustomerInvoices';
 
 import ProtectedRoute from "./routes/ProtetedRoutes";
 import AdminLayout from './pages/Admin/AdminLayout';
+import StaffRegisterPage from './pages/StaffRegisterPage';
+
+import StaffLayout from './pages/Business/Staff_Layout';
 
 
 export default function App() {
@@ -52,6 +56,7 @@ export default function App() {
         <Route path="/about" element={<AboutUs />} />
         <Route path="/register/business" element={<RegisterBusiness />} />
         <Route path="/register/customer" element={<RegisterCustomer />} />
+        <Route path="register/staff" element={<StaffRegisterPage />} />
         <Route path="/login" element={<Login />} />
 
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
@@ -60,6 +65,31 @@ export default function App() {
             <Route path="users" element={<UserManagementPage />} />
           </Route>
         </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['SERVICE_PROVIDER']} allowedBusinessRoles={['OWNER']} />}>
+          <Route path="/business" element={<BusinessLayout />}>
+            <Route index element={<BusinessPage />} />
+            <Route path="listings" element={<ListingsPage />} />
+            <Route path="listings/:id" element={<ListingDetailsPage />} />
+            <Route path="quotations" element={<QuotationsPage />} />
+            <Route path="orders" element={<CustomerOrdersPage />} />
+            <Route path="orders/:id" element={<CustomerOrdersDetailsPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="support" element={<MerchantSupportPage />} />
+            <Route path="staff/invite" element={<StaffInvitePage />} />
+          </Route>
+        </Route>
+
+        <Route element={<ProtectedRoute allowedRoles={['SERVICE_PROVIDER']} allowedBusinessRoles={['STAFF']} />}>
+          <Route path="/staff" element={<StaffLayout />}>
+            <Route path="listings" element={<ListingsPage />} />
+            <Route path="listings/:id" element={<ListingDetailsPage />} />
+            <Route path="orders" element={<CustomerOrdersPage />} />
+            <Route path="orders/:id" element={<CustomerOrdersDetailsPage />} />
+          </Route>
+        </Route>
+
+
 
         <Route element={<ProtectedRoute allowedRoles={['SERVICE_PROVIDER']} />}>
           <Route path="/business" element={<BusinessLayout />}>

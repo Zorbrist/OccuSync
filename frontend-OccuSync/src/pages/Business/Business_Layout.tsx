@@ -1,13 +1,14 @@
 
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../../components/SidebarTemplate';
-import { LayoutDashboard, Briefcase, ShoppingBag, Bell, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, Briefcase, ShoppingBag, Bell, HelpCircle, PersonStanding} from 'lucide-react';
 
 const businessNavItems = [
   { name: 'Dashboard', path: '/business', icon: LayoutDashboard },
   { name: 'Listings', path: '/business/listings', icon: Briefcase },
   { name: 'Customer Orders', path: '/business/orders', icon: ShoppingBag },
   { name: 'Notifications', path: '/business/notifications', icon: Bell },
+  { name: 'Invite Staff', path: '/business/staff/invite', icon: PersonStanding},
 ];
 
 export default function BusinessLayout() {

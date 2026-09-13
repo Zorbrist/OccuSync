@@ -1,4 +1,9 @@
+const crypto = require('crypto');
 const pool = require('../config/db');
+
+const {
+  sendStaffInvitationEmail
+} = require('../services/emailSerivice');
 
 
 // =====================================================
@@ -779,6 +784,138 @@ exports.markAllBusinessNotificationsAsRead = async (req, res, next) => {
     return res.json({
       message: 'All notifications marked as read',
       updated_count: result.rowCount
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+// =====================================================
+// STAFF
+// =====================================================
+
+exports.inviteStaff = async (req, res, next) => {
+  try {
+    const businessId = req.business.id;
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        message: 'Email is required'
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Get business name for the invitation email
+    const businessResult = await pool.query(
+      `SELECT name
+       FROM businesses
+       WHERE id = $1`,
+      [businessId]
+    );
+
+    if (businessResult.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Business not found'
+      });
+    }
+
+    const businessName = businessResult.rows[0].name;
+
+    // Check whether this email already belongs to a user
+    const existingUserResult = await pool.query(
+      `SELECT id
+       FROM users
+       WHERE email = $1`,
+      [normalizedEmail]
+    );
+
+    if (existingUserResult.rows.length > 0) {
+      const existingUserId = existingUserResult.rows[0].id;
+
+      // Check whether the user is already a member
+      const existingMemberResult = await pool.query(
+        `SELECT id
+         FROM business_members
+         WHERE user_id = $1
+         AND business_id = $2`,
+        [existingUserId, businessId]
+      );
+
+      if (existingMemberResult.rows.length > 0) {
+        return res.status(409).json({
+          message: 'This user is already a member of your business'
+        });
+      }
+    }
+
+    // Check for an existing pending invitation
+    const existingInvitationResult = await pool.query(
+      `SELECT id
+       FROM staff_invitations
+       WHERE email = $1
+       AND business_id = $2
+       AND accepted_at IS NULL
+       AND expires_at > CURRENT_TIMESTAMP`,
+      [normalizedEmail, businessId]
+    );
+
+    if (existingInvitationResult.rows.length > 0) {
+      return res.status(409).json({
+        message: 'An active invitation already exists for this email'
+      });
+    }
+
+    // Generate secure invitation token
+    const token = crypto.randomBytes(32).toString('hex');
+
+    // Store only the hash in the database
+    const tokenHash = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    // Invitation expires after 24 hours
+    const expiresAt = new Date(
+      Date.now() + 24 * 60 * 60 * 1000
+    );
+
+    await pool.query(
+      `INSERT INTO staff_invitations
+        (
+          business_id,
+          email,
+          token_hash,
+          expires_at
+        )
+       VALUES
+        ($1, $2, $3, $4)`,
+      [
+        businessId,
+        normalizedEmail,
+        tokenHash,
+        expiresAt
+      ]
+    );
+
+    // Create invitation URL
+    const invitationUrl =
+      `http://localhost:5173/register/staff?token=${token}`;
+
+    // Send invitation email
+    await sendStaffInvitationEmail({
+      email: normalizedEmail,
+      businessName,
+      invitationUrl,
+      expiresAt
+    });
+
+    return res.status(201).json({
+      message: 'Staff invitation sent successfully',
+      link: invitationUrl
     });
 
   } catch (error) {

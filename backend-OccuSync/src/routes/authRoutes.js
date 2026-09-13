@@ -7,6 +7,7 @@ const router = express.Router();
 router.post('/register/customer', authController.registerCustomer);
 router.post('/register/business', authController.registerBusiness);
 router.post('/login', authController.login);
+router.post('/register/staff', authController.registerStaff);
 
 router.get(
   '/admin',
@@ -34,5 +35,7 @@ router.get(
     res.json({ message: 'Welcome Customer!' });
   }
 );
+
+
 
 module.exports = router;

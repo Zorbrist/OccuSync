@@ -1,5 +1,5 @@
-
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Briefcase,
   Clock,
@@ -13,6 +13,8 @@ import {
 import { useBusinessDashboard } from '../../hooks/useBusinessData';
 
 export default function BusinessPage() {
+  const navigate = useNavigate();
+
   const {
     data,
     loading,
@@ -50,18 +52,30 @@ export default function BusinessPage() {
 
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-rose-950">
-            Hello, {data?.business.id || 'Vendor'}
+            Hello, {data?.business.name || 'Vendor'}
           </h1>
 
           <p className="text-xs font-semibold tracking-wider text-slate-400 uppercase mt-1">
-            Monday, 8 September 2026 · 1:35 PM
+            {new Date().toLocaleString('en-MY', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+              hour: 'numeric',
+              minute: '2-digit',
+            })}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-slate-500">
+        <button
+          type="button"
+          onClick={() => fetchBusinessDashboard()}
+          className="flex items-center gap-2 text-sm text-slate-500 hover:text-rose-950 transition"
+          title="Refresh dashboard"
+        >
           <CalendarDays size={17} />
           Today
-        </div>
+        </button>
 
       </div>
 
@@ -73,8 +87,11 @@ export default function BusinessPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
 
         {/* ACTIVE ORDERS */}
-        <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
-
+        <button
+          type="button"
+          onClick={() => navigate('/business/orders')}
+          className="text-left bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5 hover:border-rose-300 hover:shadow-2xl transition"
+        >
           <div className="flex items-center justify-between">
 
             <div className="h-11 w-11 rounded-2xl bg-rose-100 text-rose-950 flex items-center justify-center">
@@ -96,12 +113,15 @@ export default function BusinessPage() {
             {data?.metrics.active_orders ?? 0}
           </h2>
 
-        </div>
+        </button>
 
 
         {/* PENDING */}
-        <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
-
+        <button
+          type="button"
+          onClick={() => navigate('/business/orders')}
+          className="text-left bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5 hover:border-amber-300 hover:shadow-2xl transition"
+        >
           <div className="flex items-center justify-between">
 
             <div className="h-11 w-11 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center">
@@ -122,12 +142,15 @@ export default function BusinessPage() {
             {data?.metrics.pending_orders ?? 0}
           </h2>
 
-        </div>
+        </button>
 
 
         {/* COMPLETED */}
-        <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
-
+        <button
+          type="button"
+          onClick={() => navigate('/business/orders')}
+          className="text-left bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5 hover:border-green-300 hover:shadow-2xl transition"
+        >
           <div className="flex items-center justify-between">
 
             <div className="h-11 w-11 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center">
@@ -148,12 +171,15 @@ export default function BusinessPage() {
             {data?.metrics.completed_orders_this_month ?? 0}
           </h2>
 
-        </div>
+        </button>
 
 
         {/* REVENUE */}
-        <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
-
+        <button
+          type="button"
+          onClick={() => navigate('/business/orders')}
+          className="text-left bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5 hover:border-blue-300 hover:shadow-2xl transition"
+        >
           <div className="flex items-center justify-between">
 
             <div className="h-11 w-11 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center">
@@ -175,7 +201,7 @@ export default function BusinessPage() {
             RM{data?.metrics.monthly_revenue?.toLocaleString() ?? '0'}
           </h2>
 
-        </div>
+        </button>
 
       </div>
 
@@ -186,7 +212,6 @@ export default function BusinessPage() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
 
-
         {/* ACTIVE ORDERS */}
         <div className="xl:col-span-2 space-y-4">
 
@@ -196,7 +221,11 @@ export default function BusinessPage() {
               Active Orders
             </h2>
 
-            <button className="text-xs font-bold text-rose-950 hover:underline">
+            <button
+              type="button"
+              onClick={() => navigate('/business/orders')}
+              className="text-xs font-bold text-rose-950 hover:underline"
+            >
               View all →
             </button>
 
@@ -241,7 +270,11 @@ export default function BusinessPage() {
 
                   </div>
 
-                  <button className="px-4 py-2.5 rounded-xl bg-rose-950 text-white text-xs font-bold hover:bg-rose-900">
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/business/orders/${order.id}`)}
+                    className="px-4 py-2.5 rounded-xl bg-rose-950 text-white text-xs font-bold hover:bg-rose-900 transition"
+                  >
                     Manage Order
                   </button>
 
@@ -263,19 +296,26 @@ export default function BusinessPage() {
         {/* RIGHT SIDE */}
         <div className="space-y-6">
 
-
           {/* INCOMING INQUIRIES */}
           <div>
 
             <div className="flex items-center justify-between mb-4">
 
-              <h2 className="text-lg font-bold text-slate-900">
+              <button
+                type="button"
+                onClick={() => navigate('/business/orders')}
+                className="text-lg font-bold text-slate-900 hover:text-rose-950 transition"
+              >
                 Incoming Inquiries
-              </h2>
+              </button>
 
-              <span className="h-6 min-w-6 px-2 rounded-full bg-rose-950 text-white text-xs font-bold flex items-center justify-center">
+              <button
+                type="button"
+                onClick={() => navigate('/business/orders')}
+                className="h-6 min-w-6 px-2 rounded-full bg-rose-950 text-white text-xs font-bold flex items-center justify-center hover:bg-rose-900 transition"
+              >
                 2
-              </span>
+              </button>
 
             </div>
 
@@ -298,7 +338,11 @@ export default function BusinessPage() {
                 "Can you arrange a technician tomorrow for aircond repair?"
               </p>
 
-              <button className="w-full mt-4 py-2.5 rounded-xl bg-rose-950 text-white text-xs font-bold hover:bg-rose-900">
+              <button
+                type="button"
+                onClick={() => navigate('/business/orders')}
+                className="w-full mt-4 py-2.5 rounded-xl bg-rose-950 text-white text-xs font-bold hover:bg-rose-900 transition"
+              >
                 Send Quotation
               </button>
 
@@ -308,7 +352,11 @@ export default function BusinessPage() {
 
 
           {/* BUSINESS RATING */}
-          <div className="bg-gradient-to-br from-rose-950 to-red-900 rounded-3xl p-6 text-white">
+          <button
+            type="button"
+            onClick={() => navigate('/business/orders')}
+            className="w-full text-left bg-gradient-to-br from-rose-950 to-red-900 rounded-3xl p-6 text-white hover:shadow-xl transition"
+          >
 
             <div className="flex items-center gap-2">
 
@@ -339,11 +387,15 @@ export default function BusinessPage() {
               Based on 126 customer reviews
             </p>
 
-          </div>
+          </button>
 
 
           {/* ALERTS */}
-          <div className="bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5">
+          <button
+            type="button"
+            onClick={() => navigate('/business/notifications')}
+            className="w-full text-left bg-white rounded-3xl p-6 border border-rose-100 shadow-xl shadow-rose-950/5 hover:border-rose-300 hover:shadow-2xl transition"
+          >
 
             <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">
               Business Alerts
@@ -394,7 +446,7 @@ export default function BusinessPage() {
 
             </div>
 
-          </div>
+          </button>
 
         </div>
 

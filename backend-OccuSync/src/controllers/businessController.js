@@ -914,7 +914,8 @@ exports.inviteStaff = async (req, res, next) => {
     });
 
     return res.status(201).json({
-      message: 'Staff invitation sent successfully'
+      message: 'Staff invitation sent successfully',
+      link: invitationUrl
     });
 
   } catch (error) {

@@ -1,6 +1,8 @@
-const { Resend } = require('resend');
+const { BrevoClient } = require('@getbrevo/brevo');
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const brevo = new BrevoClient({
+  apiKey: process.env.BREVO_API_KEY
+});
 
 const sendStaffInvitationEmail = async ({
   email,
@@ -8,55 +10,71 @@ const sendStaffInvitationEmail = async ({
   invitationUrl,
   expiresAt
 }) => {
-  const { data, error } = await resend.emails.send({
-    from: 'OccuSync <onboarding@resend.dev>',
-    to: [email],
-    subject: `You've been invited to join ${businessName} on OccuSync`,
-    html: `
-      <h2>You're invited to join ${businessName}</h2>
+  try {
+    const result = await brevo.transactionalEmails.sendTransacEmail({
+      sender: {
+        name: process.env.BREVO_SENDER_NAME || 'OccuSync',
+        email: process.env.BREVO_SENDER_EMAIL
+      },
 
-      <p>
-        You have been invited to join
-        <strong>${businessName}</strong>
-        as a staff member on OccuSync.
-      </p>
+      to: [
+        {
+          email
+        }
+      ],
 
-      <p>
-        Click the button below to create your staff account:
-      </p>
+      subject: `You've been invited to join ${businessName} on OccuSync`,
 
-      <p>
-        <a
-          href="${invitationUrl}"
-          style="
-            display: inline-block;
-            padding: 12px 20px;
-            background: #000;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 6px;
-          "
-        >
-          Accept Invitation
-        </a>
-      </p>
+      htmlContent: `
+        <h2>You're invited to join ${businessName}</h2>
 
-      <p>
-        This invitation expires on
-        <strong>${new Date(expiresAt).toLocaleString()}</strong>.
-      </p>
+        <p>
+          You have been invited to join
+          <strong>${businessName}</strong>
+          as a staff member on OccuSync.
+        </p>
 
-      <p>
-        If you did not expect this invitation, you can safely ignore this email.
-      </p>
-    `
-  });
+        <p>
+          Click the button below to create your staff account:
+        </p>
 
-  if (error) {
-    throw new Error(error.message);
+        <p>
+          <a
+            href="${invitationUrl}"
+            style="
+              display: inline-block;
+              padding: 12px 20px;
+              background: #000;
+              color: #fff;
+              text-decoration: none;
+              border-radius: 6px;
+            "
+          >
+            Accept Invitation
+          </a>
+        </p>
+
+        <p>
+          This invitation expires on
+          <strong>${new Date(expiresAt).toLocaleString()}</strong>.
+        </p>
+
+        <p>
+          If you did not expect this invitation, you can safely ignore this email.
+        </p>
+      `
+    });
+
+    return result;
+
+  } catch (error) {
+    console.error('Brevo email error:', error);
+
+    throw new Error(
+      error?.message ||
+      'Failed to send staff invitation email'
+    );
   }
-
-  return data;
 };
 
 module.exports = {

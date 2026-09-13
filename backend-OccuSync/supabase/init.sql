@@ -93,6 +93,24 @@ CREATE TABLE business_members (
 );
 
 
+CREATE TABLE staff_invitations (
+    id SERIAL PRIMARY KEY,
+
+    business_id VARCHAR(20) NOT NULL
+        REFERENCES businesses(id) ON DELETE CASCADE,
+
+    email VARCHAR(255) NOT NULL,
+
+    token_hash TEXT NOT NULL UNIQUE,
+
+    expires_at TIMESTAMP NOT NULL,
+
+    accepted_at TIMESTAMP,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
 
 CREATE TABLE services (
     id SERIAL PRIMARY KEY,

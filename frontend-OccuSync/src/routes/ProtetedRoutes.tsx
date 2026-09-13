@@ -2,20 +2,25 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 interface ProtectedRouteProps {
   allowedRoles: string[];
+  allowedBusinessRoles?: string[];
 }
 
-const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
+const ProtectedRoute = ({
+  allowedRoles,
+  allowedBusinessRoles,
+}: ProtectedRouteProps) => {
   const token = localStorage.getItem('token');
   let user = null;
 
   try {
     const userStr = localStorage.getItem('user');
+
     if (userStr) {
       user = JSON.parse(userStr);
     }
   } catch (error) {
-    console.error("Corrupted user data found. Forcing logout.");
-    // If the JSON parse fails, wipe the corrupted data so it doesn't get stuck
+    console.error('Corrupted user data found. Forcing logout.');
+
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('userRole');
@@ -26,8 +31,16 @@ const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Logged in but wrong role
+  // Check global role
   if (!allowedRoles.includes(user.role)) {
+    return <Navigate to="/" replace />;
+  }
+
+  // Check business role if specified
+  if (
+    allowedBusinessRoles &&
+    !allowedBusinessRoles.includes(user.business_role)
+  ) {
     return <Navigate to="/" replace />;
   }
 

@@ -31,7 +31,7 @@ interface UseAdminUsersResult {
 
 const useAdminUsers = (
   search?: string,
-  role?: 'CUSTOMER' | 'SERVICE_PROVIDER'
+  role?: 'CUSTOMER' | 'BUSINESS_PROVIDER'
 ): UseAdminUsersResult => {
   const [data, setData] = useState<AdminUsersData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);

@@ -3,7 +3,7 @@
 // Type definitions mirroring the response shape returned by
 // GET /api/admin/dashboard (see adminController.getAdminDashboard).
 
-export type UserRole = 'CUSTOMER' | 'SERVICE_PROVIDER' | 'ADMIN';
+export type UserRole = 'CUSTOMER' | 'BUSINESS_PROVIDER' | 'ADMIN';
 
 export type JobStatus =
   | 'PENDING'
@@ -195,7 +195,7 @@ export interface AdminUsersResponse {
 export interface AdminUser {
   id: number;
   email: string;
-  role: 'CUSTOMER' | 'SERVICE_PROVIDER' | 'ADMIN';
+  role: 'CUSTOMER' | 'BUSINESS_PROVIDER' | 'ADMIN';
   created_at: string;
 }
 

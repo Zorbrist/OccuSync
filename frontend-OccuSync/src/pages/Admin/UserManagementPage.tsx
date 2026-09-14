@@ -97,7 +97,7 @@ export default function UserManagementPage() {
         }
 
         if (
-            user.role === 'SERVICE_PROVIDER' &&
+            user.role === 'BUSINESS_PROVIDER' &&
             Array.isArray(selectedUser.details) &&
             selectedUser.details.length > 0
         ) {
@@ -863,7 +863,7 @@ export default function UserManagementPage() {
                                     )}
 
                                 {/* BUSINESS DETAILS */}
-                                {selectedUser.user.role === 'SERVICE_PROVIDER' &&
+                                {selectedUser.user.role === 'BUSINESS_PROVIDER' &&
                                     Array.isArray(selectedUser.details) &&
                                     selectedUser.details.length > 0 && (
                                         <div className="space-y-4">

@@ -22,7 +22,7 @@ const Login = () => {
                 navigate('/admin');
                 break;
 
-            case 'SERVICE_PROVIDER':
+            case 'BUSINESS_PROVIDER':
                 if (data.user.business_role === 'OWNER') {
                     navigate('/business');
                 } else if (data.user.business_role === 'STAFF') {

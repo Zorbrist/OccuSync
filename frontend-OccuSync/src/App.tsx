@@ -63,10 +63,11 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="users" element={<UserManagementPage />} />
+            <Route path="approval" element={<UserManagementPage />} />
           </Route>
         </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['SERVICE_PROVIDER']} allowedBusinessRoles={['OWNER']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['BUSINESS_PROVIDER']} allowedBusinessRoles={['OWNER']} />}>
           <Route path="/business" element={<BusinessLayout />}>
             <Route index element={<BusinessPage />} />
             <Route path="listings" element={<ListingsPage />} />
@@ -80,27 +81,12 @@ export default function App() {
           </Route>
         </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['SERVICE_PROVIDER']} allowedBusinessRoles={['STAFF']} />}>
+        <Route element={<ProtectedRoute allowedRoles={['BUSINESS_PROVIDER']} allowedBusinessRoles={['STAFF']} />}>
           <Route path="/staff" element={<StaffLayout />}>
             <Route path="listings" element={<ListingsPage />} />
             <Route path="listings/:id" element={<ListingDetailsPage />} />
             <Route path="orders" element={<CustomerOrdersPage />} />
             <Route path="orders/:id" element={<CustomerOrdersDetailsPage />} />
-          </Route>
-        </Route>
-
-
-
-        <Route element={<ProtectedRoute allowedRoles={['SERVICE_PROVIDER']} />}>
-          <Route path="/business" element={<BusinessLayout />}>
-            <Route index element={<BusinessPage />} />
-            <Route path="listings" element={<ListingsPage />} />
-            <Route path="listings/:id" element={<ListingDetailsPage />} />
-            <Route path="quotations" element={<QuotationsPage />} />
-            <Route path="orders" element={<CustomerOrdersPage />} />
-            <Route path="orders/:id" element={<CustomerOrdersDetailsPage />} />
-            <Route path="notifications" element={<NotificationsPage />} />
-            <Route path="support" element={<MerchantSupportPage />} />
           </Route>
         </Route>
 

@@ -69,7 +69,7 @@ export interface StaffRegistrationResponse {
   user: {
     id: number;
     email: string;
-    role: 'SERVICE_PROVIDER';
+    role: 'BUSINESS_PROVIDER';
   };
   token: string;
 }

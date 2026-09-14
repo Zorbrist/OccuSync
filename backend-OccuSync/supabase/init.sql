@@ -14,7 +14,7 @@ CREATE TABLE users (
     role VARCHAR(30) NOT NULL CHECK (
         role IN (
             'CUSTOMER',
-            'SERVICE_PROVIDER',
+            'BUSINESS_PROVIDER',
             'ADMIN'
         )
     ),
@@ -36,9 +36,27 @@ CREATE TABLE customer_profiles (
 
     phone VARCHAR(30) NOT NULL,
 
-    country VARCHAR(100) NOT NULL,
+    address_line VARCHAR(100) NOT NULL,
     state VARCHAR(100) NOT NULL,
     postcode VARCHAR(20) NOT NULL,
+    country VARCHAR(100) NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE business_member_profiles (
+    id SERIAL PRIMARY KEY,
+
+    user_id INTEGER UNIQUE NOT NULL
+        REFERENCES users(id) ON DELETE CASCADE,
+
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+
+    phone VARCHAR(30) NOT NULL,
+
+    profile_picture TEXT,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -53,9 +71,26 @@ CREATE TABLE businesses (
 
     registration_no VARCHAR(100) UNIQUE NOT NULL,
 
-    industry VARCHAR(100) NOT NULL,
+    approval_status VARCHAR(30) NOT NULL CHECK (
 
-    area_of_service TEXT,
+        approval_status IN (
+            'PENDING',
+            'APPROVED',
+            'REJECTED'
+        )
+    ),
+
+    industry VARCHAR(100) NOT NULL CHECK (
+
+        industry IN (
+            
+            'PLUMBING',
+            'ENERGY',
+            'HVAC',
+            'AUTOMOTIVE',
+            'LOGISTICS'
+        )
+    ),
 
     phone VARCHAR(30) NOT NULL,
     email VARCHAR(255) NOT NULL,
@@ -134,24 +169,6 @@ CREATE TABLE services (
 
 
 
-CREATE TABLE staff_skills (
-    id SERIAL PRIMARY KEY,
-
-    member_id VARCHAR(20) NOT NULL
-        REFERENCES business_members(id) ON DELETE CASCADE,
-
-    service_id INTEGER NOT NULL
-        REFERENCES services(id) ON DELETE CASCADE,
-
-    proficiency VARCHAR(50),
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-    UNIQUE (member_id, service_id)
-);
-
-
-
 CREATE TABLE jobs (
     id SERIAL PRIMARY KEY,
 
@@ -171,26 +188,18 @@ CREATE TABLE jobs (
         status IN (
             'PENDING',
             'CONFIRMED',
-            'ASSIGNED',
-            'IN_PROGRESS',
             'COMPLETED',
             'CANCELLED'
         )
     ),
 
-    scheduled_start TIMESTAMP NOT NULL,
+    date DATE,
 
-    scheduled_end TIMESTAMP,
-
-    notes TEXT,
+    time_slot TIME,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
-    CHECK (
-        scheduled_end IS NULL
-        OR scheduled_end > scheduled_start
-    )
 );
 
 CREATE TABLE job_logs (
@@ -202,9 +211,9 @@ CREATE TABLE job_logs (
     user_id INTEGER NOT NULL
         REFERENCES users(id) ON DELETE CASCADE,
 
-    notes TEXT,
-
     photo_url TEXT,
+
+    notes TEXT,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -219,13 +228,11 @@ CREATE TABLE invoices (
     job_id INTEGER UNIQUE NOT NULL
         REFERENCES jobs(id) ON DELETE CASCADE,
 
-    status VARCHAR(30) NOT NULL DEFAULT 'DRAFT' CHECK (
+    status VARCHAR(30) NOT NULL DEFAULT 'ISSUED' CHECK (
         status IN (
-            'DRAFT',
             'ISSUED',
             'PAID',
-            'OVERDUE',
-            'CANCELLED'
+            'OVERDUE'
         )
     ),
 
@@ -251,14 +258,8 @@ CREATE TABLE invoice_items (
 
     description VARCHAR(255) NOT NULL,
 
-    unit_price NUMERIC(10,2) NOT NULL
-        CHECK (unit_price >= 0),
-
-    quantity INTEGER NOT NULL
-        CHECK (quantity > 0),
-
-    subtotal NUMERIC(10,2) NOT NULL
-        CHECK (subtotal >= 0)
+    sub_total NUMERIC(10,2) NOT NULL
+        CHECK (sub_total >= 0)
 );
 
 
@@ -278,22 +279,8 @@ CREATE TABLE payments (
             'ONLINE_BANKING',
             'E_WALLET'
         )
-    ),
+    )
 
-    status VARCHAR(30) NOT NULL DEFAULT 'PENDING' CHECK (
-        status IN (
-            'PENDING',
-            'COMPLETED',
-            'FAILED',
-            'REFUNDED'
-        )
-    ),
-
-    reference VARCHAR(255),
-
-    paid_at TIMESTAMP,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 
@@ -311,3 +298,24 @@ CREATE TABLE notifications (
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+
+CREATE TABLE messages (
+    id SERIAL PRIMARY KEY,
+
+    business_id VARCHAR(20) NOT NULL
+        REFERENCES businesses(id) ON DELETE CASCADE,
+
+    customer_id VARCHAR(20) NOT NULL
+        REFERENCES customer_profiles(id) ON DELETE CASCADE,
+
+    sender_user_id INTEGER NOT NULL
+        REFERENCES users(id) ON DELETE CASCADE,
+
+    message_text TEXT NOT NULL,
+
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+

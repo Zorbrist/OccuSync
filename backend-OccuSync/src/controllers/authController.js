@@ -184,7 +184,7 @@ exports.registerBusiness = async (req, res, next) => {
       `INSERT INTO users
         (email, password_hash, role)
        VALUES
-        ($1, $2, 'SERVICE_PROVIDER')
+        ($1, $2, 'BUSINESS_PROVIDER')
        RETURNING id, email, role`,
       [normalizedEmail, passwordHash]
     );
@@ -198,7 +198,6 @@ exports.registerBusiness = async (req, res, next) => {
           name,
           registration_no,
           industry,
-          area_of_service,
           phone,
           email,
           state,
@@ -206,15 +205,12 @@ exports.registerBusiness = async (req, res, next) => {
           country
         )
        VALUES
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        ($1, $2, $3, $4, $5, $6, $7, $8)
        RETURNING id, name, registration_no, phone, email`,
       [
         business.name.trim(),
         business.registration_no.trim(),
         business.industry.trim(),
-        business.area_of_service
-          ? business.area_of_service.trim()
-          : null,
         business.phone.trim(),
         business.email.trim().toLowerCase(),
         business.state.trim(),
@@ -241,7 +237,7 @@ exports.registerBusiness = async (req, res, next) => {
     await client.query('COMMIT');
 
     return res.status(201).json({
-      message: 'Business registered successfully',
+      message: 'Business registered successfully, please wait while we approved your account!',
       user,
       business: newBusiness
     });
@@ -273,10 +269,13 @@ exports.login = async (req, res, next) => {
         u.role,
         u.created_at,
         u.updated_at,
-        bm.role AS business_role
+        bm.role AS business_role,
+        b.approval_status
        FROM users u
        LEFT JOIN business_members bm
          ON bm.user_id = u.id
+       LEFT JOIN businesses b
+         ON b.id = bm.business_id
        WHERE u.email = $1`,
       [email.trim().toLowerCase()]
     );
@@ -293,6 +292,28 @@ exports.login = async (req, res, next) => {
       });
     }
 
+    // Check business approval BEFORE creating JWT
+    if (user.role === 'BUSINESS_PROVIDER') {
+
+      if (user.approval_status === 'PENDING') {
+        return res.status(403).json({
+          message: 'Your business account is awaiting admin approval.'
+        });
+      }
+
+      if (user.approval_status === 'REJECTED') {
+        return res.status(403).json({
+          message: 'Your business registration has been rejected.'
+        });
+      }
+
+      if (user.approval_status !== 'APPROVED') {
+        return res.status(403).json({
+          message: 'Your business account has not been approved.'
+        });
+      }
+    }
+
     // Create user object without password_hash
     const safeUser = {
       id: user.id,
@@ -303,14 +324,13 @@ exports.login = async (req, res, next) => {
       updated_at: user.updated_at
     };
 
-    // Create JWT
+    // Create JWT only after approval check
     const token = signAccessToken({
       sub: String(safeUser.id),
       email: safeUser.email,
       role: safeUser.role
     });
 
-    // Send user + token
     res.json({
       message: 'Login successful',
       user: safeUser,

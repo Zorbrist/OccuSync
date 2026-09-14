@@ -63,6 +63,7 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="users" element={<UserManagementPage />} />
+            <Route path="approval" element={<UserManagementPage />} />
           </Route>
         </Route>
 

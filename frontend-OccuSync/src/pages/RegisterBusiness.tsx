@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, type ChangeEvent } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useRegisterBusiForm } from '../hooks/useRegisterBusi';
@@ -9,7 +9,7 @@ const INPUT_FIELD = "w-full py-3 px-4 rounded-xl bg-gray-50 border border-gray-2
 
 const RegisterBusiness: React.FC = () => {
   const { formData, error, loading, handleChange, handleSubmit } = useRegisterBusiForm();
-  
+
   // State for toggling password visibility
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -18,7 +18,7 @@ const RegisterBusiness: React.FC = () => {
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const isSuccess = await handleSubmit(e);
-    
+
     if (isSuccess) {
       setShowSuccessModal(true);
     }
@@ -26,11 +26,11 @@ const RegisterBusiness: React.FC = () => {
 
   return (
     <div className="min-h-screen relative flex justify-center items-center py-12 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-white via-[#091540]/100 to-[#7692FF]/100">
-      
+
       {/* Top Left Sticky Back to Home Button */}
       <div className="fixed top-6 left-6 sm:top-8 sm:left-8 z-40">
-        <Link 
-          to="/" 
+        <Link
+          to="/"
           className="flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-[#1a0bba] bg-white/90 backdrop-blur-sm py-2 px-4 rounded-full shadow-sm border border-gray-200 transition-all hover:shadow-md"
         >
           <span className="text-lg leading-none">&larr;</span> Back to Home
@@ -38,7 +38,7 @@ const RegisterBusiness: React.FC = () => {
       </div>
 
       <div className="max-w-[850px] w-full z-10 bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden mt-12 md:mt-0">
-        
+
         <div className="bg-gray-50/50 border-b border-gray-100 px-8 py-10 md:px-12">
           <h1 className="text-4xl font-extrabold text-[#1a0bba] tracking-tight mb-3">
             Join OccuSync
@@ -49,8 +49,8 @@ const RegisterBusiness: React.FC = () => {
         </div>
 
         <form onSubmit={handleFormSubmit} className="px-8 py-10 md:px-12 space-y-10">
-          
-         
+
+
 
           <section>
             <h2 className="text-xl font-bold text-gray-900 mb-5 border-b pb-2">Company Details</h2>
@@ -65,13 +65,28 @@ const RegisterBusiness: React.FC = () => {
               </div>
               <div>
                 <label className={INPUT_LABEL}>Industry</label>
-                <input required type="text" name="industry" value={formData.industry} onChange={handleChange} placeholder="e.g. Plumbing, Electrical" className={INPUT_FIELD} />
+                <select
+                  required
+                  name="industry"
+                  value={formData.industry}
+                  onChange={(e) => handleChange(e as unknown as ChangeEvent<HTMLInputElement>)}
+                  className={INPUT_FIELD}
+                >
+                  <option value="" disabled>
+                    Select an industry
+                  </option>
+                  <option value="PLUMBING">Plumbing</option>
+                  <option value="ENERGY">Energy</option>
+                  <option value="HVAC">HVAC</option>
+                  <option value="AUTOMOTIVE">Automotive</option>
+                  <option value="LOGISTICS">Logistics</option>
+                </select>
               </div>
               <div className="md:col-span-2">
                 <label className={INPUT_LABEL}>Area of Service</label>
                 <input type="text" name="areaOfService" value={formData.areaOfService} onChange={handleChange} placeholder="e.g. Klang Valley" className={INPUT_FIELD} />
               </div>
-              
+
               <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-4 mt-2">
                 <div>
                   <label className={INPUT_LABEL}>State</label>
@@ -118,68 +133,68 @@ const RegisterBusiness: React.FC = () => {
 
           <section className="bg-gray-50 rounded-2xl p-6 md:p-8 border border-gray-100">
             <h2 className="text-lg font-bold text-gray-900 mb-5">Security</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-               {/* Password Field with Eye Toggle */}
-               <div>
-                  <label className={INPUT_LABEL}>Password</label>
-                  <div className="relative">
-                    <input 
-                      required 
-                      type={showPassword ? 'text' : 'password'} 
-                      name="password" 
-                      value={formData.password} 
-                      onChange={handleChange} 
-                      placeholder="••••••••" 
-                      className={`${INPUT_FIELD} pr-11`} 
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-               </div>
 
-               {/* Confirm Password Field with Eye Toggle */}
-               <div>
-                  <label className={INPUT_LABEL}>Confirm Password</label>
-                  <div className="relative">
-                    <input 
-                      required 
-                      type={showConfirmPassword ? 'text' : 'password'} 
-                      name="confirmPassword" 
-                      value={formData.confirmPassword} 
-                      onChange={handleChange} 
-                      placeholder="••••••••" 
-                      className={`${INPUT_FIELD} pr-11`} 
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirmPassword((prev) => !prev)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition"
-                      aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
-                    >
-                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
-               </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+              {/* Password Field with Eye Toggle */}
+              <div>
+                <label className={INPUT_LABEL}>Password</label>
+                <div className="relative">
+                  <input
+                    required
+                    type={showPassword ? 'text' : 'password'}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className={`${INPUT_FIELD} pr-11`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Confirm Password Field with Eye Toggle */}
+              <div>
+                <label className={INPUT_LABEL}>Confirm Password</label>
+                <div className="relative">
+                  <input
+                    required
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    placeholder="••••••••"
+                    className={`${INPUT_FIELD} pr-11`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 transition"
+                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                  >
+                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
             </div>
 
             {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 font-medium text-sm">
-              {error}
-            </div>
-          )}
-          <br />
+              <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 font-medium text-sm">
+                {error}
+              </div>
+            )}
+            <br />
             <div className="flex flex-col items-center space-y-6">
               <label className="flex items-center gap-3 cursor-pointer group">
                 <div className="relative flex items-center justify-center">
-                  <input 
-                    type="checkbox" 
+                  <input
+                    type="checkbox"
                     name="termsAgreed"
                     checked={formData.termsAgreed}
                     onChange={handleChange}
@@ -191,30 +206,30 @@ const RegisterBusiness: React.FC = () => {
                 </span>
               </label>
 
-               {error && (
-            <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 font-medium text-sm">
-              {error}
-            </div>
-          )}
+              {error && (
+                <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-200 font-medium text-sm">
+                  {error}
+                </div>
+              )}
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 disabled={loading}
                 className="bg-[#1a0bba] disabled:bg-gray-400 hover:bg-[#140899] active:scale-[0.98] text-white font-semibold py-3.5 px-10 rounded-xl w-full max-w-[400px] transition-all shadow-md focus:outline-none"
               >
                 {loading ? 'Submitting...' : 'Submit for Verification'}
               </button>
             </div>
-            
+
           </section>
 
-          
+
 
         </form>
       </div>
 
-      <SuccessModal 
-        isOpen={showSuccessModal} 
+      <SuccessModal
+        isOpen={showSuccessModal}
         title="Business Registered!"
         message="Welcome to OccuSync. Your business account has been submitted successfully. You can now login to access your workspace."
       />

@@ -71,7 +71,7 @@ CREATE TABLE businesses (
 
     registration_no VARCHAR(100) UNIQUE NOT NULL,
 
-    approval_status VARCHAR(30) NOT NULL CHECK (
+    approval_status VARCHAR(30) NOT NULL DEFAULT 'PENDING' CHECK (
 
         approval_status IN (
             'PENDING',

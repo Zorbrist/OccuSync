@@ -14,8 +14,8 @@ import Login from './pages/Login';
 import AboutUs from './pages/AboutUs';
 
 // Dashboard Pages
-import AdminDashboardPage from './pages/Admin/AdminDashboard';
-import UserManagementPage from './pages/Admin/UserManagementPage';
+import AdminDashboardPage from './pages/Admin/AdminDashboardPage';
+// import UserManagementPage from './pages/Admin/UserManagementPage';
 // Business Pages
 import BusinessPage from './pages/Business/BusinessPage';
 import ListingsPage from './pages/Business/ListingsPage';
@@ -62,8 +62,6 @@ export default function App() {
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
-            <Route path="users" element={<UserManagementPage />} />
-            <Route path="approval" element={<UserManagementPage />} />
           </Route>
         </Route>
 

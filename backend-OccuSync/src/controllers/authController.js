@@ -430,7 +430,7 @@ exports.registerStaff = async (req, res, next) => {
       `INSERT INTO users
         (email, password_hash, role)
        VALUES
-        ($1, $2, 'SERVICE_PROVIDER')
+        ($1, $2, 'BUSINESS_PROVIDER')
        RETURNING id, email, role`,
       [
         invitation.email,

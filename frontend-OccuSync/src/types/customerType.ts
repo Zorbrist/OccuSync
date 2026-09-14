@@ -15,40 +15,43 @@ export interface CustomerSummary {
 
 export interface CustomerDashboardResponse {
   customer: CustomerSummary;
-  upcoming_jobs: any[]; // or define a Job interface
+  upcoming_jobs: any[]; 
   recent_jobs: any[];
   unpaid_invoices: any[];
 }
 
 export interface ServiceListing {
-  id: string; // Notice: your backend likely returns this as a string if using custom IDs like 'SRV001'
+  id: number; // Updated to match 'int' in DB schema
   name: string;
   description: string;
-  base_price: string | number; // Note: numeric types in pg often return as strings
+  base_price: string | number; 
   estimated_duration: number;
   
-  // New fields from your SQL JOIN
   business_id: string;
   business_name: string;
   industry: string;
   state: string;
-  area_of_service: string;
+  postcode: string; // Replaced area_of_service
+  country: string;  // Added from schema
 }
+
 export interface OrderPayload {
-  service_id: string | number;
-  scheduled_start: string;
-  scheduled_end: string;
+  service_id: number; // Updated to match 'int' in DB schema
+  service_date: string; // Updated from scheduled_start
+  time_slot: string;    // Updated from scheduled_end
   notes: string;
 }
 
 export interface OrderResponse {
-  id: number | string; 
-  service_id: number | string;
-  status: 'PENDING' | 'CONFIRMED' | 'ASSIGNED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
-  scheduled_start: string;
-  scheduled_end: string;
+  id: number; 
+  service_id: number;
+  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'; // Aligned with DB schema
+  service_date: string; // Updated from scheduled_start
+  time_slot: string;    // Updated from scheduled_end
   notes: string;
   business_name?: string; 
+  service_name?: string;
+  service_description?: string;
 }
 
 export interface NotificationResponse {
@@ -57,28 +60,27 @@ export interface NotificationResponse {
   is_read: boolean;
   created_at: string;
   type: string;
-
 }
 
 export interface InvoiceSummary {
-  id: number | string;
-  job_id: number | string;
+  id: number;
+  job_id: number;
   total_amount: string | number;
-  status: 'DRAFT' | 'ISSUED' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+  status: 'ISSUED' | 'PAID' | 'OVERDUE'; // Aligned with DB schema
   due_date: string;
   service_name: string;
   business_name: string;
 }
 
 export interface InvoiceDetail {
-  invoice_id: number | string;
+  invoice_id: number;
   total_amount: string | number;
-  invoice_status: 'DRAFT' | 'ISSUED' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+  invoice_status: 'ISSUED' | 'PAID' | 'OVERDUE'; // Aligned with DB schema
   due_date: string;
   invoice_date: string;
-  job_id: number | string;
-  scheduled_start: string;
-  scheduled_end: string;
+  job_id: number;
+  service_date: string; // Updated from scheduled_start
+  time_slot: string;    // Updated from scheduled_end
   service_name: string;
   service_description: string;
   base_price: string | number;

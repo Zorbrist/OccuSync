@@ -2,63 +2,57 @@ const pool = require('../config/db');
 
 // Get customer dashboard
 exports.getCustomerDashboard = async (req, res, next) => {
-	try {
-		// Get logged-in user's ID from auth middleware
-		const userId = req.user.id;
+  try {
+    // Get logged-in user's ID from auth middleware
+    const userId = req.user.id;
 
-		// Get customer profile
-		const customerResult = await pool.query(
-			`SELECT
+    // Get customer profile
+    const customerResult = await pool.query(
+      `SELECT
         first_name,
         last_name,
         phone
        FROM customer_profiles
        WHERE user_id = $1`,
-			[userId]
-		);
+      [userId]
+    );
 
-		if (customerResult.rows.length === 0) {
-			return res.status(404).json({
-				message: 'Customer profile not found'
-			});
-		}
+    if (customerResult.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Customer profile not found'
+      });
+    }
 
-		const customer = customerResult.rows[0];
+    const customer = customerResult.rows[0];
 
-		// Get upcoming jobs
-		const upcomingJobsResult = await pool.query(
-			`SELECT
+    // Get upcoming jobs
+    const upcomingJobsResult = await pool.query(
+      `SELECT
         jobs.id,
         services.name AS service_name,
         businesses.name AS business_name,
         jobs.status,
-        jobs.scheduled_start,
-        jobs.scheduled_end
+        jobs.service_date,
+        jobs.time_slot
        FROM jobs
-       JOIN services
-         ON jobs.service_id = services.id
-       JOIN businesses
-         ON jobs.business_id = businesses.id
-       WHERE jobs.customer_id = (
-         SELECT id
-         FROM customer_profiles
-         WHERE user_id = $1
-       )
-       AND jobs.scheduled_start >= CURRENT_TIMESTAMP
+       JOIN services ON jobs.service_id = services.id
+       JOIN businesses ON jobs.business_id = businesses.id
+       WHERE jobs.customer_id = (SELECT id FROM customer_profiles WHERE user_id = $1)
+       AND jobs.service_date >= CURRENT_DATE
        AND jobs.status NOT IN ('CANCELLED', 'COMPLETED')
-       ORDER BY jobs.scheduled_start ASC`,
-			[userId]
-		);
+       ORDER BY jobs.service_date ASC, jobs.time_slot ASC`,
+      [userId]
+    );
 
-		// Get recent jobs
-		const recentJobsResult = await pool.query(
-			`SELECT
+    // Get recent jobs
+    const recentJobsResult = await pool.query(
+      `SELECT
         jobs.id,
         services.name AS service_name,
         businesses.name AS business_name,
         jobs.status,
-        jobs.scheduled_start,
-        jobs.scheduled_end
+        jobs.date,
+        jobs.time_slot
        FROM jobs
        JOIN services
          ON jobs.service_id = services.id
@@ -69,15 +63,15 @@ exports.getCustomerDashboard = async (req, res, next) => {
          FROM customer_profiles
          WHERE user_id = $1
        )
-       AND jobs.scheduled_start < CURRENT_TIMESTAMP
-       ORDER BY jobs.scheduled_start DESC
+      AND jobs.service_date < CURRENT_DATE
+       ORDER BY jobs.service_date DESC, jobs.time_slot DESC
        LIMIT 5`,
-			[userId]
-		);
+      [userId]
+    );
 
-		// Get unpaid invoices
-		const unpaidInvoicesResult = await pool.query(
-			`SELECT
+    // Get unpaid invoices
+    const unpaidInvoicesResult = await pool.query(
+      `SELECT
         invoices.id,
         invoices.job_id,
         invoices.total_amount,
@@ -91,34 +85,33 @@ exports.getCustomerDashboard = async (req, res, next) => {
          FROM customer_profiles
          WHERE user_id = $1
        )
-       AND invoices.status IN ('DRAFT', 'ISSUED', 'OVERDUE')
+       AND invoices.status IN ('ISSUED', 'OVERDUE')
        ORDER BY invoices.due_date ASC`,
-			[userId]
-		);
+      [userId]
+    );
 
-		// Return dashboard data
-		return res.json({
-			customer: {
-				name: `${customer.first_name} ${customer.last_name}`,
-				phone: customer.phone
-			},
-			upcoming_jobs: upcomingJobsResult.rows,
-			recent_jobs: recentJobsResult.rows,
-			unpaid_invoices: unpaidInvoicesResult.rows
-		});
+    // Return dashboard data
+    return res.json({
+      customer: {
+        name: `${customer.first_name} ${customer.last_name}`,
+        phone: customer.phone
+      },
+      upcoming_jobs: upcomingJobsResult.rows,
+      recent_jobs: recentJobsResult.rows,
+      unpaid_invoices: unpaidInvoicesResult.rows
+    });
 
-	} catch (error) {
-		next(error);
-	}
+  } catch (error) {
+    next(error);
+  }
 };
 
 
-//SERVICES 
-
+// Get all services
 exports.getCustomerServices = async (req, res, next) => {
-	try {
-		const result = await pool.query(
-			`SELECT
+  try {
+    const result = await pool.query(
+      `SELECT
         services.id,
         services.name,
         services.description,
@@ -128,23 +121,25 @@ exports.getCustomerServices = async (req, res, next) => {
         businesses.name AS business_name,
         businesses.industry,
         businesses.state,
-        businesses.area_of_service
+        businesses.postcode,
+        businesses.country
        FROM services
        JOIN businesses
          ON services.business_id = businesses.id
        ORDER BY services.name ASC`
-		);
+    );
 
-		return res.json({
-			count: result.rowCount,
-			services: result.rows
-		});
+    return res.json({
+      count: result.rowCount,
+      services: result.rows
+    });
 
-	} catch (error) {
-		next(error);
-	}
+  } catch (error) {
+    next(error);
+  }
 };
 
+// Get a single service
 exports.getCustomerService = async (req, res, next) => {
 	try {
 		const serviceId = req.params.id;
@@ -160,7 +155,8 @@ exports.getCustomerService = async (req, res, next) => {
         businesses.name AS business_name,
         businesses.industry,
         businesses.state,
-        businesses.area_of_service,
+        businesses.postcode,
+        businesses.country,
         businesses.phone,
         businesses.email
        FROM services
@@ -183,25 +179,22 @@ exports.getCustomerService = async (req, res, next) => {
 	}
 };
 
-
-
 // ORDERSS 
 
 exports.getCustomerOrders = async (req, res, next) => {
-	try {
-		const userId = req.user.id;
+  try {
+    const userId = req.user.id;
 
-		const result = await pool.query(
-			`SELECT
+    const result = await pool.query(
+      `SELECT
         jobs.id,
         services.name AS service_name,
         services.description AS service_description,
         businesses.id AS business_id,
         businesses.name AS business_name,
         jobs.status,
-        jobs.scheduled_start,
-        jobs.scheduled_end,
-        jobs.notes
+        jobs.date,
+        jobs.time_slot
        FROM jobs
        JOIN services
          ON jobs.service_id = services.id
@@ -212,15 +205,15 @@ exports.getCustomerOrders = async (req, res, next) => {
          FROM customer_profiles
          WHERE user_id = $1
        )
-       ORDER BY jobs.scheduled_start DESC`,
-			[userId]
-		);
+       ORDER BY jobs.service_date DESC, jobs.time_slot DESC`,
+      [userId]
+    );
 
-		return res.json(result.rows);
+    return res.json(result.rows);
 
-	} catch (error) {
-		next(error);
-	}
+  } catch (error) {
+    next(error);
+  }
 };
 
 
@@ -241,8 +234,8 @@ exports.getCustomerOrder = async (req, res, next) => {
         businesses.phone AS business_phone,
         businesses.email AS business_email,
         jobs.status,
-        jobs.scheduled_start,
-        jobs.scheduled_end,
+        jobs.service_date,
+        jobs.time_slot,
         jobs.notes
        FROM jobs
        JOIN services
@@ -278,14 +271,14 @@ exports.createCustomerOrder = async (req, res, next) => {
 
 		const {
 			service_id,
-			scheduled_start,
-			scheduled_end,
+			service_date,
+			time_slot,
 			notes
 		} = req.body;
 
-		if (!service_id || !scheduled_start) {
+		if (!service_id || !service_date) {
 			return res.status(400).json({
-				message: 'service_id and scheduled_start are required'
+				message: 'service_id and service_date are required'
 			});
 		}
 
@@ -332,8 +325,8 @@ exports.createCustomerOrder = async (req, res, next) => {
           customer_id,
           service_id,
           status,
-          scheduled_start,
-          scheduled_end,
+          service_date,
+          time_slot,
           notes
         )
        VALUES
@@ -344,16 +337,16 @@ exports.createCustomerOrder = async (req, res, next) => {
         customer_id,
         service_id,
         status,
-        scheduled_start,
-        scheduled_end,
+        service_date,
+        time_slot,
         notes,
         created_at`,
 			[
 				service.business_id,
 				customerId,
 				service.id,
-				scheduled_start,
-				scheduled_end || null,
+				service_date,
+				time_slot || null,
 				notes || null
 			]
 		);
@@ -492,8 +485,8 @@ exports.getCustomerInvoice = async (req, res, next) => {
         invoices.due_date,
         invoices.created_at AS invoice_date,
         jobs.id AS job_id,
-        jobs.scheduled_start,
-        jobs.scheduled_end,
+        jobs.service_date,
+        jobs.time_slot,
         services.name AS service_name,
         services.description AS service_description,
         services.base_price,

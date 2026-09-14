@@ -50,7 +50,7 @@ export default function BusinessPage() {
 
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-rose-950">
-            Hello, {data?.business.id || 'Vendor'}
+            Hello, {data?.business.name || 'Vendor'}
           </h1>
 
           <p className="text-xs font-semibold tracking-wider text-slate-400 uppercase mt-1">

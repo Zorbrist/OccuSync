@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDashboardData } from "../../hooks/useDashboardData";
+import type { OrderResponse } from "../../types/customerType";
 
 export default function CustomerDashboard() {
   const navigate = useNavigate();
@@ -66,40 +67,49 @@ export default function CustomerDashboard() {
   const unreadNotifications = notifications.filter((n) => !n.is_read).length;
   const suggestedServices = services.slice(0, 4);
 
-  const getStatusColor = (status: string) => {
+  // Helper to get status indicators
+  const getStatusIndicator = (status: string) => {
     switch (status) {
       case "PENDING":
-        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+        return "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.6)]";
       case "CONFIRMED":
-        return "bg-sky-500/10 text-sky-400 border-sky-500/20";
-      case "ASSIGNED":
-        return "bg-indigo-500/10 text-indigo-400 border-indigo-500/20";
-      case "IN_PROGRESS":
-        return "bg-violet-500/10 text-violet-400 border-violet-500/20";
+        return "bg-sky-400 shadow-[0_0_8px_rgba(56,189,248,0.6)]";
       case "COMPLETED":
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+        return "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)]";
       default:
-        return "bg-slate-800 text-slate-300 border-slate-700";
+        return "bg-slate-600";
     }
   };
 
+  // Group active orders by date for the calendar view
+  const groupedOrders = activeOrders.reduce((acc: Record<string, OrderResponse[]>, order) => {
+    const dateKey = order.service_date ? new Date(order.service_date).toISOString().split('T')[0] : 'TBD';
+    if (!acc[dateKey]) acc[dateKey] = [];
+    acc[dateKey].push(order);
+    return acc;
+  }, {});
+
+  // Sort dates chronologically
+  const sortedDates = Object.keys(groupedOrders).sort((a, b) => {
+    if (a === 'TBD') return 1;
+    if (b === 'TBD') return -1;
+    return new Date(a).getTime() - new Date(b).getTime();
+  });
+
   return (
     <div className="flex h-screen bg-slate-950 font-sans text-slate-100 selection:bg-indigo-500/30 relative overflow-hidden">
-      {/* Subtle Ambient Glows for Depth */}
       <div className="fixed top-[-10%] left-[-5%] w-[40rem] h-[40rem] bg-indigo-900/20 rounded-full blur-[120px] pointer-events-none -z-10"></div>
       <div className="fixed bottom-[-10%] right-[-5%] w-[35rem] h-[35rem] bg-emerald-900/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
-      {/* 1. Add this new scrolling container */}
       <div className="flex-1 h-full overflow-y-auto relative z-10">
-
         <div className="flex-1 p-6 md:p-10 lg:pl-12 max-w-7xl mx-auto z-10">
-
+          
           {/* Header Section */}
           <div className="mb-10 relative overflow-hidden bg-slate-900/60 rounded-2xl p-8 shadow-2xl border border-slate-800 backdrop-blur-md flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-800/50 rounded-lg text-indigo-300 text-xs font-semibold tracking-wide uppercase mb-4 border border-slate-700/50">
                 <Sparkles size={14} className="text-indigo-400" />
-                Welcome to Occusync
+                Welcome to OccuSync
               </div>
               <h1 className="text-3xl md:text-4xl font-semibold mb-2 tracking-tight text-slate-100">
                 Hello, {customer?.name || "Guest"} 👋
@@ -115,13 +125,10 @@ export default function CustomerDashboard() {
             </div>
 
             <button
-              onClick={() => navigate("/customerServices")}
+              onClick={() => navigate("/customer/services")}
               className="relative z-10 bg-indigo-600 border border-indigo-500 text-white px-6 py-3 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 hover:shadow-indigo-500/40 hover:-translate-y-0.5 transition-all duration-200 flex items-center gap-2 group"
             >
-              <Zap
-                size={18}
-                className="text-indigo-200 group-hover:text-white transition-colors"
-              />
+              <Zap size={18} className="text-indigo-200 group-hover:text-white transition-colors" />
               Request New Service
             </button>
           </div>
@@ -129,59 +136,26 @@ export default function CustomerDashboard() {
           {/* Metric Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {[
-              {
-                label: "Active Jobs",
-                value: activeOrders.length,
-                icon: Clock,
-                iconColor: "text-blue-400",
-                bgAccent: "bg-blue-500/10",
-              },
-              {
-                label: "Unpaid Invoices",
-                value: unpaidInvoices.length,
-                icon: FileText,
-                iconColor: "text-rose-400",
-                bgAccent: "bg-rose-500/10",
-              },
-              {
-                label: "Completed Jobs",
-                value: completedOrders.length,
-                icon: CheckCircle,
-                iconColor: "text-emerald-400",
-                bgAccent: "bg-emerald-500/10",
-              },
-              {
-                label: "Unread Alerts",
-                value: unreadNotifications,
-                icon: Bell,
-                iconColor: "text-amber-400",
-                bgAccent: "bg-amber-500/10",
-                hasAlert: unreadNotifications > 0,
-              },
+              { label: "Active Jobs", value: activeOrders.length, icon: Clock, color: "text-blue-400", bg: "bg-blue-500/10" },
+              { label: "Unpaid Invoices", value: unpaidInvoices.length, icon: FileText, color: "text-rose-400", bg: "bg-rose-500/10" },
+              { label: "Completed Jobs", value: completedOrders.length, icon: CheckCircle, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+              { label: "Unread Alerts", value: unreadNotifications, icon: Bell, color: "text-amber-400", bg: "bg-amber-500/10", alert: unreadNotifications > 0 },
             ].map((metric, idx) => (
-              <div
-                key={idx}
-                className="bg-slate-900/60 p-6 rounded-2xl shadow-lg border border-slate-800 backdrop-blur-md hover:bg-slate-800/60 hover:border-slate-700 transition-all duration-200 flex flex-col justify-between group"
-              >
+              <div key={idx} className="bg-slate-900/60 p-6 rounded-2xl shadow-lg border border-slate-800 backdrop-blur-md hover:bg-slate-800/60 hover:border-slate-700 transition-all duration-200 flex flex-col justify-between group">
                 <div className="flex justify-between items-start mb-4">
-                  <div className={`p-3 rounded-xl ${metric.bgAccent} border border-slate-700/50`}>
-                    <metric.icon size={22} strokeWidth={2} className={metric.iconColor} />
+                  <div className={`p-3 rounded-xl ${metric.bg} border border-slate-700/50`}>
+                    <metric.icon size={22} strokeWidth={2} className={metric.color} />
                   </div>
-                  {metric.hasAlert && (
+                  {metric.alert && (
                     <div className="relative flex h-3 w-3">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
                     </div>
                   )}
                 </div>
-
                 <div>
-                  <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">
-                    {metric.label}
-                  </p>
-                  <h3 className="text-3xl font-semibold text-slate-100 tracking-tight">
-                    {metric.value}
-                  </h3>
+                  <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-1">{metric.label}</p>
+                  <h3 className="text-3xl font-semibold text-slate-100 tracking-tight">{metric.value}</h3>
                 </div>
               </div>
             ))}
@@ -189,15 +163,15 @@ export default function CustomerDashboard() {
 
           {/* Main Content Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-            {/* LEFT COLUMN: Activity Feed */}
+            
+            {/* LEFT COLUMN: Calendar Activity Feed */}
             <div className="lg:col-span-2 space-y-6">
               <div className="flex justify-between items-center px-1">
                 <h3 className="text-xl font-semibold text-slate-100 tracking-tight">
-                  Activity Feed
+                  Upcoming Schedule
                 </h3>
                 <button
-                  onClick={() => navigate("/customerOrders")}
+                  onClick={() => navigate("/customer/orders")}
                   className="text-sm font-medium text-indigo-400 hover:text-indigo-300 flex items-center gap-1 group transition-colors"
                 >
                   View All History
@@ -205,73 +179,57 @@ export default function CustomerDashboard() {
                 </button>
               </div>
 
-              {orders.length === 0 ? (
+              {sortedDates.length === 0 ? (
                 <div className="bg-slate-900/60 backdrop-blur-md p-12 rounded-2xl shadow-lg border border-slate-800 flex flex-col items-center justify-center text-center h-[320px]">
                   <div className="w-16 h-16 bg-slate-800 rounded-2xl border border-slate-700 flex items-center justify-center mb-6">
-                    <Wrench size={32} className="text-slate-500" />
+                    <Calendar size={32} className="text-slate-500" />
                   </div>
-                  <h4 className="text-lg font-semibold text-slate-200 mb-2">
-                    No active requests
-                  </h4>
-                  <p className="text-slate-400 text-sm max-w-sm mb-8">
-                    Your workspace is clear. Let's get things moving by booking your first service.
-                  </p>
-                  <button
-                    onClick={() => navigate("/services")}
-                    className="px-6 py-2.5 bg-slate-100 text-slate-900 rounded-xl text-sm font-semibold hover:bg-white hover:shadow-lg hover:shadow-white/10 transition-all duration-200"
-                  >
-                    Browse Services
-                  </button>
+                  <h4 className="text-lg font-semibold text-slate-200 mb-2">No upcoming jobs</h4>
+                  <p className="text-slate-400 text-sm max-w-sm mb-8">Your calendar is clear. Book a service to see it scheduled here.</p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {orders.slice(0, 4).map((order) => (
-                    <div
-                      key={order.id}
-                      className="bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl shadow-lg border border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/40 transition-all duration-200 group"
-                    >
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                        <div className="flex items-center gap-4">
-                          <div className="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-indigo-400 font-semibold shadow-inner">
-                            {order.business_name?.charAt(0) || "S"}
-                          </div>
-                          <div>
-                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest block mb-0.5">
-                              Order #{order.id}
-                            </span>
-                            <h4 className="text-base font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors">
-                              {order.business_name || "Service Provider"}
-                            </h4>
-                          </div>
+                <div className="space-y-6">
+                  {sortedDates.map((dateString) => {
+                    const dateObj = dateString !== 'TBD' ? new Date(dateString) : null;
+                    const day = dateObj ? dateObj.getDate() : '-';
+                    const month = dateObj ? dateObj.toLocaleString('default', { month: 'short' }).toUpperCase() : 'TBD';
+
+                    return (
+                      <div key={dateString} className="flex gap-4 sm:gap-6 relative group">
+                        {/* Date Block */}
+                        <div className="flex flex-col items-center min-w-[60px] pt-1">
+                          <span className="text-xs font-semibold text-indigo-400 tracking-widest">{month}</span>
+                          <span className="text-2xl font-bold text-slate-200">{day}</span>
                         </div>
-                        <span
-                          className={`text-[11px] font-semibold px-3 py-1.5 rounded-lg border ${getStatusColor(
-                            order.status
-                          )}`}
-                        >
-                          {order.status.replace("_", " ")}
-                        </span>
-                      </div>
 
-                      {order.notes && (
-                        <p className="text-slate-400 text-sm mb-5 bg-slate-950/50 p-4 rounded-xl border border-slate-800/50 line-clamp-2">
-                          "{order.notes}"
-                        </p>
-                      )}
-
-                      <div className="flex flex-wrap gap-6 pt-4 border-t border-slate-800/50">
-                        <div className="flex items-center gap-2 text-sm text-slate-400 font-medium">
-                          <Calendar size={15} className="text-indigo-400" />
-                          <span>
-                            {new Date(order.scheduled_start).toLocaleString(
-                              "en-MY",
-                              { dateStyle: "medium", timeStyle: "short" },
-                            )}
-                          </span>
+                        {/* Event List */}
+                        <div className="flex-1 space-y-3 border-l-2 border-slate-800/80 pl-6 py-1 relative before:absolute before:left-[-5px] before:top-4 before:w-2 before:h-2 before:bg-slate-700 before:rounded-full">
+                          {groupedOrders[dateString].map((order) => (
+                            <div 
+                              key={order.id} 
+                              onClick={() => navigate(`/customer/orders/${order.id}`)}
+                              className="bg-slate-900/40 backdrop-blur-sm p-4 rounded-xl border border-slate-800/60 hover:bg-slate-800/60 hover:border-slate-700 transition-all duration-200 cursor-pointer flex items-center justify-between gap-4"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div className={`w-2 h-2 rounded-full ${getStatusIndicator(order.status)}`}></div>
+                                <div>
+                                  <h4 className="text-sm font-medium text-slate-200">{order.service_name || "Service Request"}</h4>
+                                  <div className="flex items-center gap-2 mt-1 text-xs text-slate-500">
+                                    <Clock size={12} />
+                                    <span>{order.time_slot || "Time pending"}</span>
+                                    <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 ml-2">
+                                      {order.business_name}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              <ChevronRight size={16} className="text-slate-600" />
+                            </div>
+                          ))}
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -287,17 +245,12 @@ export default function CustomerDashboard() {
 
                   {suggestedServices.length === 0 ? (
                     <div className="text-center py-10 bg-slate-950/50 rounded-xl border border-slate-800/50">
-                      <p className="text-slate-400 text-sm">
-                        More services coming soon.
-                      </p>
+                      <p className="text-slate-400 text-sm">More services coming soon.</p>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-3">
                       {suggestedServices.map((service) => (
-                        <div
-                          key={service.id}
-                          className="group cursor-pointer p-4 rounded-xl bg-slate-950/30 border border-slate-800/50 hover:bg-slate-800/50 hover:border-slate-700 transition-all duration-200"
-                        >
+                        <div key={service.id} className="group cursor-pointer p-4 rounded-xl bg-slate-950/30 border border-slate-800/50 hover:bg-slate-800/50 hover:border-slate-700 transition-all duration-200">
                           <div className="flex justify-between items-start mb-1.5 gap-2">
                             <h4 className="text-sm font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors leading-snug">
                               {service.name}
@@ -315,18 +268,16 @@ export default function CustomerDashboard() {
                   )}
 
                   <button
-                    onClick={() => navigate("/customerServices")}
+                    onClick={() => navigate("/customer/services")}
                     className="w-full mt-6 bg-slate-800 border border-slate-700 text-slate-200 py-3 rounded-xl text-sm font-medium hover:bg-slate-700 hover:text-white transition-all duration-200 flex items-center justify-center gap-2 group"
                   >
                     Explore Directory
-                    <ChevronRight
-                      size={16}
-                      className="group-hover:translate-x-1 transition-transform text-slate-400 group-hover:text-white"
-                    />
+                    <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform text-slate-400 group-hover:text-white" />
                   </button>
                 </div>
               </div>
             </div>
+            
           </div>
         </div>
       </div>

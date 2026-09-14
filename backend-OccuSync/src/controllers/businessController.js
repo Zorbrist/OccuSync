@@ -37,21 +37,17 @@ exports.getBusinessDashboard = async (req, res, next) => {
     const business = businessResult.rows[0];
     const businessId = business.id;
 
-
-    // Active orders
+    // Active orders (Only PENDING and CONFIRMED are valid active statuses)
     const activeOrdersResult = await pool.query(
       `SELECT COUNT(*) AS count
        FROM jobs
        WHERE business_id = $1
        AND status IN (
          'PENDING',
-         'CONFIRMED',
-         'ASSIGNED',
-         'IN_PROGRESS'
+         'CONFIRMED'
        )`,
       [businessId]
     );
-
 
     // Pending orders
     const pendingOrdersResult = await pool.query(
@@ -62,20 +58,18 @@ exports.getBusinessDashboard = async (req, res, next) => {
       [businessId]
     );
 
-
-    // Completed orders this month
+    // Completed orders this month (Using 'date' instead of 'scheduled_start')
     const completedOrdersResult = await pool.query(
       `SELECT COUNT(*) AS count
        FROM jobs
        WHERE business_id = $1
        AND status = 'COMPLETED'
-       AND scheduled_start >= DATE_TRUNC('month', CURRENT_DATE)
-       AND scheduled_start < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'`,
+       AND date >= DATE_TRUNC('month', CURRENT_DATE)
+       AND date < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'`,
       [businessId]
     );
 
-
-    // Monthly revenue
+    // Monthly revenue (Using invoices.status and invoices.updated_at since payments lacks these columns)
     const revenueResult = await pool.query(
       `SELECT COALESCE(SUM(payments.amount), 0) AS revenue
        FROM payments
@@ -84,14 +78,13 @@ exports.getBusinessDashboard = async (req, res, next) => {
        JOIN jobs
          ON invoices.job_id = jobs.id
        WHERE jobs.business_id = $1
-       AND payments.status = 'COMPLETED'
-       AND payments.paid_at >= DATE_TRUNC('month', CURRENT_DATE)
-       AND payments.paid_at < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'`,
+       AND invoices.status = 'PAID'
+       AND invoices.updated_at >= DATE_TRUNC('month', CURRENT_DATE)
+       AND invoices.updated_at < DATE_TRUNC('month', CURRENT_DATE) + INTERVAL '1 month'`,
       [businessId]
     );
 
-
-    // Recent active orders
+    // Recent active orders (Using 'date' and 'time_slot' instead of scheduled start/end)
     const activeOrdersListResult = await pool.query(
       `SELECT
         jobs.id,
@@ -99,8 +92,8 @@ exports.getBusinessDashboard = async (req, res, next) => {
         customer_profiles.first_name,
         customer_profiles.last_name,
         jobs.status,
-        jobs.scheduled_start,
-        jobs.scheduled_end
+        jobs.date,
+        jobs.time_slot
        FROM jobs
        JOIN services
          ON jobs.service_id = services.id
@@ -109,15 +102,12 @@ exports.getBusinessDashboard = async (req, res, next) => {
        WHERE jobs.business_id = $1
        AND jobs.status IN (
          'PENDING',
-         'CONFIRMED',
-         'ASSIGNED',
-         'IN_PROGRESS'
+         'CONFIRMED'
        )
-       ORDER BY jobs.scheduled_start ASC
+       ORDER BY jobs.date ASC, jobs.time_slot ASC
        LIMIT 5`,
       [businessId]
     );
-
 
     return res.json({
       business: {
@@ -125,18 +115,13 @@ exports.getBusinessDashboard = async (req, res, next) => {
         name: business.name,
         industry: business.industry
       },
-
       metrics: {
         active_orders: Number(activeOrdersResult.rows[0].count),
         pending_orders: Number(pendingOrdersResult.rows[0].count),
-        completed_orders_this_month:
-          Number(completedOrdersResult.rows[0].count),
-        monthly_revenue:
-          Number(revenueResult.rows[0].revenue)
+        completed_orders_this_month: Number(completedOrdersResult.rows[0].count),
+        monthly_revenue: Number(revenueResult.rows[0].revenue)
       },
-
       active_orders: activeOrdersListResult.rows
-
     });
 
   } catch (error) {
@@ -461,7 +446,6 @@ exports.getBusinessOrders = async (req, res, next) => {
     const userId = req.user.id;
     const status = req.query.status;
 
-
     let query = `
       SELECT
         jobs.id,
@@ -474,9 +458,8 @@ exports.getBusinessOrders = async (req, res, next) => {
         customer_profiles.phone,
 
         jobs.status,
-        jobs.scheduled_start,
-        jobs.scheduled_end,
-        jobs.notes,
+        jobs.date,
+        jobs.time_slot,
 
         services.base_price
 
@@ -498,20 +481,16 @@ exports.getBusinessOrders = async (req, res, next) => {
 
     const values = [userId];
 
-
     if (status) {
       query += ` AND jobs.status = $2`;
       values.push(status);
     }
 
-
     query += `
-      ORDER BY jobs.scheduled_start DESC
+      ORDER BY jobs.date DESC, jobs.time_slot DESC
     `;
 
-
     const result = await pool.query(query, values);
-
 
     return res.json(result.rows);
 
@@ -525,7 +504,6 @@ exports.getBusinessOrder = async (req, res, next) => {
   try {
     const userId = req.user.id;
     const orderId = req.params.id;
-
 
     const result = await pool.query(
       `SELECT
@@ -542,9 +520,8 @@ exports.getBusinessOrder = async (req, res, next) => {
         customer_profiles.phone,
 
         jobs.status,
-        jobs.scheduled_start,
-        jobs.scheduled_end,
-        jobs.notes,
+        jobs.date,
+        jobs.time_slot,
 
         business_members.id AS assigned_member_id,
         business_members.role AS assigned_member_role
@@ -570,13 +547,11 @@ exports.getBusinessOrder = async (req, res, next) => {
       [orderId, userId]
     );
 
-
     if (result.rows.length === 0) {
       return res.status(404).json({
         message: 'Order not found'
       });
     }
-
 
     return res.json(result.rows[0]);
 
@@ -592,16 +567,13 @@ exports.updateBusinessOrderStatus = async (req, res, next) => {
     const orderId = req.params.id;
     const { status } = req.body;
 
-
+    // Removed ASSIGNED and IN_PROGRESS to match DB check constraint
     const allowedStatuses = [
       'PENDING',
       'CONFIRMED',
-      'ASSIGNED',
-      'IN_PROGRESS',
       'COMPLETED',
       'CANCELLED'
     ];
-
 
     if (!status || !allowedStatuses.includes(status)) {
       return res.status(400).json({
@@ -610,6 +582,7 @@ exports.updateBusinessOrderStatus = async (req, res, next) => {
     }
 
     // 1. Update the status and retrieve necessary data for the notification
+    // Swapped scheduled_start/end and notes for date and time_slot
     const result = await pool.query(
       `UPDATE jobs
        SET
@@ -625,15 +598,13 @@ exports.updateBusinessOrderStatus = async (req, res, next) => {
        RETURNING
          id AS job_id,
          status AS new_status,
-         scheduled_start,
-         scheduled_end,
-         notes,
+         date,
+         time_slot,
          updated_at,
          (SELECT user_id FROM customer_profiles WHERE id = jobs.customer_id) AS customer_user_id,
          (SELECT name FROM services WHERE id = jobs.service_id) AS service_name`,
       [status, orderId, userId]
     );
-
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -650,12 +621,6 @@ exports.updateBusinessOrderStatus = async (req, res, next) => {
     switch (new_status) {
         case 'CONFIRMED':
             notificationMessage = `Good news! Your service request for ${service_name} (Order #${job_id}) has been confirmed.`;
-            break;
-        case 'ASSIGNED':
-            notificationMessage = `A professional has been assigned to your order #${job_id} for ${service_name}.`;
-            break;
-        case 'IN_PROGRESS':
-            notificationMessage = `Work has officially started on your order #${job_id}.`;
             break;
         case 'COMPLETED':
             notificationMessage = `Your order #${job_id} for ${service_name} is now complete!`;
@@ -680,9 +645,8 @@ exports.updateBusinessOrderStatus = async (req, res, next) => {
     const orderResponse = {
       id: job_id,
       status: new_status,
-      scheduled_start: result.rows[0].scheduled_start,
-      scheduled_end: result.rows[0].scheduled_end,
-      notes: result.rows[0].notes,
+      date: result.rows[0].date,
+      time_slot: result.rows[0].time_slot,
       updated_at: result.rows[0].updated_at
     };
 

@@ -36,19 +36,18 @@ export interface ServiceListing {
 }
 
 export interface OrderPayload {
-  service_id: number; // Updated to match 'int' in DB schema
-  service_date: string; // Updated from scheduled_start
-  time_slot: string;    // Updated from scheduled_end
-  notes: string;
+  service_id: number;
+  date?: string;         // Updated from service_date
+  time_slot?: string;
+
 }
 
 export interface OrderResponse {
   id: number; 
   service_id: number;
-  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'; // Aligned with DB schema
-  service_date: string; // Updated from scheduled_start
-  time_slot: string;    // Updated from scheduled_end
-  notes: string;
+  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'; 
+  date: string | null;   // Allow null
+  time_slot: string | null; // Allow null
   business_name?: string; 
   service_name?: string;
   service_description?: string;
@@ -75,16 +74,21 @@ export interface InvoiceSummary {
 export interface InvoiceDetail {
   invoice_id: number;
   total_amount: string | number;
-  invoice_status: 'ISSUED' | 'PAID' | 'OVERDUE'; // Aligned with DB schema
+  invoice_status: 'ISSUED' | 'PAID' | 'OVERDUE'; 
   due_date: string;
   invoice_date: string;
   job_id: number;
-  service_date: string; // Updated from scheduled_start
-  time_slot: string;    // Updated from scheduled_end
+  date: string;         // Updated from service_date
+  time_slot: string;    
   service_name: string;
   service_description: string;
   base_price: string | number;
   business_name: string;
   business_phone: string;
   business_email: string;
+}
+
+export interface PaymentPayload {
+  method: 'CASH' | 'CARD' | 'ONLINE_BANKING' | 'E_WALLET';
+  photo_url?: string;
 }

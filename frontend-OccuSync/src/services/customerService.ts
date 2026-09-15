@@ -7,8 +7,12 @@ import type {
   OrderPayload,
   NotificationResponse, 
   InvoiceSummary, // Add this
-  InvoiceDetail   // Add this
+  InvoiceDetail ,
 } from '../types/customerType';
+
+import type { PaymentPayload } from '../types/customerType';
+
+
 
 export const getCustomerDashboard = async (): Promise<CustomerDashboardResponse> => {
   const response = await axiosInstance.get('/customer/dashboard');
@@ -52,3 +56,10 @@ export const getCustomerInvoice = async (id: string | number): Promise<InvoiceDe
   const response = await axiosInstance.get(`/customer/invoices/${id}`);
   return response.data;
 };
+
+
+
+export const processPayment = async (invoiceId: number | string, payload: PaymentPayload): Promise<void> => {
+  await axiosInstance.post(`/customer/invoices/${invoiceId}/pay`, payload);
+};
+

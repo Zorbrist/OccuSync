@@ -1,35 +1,31 @@
-import './App.css';
+import "./App.css";
 
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-} from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Public Pages
-import Home from './pages/Home';
-import RegisterBusiness from './pages/RegisterBusiness';
-import RegisterCustomer from './pages/RegisterCustomer';
-import Login from './pages/Login';
-import AboutUs from './pages/AboutUs';
+import Home from "./pages/Home";
+import RegisterBusiness from "./pages/RegisterBusiness";
+import RegisterCustomer from "./pages/RegisterCustomer";
+import Login from "./pages/Login";
+import AboutUs from "./pages/AboutUs";
 
 // Dashboard Pages
-import AdminDashboardPage from './pages/Admin/AdminDashboard';
-import UserManagementPage from './pages/Admin/UserManagementPage';
+import AdminDashboardPage from "./pages/Admin/AdminDashboard";
+import UserManagementPage from "./pages/Admin/UserManagementPage";
 // Business Pages
-import BusinessPage from './pages/Business/BusinessPage';
-import ListingsPage from './pages/Business/ListingsPage';
-import ListingDetailsPage from './pages/Business/ListingDetailsPage';
-import QuotationsPage from './pages/Business/QuotationsPage';
-import CustomerOrdersPage from './pages/Business/CustOrdersPage';
-import CustomerOrdersDetailsPage from './pages/Business/CustOrdersDetailsPage';
-import NotificationsPage from './pages/Business/NotificationsPage';
-import MerchantSupportPage from './pages/Business/MerchantSupportPage';
-import StaffInvitePage from './pages/Business/StaffPage';
+import BusinessPage from "./pages/Business/BusinessPage";
+import ListingsPage from "./pages/Business/ListingsPage";
+import ListingDetailsPage from "./pages/Business/ListingDetailsPage";
+import QuotationsPage from "./pages/Business/QuotationsPage";
+import CustomerOrdersPage from "./pages/Business/CustOrdersPage";
+import CustomerOrdersDetailsPage from "./pages/Business/CustOrdersDetailsPage";
+import NotificationsPage from "./pages/Business/NotificationsPage";
+import MerchantSupportPage from "./pages/Business/MerchantSupportPage";
+import StaffInvitePage from "./pages/Business/StaffPage";
 
 // Business Layout
-import BusinessLayout from './pages/Business/Business_Layout';
-import CustomerLayout from './pages/Customer/CustomerLayout';
+import BusinessLayout from "./pages/Business/Business_Layout";
+import CustomerLayout from "./pages/Customer/CustomerLayout";
 
 // Import all Customer Pages
 import CustomerDashboard from "./pages/Customer/CustomerDashboard";
@@ -39,14 +35,14 @@ import CustomerOrder from "./pages/Customer/CustomerOrder";
 import CustomerCompare from "./pages/Customer/CustomerCompare";
 import CustomerSave from "./pages/Customer/CustomerSave";
 import CustomerNotification from "./pages/Customer/CustomerNotification";
-import CustomerInvoices from './pages/Customer/CustomerInvoices';
+import CustomerInvoices from "./pages/Customer/CustomerInvoices";
+import CustomerPayment from './pages/Customer/CustomerPayment';
 
 import ProtectedRoute from "./routes/ProtetedRoutes";
-import AdminLayout from './pages/Admin/AdminLayout';
-import StaffRegisterPage from './pages/StaffRegisterPage';
+import AdminLayout from "./pages/Admin/AdminLayout";
+import StaffRegisterPage from "./pages/StaffRegisterPage";
 
-import StaffLayout from './pages/Business/Staff_Layout';
-
+import StaffLayout from "./pages/Business/Staff_Layout";
 
 export default function App() {
   return (
@@ -67,7 +63,14 @@ export default function App() {
           </Route>
         </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['BUSINESS_PROVIDER']} allowedBusinessRoles={['OWNER']} />}>
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={["BUSINESS_PROVIDER"]}
+              allowedBusinessRoles={["OWNER"]}
+            />
+          }
+        >
           <Route path="/business" element={<BusinessLayout />}>
             <Route index element={<BusinessPage />} />
             <Route path="listings" element={<ListingsPage />} />
@@ -81,7 +84,14 @@ export default function App() {
           </Route>
         </Route>
 
-        <Route element={<ProtectedRoute allowedRoles={['BUSINESS_PROVIDER']} allowedBusinessRoles={['STAFF']} />}>
+        <Route
+          element={
+            <ProtectedRoute
+              allowedRoles={["BUSINESS_PROVIDER"]}
+              allowedBusinessRoles={["STAFF"]}
+            />
+          }
+        >
           <Route path="/staff" element={<StaffLayout />}>
             <Route path="listings" element={<ListingsPage />} />
             <Route path="listings/:id" element={<ListingDetailsPage />} />
@@ -100,7 +110,9 @@ export default function App() {
             <Route path="compare" element={<CustomerCompare />} />
             <Route path="saved" element={<CustomerSave />} />
             <Route path="notifications" element={<CustomerNotification />} />
+            <Route path="notifications" element={<CustomerNotification />} />
             <Route path="invoices" element={<CustomerInvoices />} />
+           <Route path="/customer/invoices/:id/pay" element={<CustomerPayment />} />
           </Route>
         </Route>
       </Routes>

@@ -32,15 +32,15 @@ exports.getCustomerDashboard = async (req, res, next) => {
         services.name AS service_name,
         businesses.name AS business_name,
         jobs.status,
-        jobs.service_date,
+        jobs.date,
         jobs.time_slot
        FROM jobs
        JOIN services ON jobs.service_id = services.id
        JOIN businesses ON jobs.business_id = businesses.id
        WHERE jobs.customer_id = (SELECT id FROM customer_profiles WHERE user_id = $1)
-       AND jobs.service_date >= CURRENT_DATE
+       AND jobs.date >= CURRENT_DATE
        AND jobs.status NOT IN ('CANCELLED', 'COMPLETED')
-       ORDER BY jobs.service_date ASC, jobs.time_slot ASC`,
+       ORDER BY jobs.date ASC, jobs.time_slot ASC`,
       [userId]
     );
 
@@ -63,8 +63,8 @@ exports.getCustomerDashboard = async (req, res, next) => {
          FROM customer_profiles
          WHERE user_id = $1
        )
-      AND jobs.service_date < CURRENT_DATE
-       ORDER BY jobs.service_date DESC, jobs.time_slot DESC
+      AND jobs.date < CURRENT_DATE
+       ORDER BY jobs.date DESC, jobs.time_slot DESC
        LIMIT 5`,
       [userId]
     );
@@ -205,7 +205,7 @@ exports.getCustomerOrders = async (req, res, next) => {
          FROM customer_profiles
          WHERE user_id = $1
        )
-       ORDER BY jobs.service_date DESC, jobs.time_slot DESC`,
+       ORDER BY jobs.date DESC, jobs.time_slot DESC`,
       [userId]
     );
 
@@ -234,9 +234,8 @@ exports.getCustomerOrder = async (req, res, next) => {
         businesses.phone AS business_phone,
         businesses.email AS business_email,
         jobs.status,
-        jobs.service_date,
-        jobs.time_slot,
-        jobs.notes
+        jobs.date,
+        jobs.time_slot
        FROM jobs
        JOIN services
          ON jobs.service_id = services.id
@@ -268,95 +267,52 @@ exports.getCustomerOrder = async (req, res, next) => {
 exports.createCustomerOrder = async (req, res, next) => {
 	try {
 		const userId = req.user.id;
+		const { service_id, date, time_slot } = req.body;
 
-		const {
-			service_id,
-			service_date,
-			time_slot,
-			notes
-		} = req.body;
-
-		if (!service_id || !service_date) {
-			return res.status(400).json({
-				message: 'service_id and service_date are required'
-			});
+        // REMOVED 'date' from the strict requirement
+		if (!service_id) {
+			return res.status(400).json({ message: 'service_id is required' });
 		}
 
-		// Get customer profile
 		const customerResult = await pool.query(
-			`SELECT id
-       FROM customer_profiles
-       WHERE user_id = $1`,
-			[userId]
+			`SELECT id FROM customer_profiles WHERE user_id = $1`, [userId]
 		);
 
 		if (customerResult.rows.length === 0) {
-			return res.status(404).json({
-				message: 'Customer profile not found'
-			});
+			return res.status(404).json({ message: 'Customer profile not found' });
 		}
 
 		const customerId = customerResult.rows[0].id;
 
-		// Get service and its business (Added 'name' to the SELECT statement)
 		const serviceResult = await pool.query(
-			`SELECT
-        id,
-        name,
-        business_id
-       FROM services
-       WHERE id = $1`,
-			[service_id]
+			`SELECT id, name, business_id FROM services WHERE id = $1`, [service_id]
 		);
 
 		if (serviceResult.rows.length === 0) {
-			return res.status(404).json({
-				message: 'Service not found'
-			});
+			return res.status(404).json({ message: 'Service not found' });
 		}
 
 		const service = serviceResult.rows[0];
 
-		// Create job / booking
+		// Create job / booking with date || null
 		const jobResult = await pool.query(
 			`INSERT INTO jobs
-        (
-          business_id,
-          customer_id,
-          service_id,
-          status,
-          service_date,
-          time_slot,
-          notes
-        )
+        (business_id, customer_id, service_id, status, date, time_slot)
        VALUES
-        ($1, $2, $3, 'PENDING', $4, $5, $6)
-       RETURNING
-        id,
-        business_id,
-        customer_id,
-        service_id,
-        status,
-        service_date,
-        time_slot,
-        notes,
-        created_at`,
+        ($1, $2, $3, 'PENDING', $4, $5)
+       RETURNING id, business_id, customer_id, service_id, status, date, time_slot, created_at`,
 			[
 				service.business_id,
 				customerId,
 				service.id,
-				service_date,
-				time_slot || null,
-				notes || null
+				date || null,      // Converts empty string to NULL
+				time_slot || null  // Converts empty string to NULL
 			]
 		);
 
-		// NEW: Generate an automated notification for the customer
 		await pool.query(
-			`INSERT INTO notifications
-        (user_id, type, message, is_read)
-       VALUES
-        ($1, $2, $3, false)`,
+			`INSERT INTO notifications (user_id, type, message, is_read)
+       VALUES ($1, $2, $3, false)`,
 			[
 				userId,
 				'ORDER_UPDATE',
@@ -485,7 +441,7 @@ exports.getCustomerInvoice = async (req, res, next) => {
         invoices.due_date,
         invoices.created_at AS invoice_date,
         jobs.id AS job_id,
-        jobs.service_date,
+        jobs.date,
         jobs.time_slot,
         services.name AS service_name,
         services.description AS service_description,
@@ -521,6 +477,39 @@ exports.getCustomerInvoice = async (req, res, next) => {
   }
 };
 
+exports.payCustomerInvoice = async (req, res, next) => {
+  try {
+    const invoiceId = req.params.id;
+    const { method = 'ONLINE_BANKING', photo_url } = req.body; 
 
+    // 1. Update the invoice status to PAID and retrieve the total_amount
+    const invoiceResult = await pool.query(
+      `UPDATE invoices 
+       SET status = 'PAID', updated_at = CURRENT_TIMESTAMP
+       WHERE id = $1 AND status != 'PAID'
+       RETURNING id, job_id, total_amount`,
+      [invoiceId]
+    );
 
+    if (invoiceResult.rows.length === 0) {
+      return res.status(400).json({ message: 'Invoice not found or already paid' });
+    }
 
+    // Extract the amount from the updated invoice
+    const amountToPay = invoiceResult.rows[0].total_amount;
+
+    // 2. Record the transaction in the payments table WITH the amount
+    await pool.query(
+      `INSERT INTO payments (invoice_id, amount, method, photo_url) 
+       VALUES ($1, $2, $3, $4)`,
+      [invoiceId, amountToPay, method, photo_url || null] 
+    );
+
+    return res.json({ 
+      message: 'Payment processed successfully',
+      invoice: invoiceResult.rows[0]
+    });
+  } catch (error) {
+    next(error);
+  }
+};

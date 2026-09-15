@@ -1,108 +1,144 @@
+import { X, Calendar, Clock, Briefcase, FileText, Phone, Mail, Receipt } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import type { InvoiceDetail } from '../types/customerType';
 
-import { X, Calendar, Clock, FileText, Briefcase } from 'lucide-react';
-import type { OrderResponse } from '../types/customerType';
-
-interface OrderDetailsModalProps {
-  order: OrderResponse;
+interface InvoiceDetailsModalProps {
+  invoice: InvoiceDetail;
   isOpen: boolean;
   onClose: () => void;
 }
 
-export default function OrderDetailsModal({ order, isOpen, onClose }: OrderDetailsModalProps) {
+export default function InvoiceDetailsModal({ invoice, isOpen, onClose }: InvoiceDetailsModalProps) {
+  const navigate = useNavigate();
+
   if (!isOpen) return null;
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
-      case 'PENDING': return 'bg-yellow-100 text-yellow-700';
-      case 'CONFIRMED': return 'bg-blue-100 text-blue-700';
-      case 'ASSIGNED': return 'bg-purple-100 text-purple-700';
-      case 'IN_PROGRESS': return 'bg-orange-100 text-orange-700';
-      case 'COMPLETED': return 'bg-green-100 text-green-700';
-      default: return 'bg-gray-100 text-gray-700';
+      case 'ISSUED': return 'bg-blue-500/10 text-blue-400 border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]';
+      case 'PAID': return 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_15px_rgba(52,211,153,0.15)]';
+      case 'OVERDUE': return 'bg-rose-500/10 text-rose-400 border-rose-500/20 shadow-[0_0_15px_rgba(244,63,94,0.15)]';
+      default: return 'bg-slate-800 text-slate-300 border-slate-700';
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-MY', {
-      weekday: 'short',
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return "To be determined";
+    try {
+      return new Date(dateString).toLocaleDateString('en-MY', {
+        year: 'numeric', month: 'short', day: 'numeric'
+      });
+    } catch {
+      return "Invalid date";
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-sm px-4">
-      <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-gray-100 overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6">
+      <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-full">
         
-        {/* Modal Header */}
-        <div className="p-6 border-b border-gray-100 flex justify-between items-start bg-gray-50">
-          <div>
-            <h2 className="text-2xl font-extrabold text-gray-800">Order #{order.id}</h2>
-            <span className={`mt-2 inline-block text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider ${getStatusColor(order.status)}`}>
-              {order.status.replace('_', ' ')}
-            </span>
+        <div className="p-6 md:p-8 pb-6 border-b border-slate-800 bg-slate-950/30 flex justify-between items-start shrink-0">
+          <div className="flex gap-4 items-start">
+            <div className="w-14 h-14 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-400 shrink-0">
+              <Receipt size={28} />
+            </div>
+            <div>
+              <div className="flex items-center gap-3 mb-1">
+                <h2 className="text-2xl font-semibold text-slate-100 tracking-tight">
+                  Invoice #{invoice.invoice_id}
+                </h2>
+                <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border ${getStatusStyle(invoice.invoice_status)}`}>
+                  {invoice.invoice_status}
+                </span>
+              </div>
+              <p className="text-sm font-medium text-slate-500">
+                Issued on {formatDate(invoice.invoice_date)} • Job Ref #{invoice.job_id}
+              </p>
+            </div>
           </div>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-200 rounded-full transition">
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        {/* Modal Body */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 md:p-8 space-y-6 overflow-y-auto">
           
-          <div className="flex items-start gap-4">
-            <div className="p-3 bg-blue-50 text-[#233876] rounded-xl">
-              <Briefcase size={20} />
+          <div className="p-5 bg-slate-950/50 border border-slate-800/50 rounded-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <Briefcase size={16} className="text-indigo-400" />
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">Billed By</h3>
             </div>
+            <p className="text-lg font-bold text-slate-100 mb-3">{invoice.business_name}</p>
+            <div className="flex flex-col sm:flex-row gap-4 text-sm text-slate-400">
+              {invoice.business_phone && (
+                <span className="flex items-center gap-2"><Phone size={14} /> {invoice.business_phone}</span>
+              )}
+              {invoice.business_email && (
+                <span className="flex items-center gap-2"><Mail size={14} /> {invoice.business_email}</span>
+              )}
+            </div>
+          </div>
+
+          <div className="p-5 bg-slate-950/50 border border-slate-800/50 rounded-2xl">
+            <div className="flex items-center gap-3 mb-4">
+              <FileText size={16} className="text-indigo-400" />
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">Service Details</h3>
+            </div>
+            <div className="mb-4 pb-4 border-b border-slate-800/50">
+              <p className="text-base font-medium text-slate-200 mb-1">{invoice.service_name}</p>
+              <p className="text-sm text-slate-500 leading-relaxed">{invoice.service_description}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Service Date</p>
+                <p className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                  <Calendar size={14} className="text-indigo-400" />
+                  {formatDate(invoice.date)}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">Time Slot</p>
+                <p className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                  <Clock size={14} className="text-indigo-400" />
+                  {invoice.time_slot || "To be determined"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-5 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <p className="text-xs font-bold text-gray-400 uppercase">Service Provider</p>
-              <p className="text-lg font-bold text-gray-800">{order.business_name || 'Not specified'}</p>
-              <p className="text-sm text-gray-500">Service ID Reference: {order.service_id}</p>
+              <p className="text-xs text-indigo-300/70 font-semibold uppercase tracking-wider mb-1">Total Amount Due</p>
+              <p className="text-3xl font-bold text-slate-100 tracking-tight">
+                RM {Number(invoice.total_amount).toFixed(2)}
+              </p>
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100">
-            <div className="flex items-center gap-3">
-              <Calendar size={18} className="text-gray-400" />
-              <div>
-                <p className="text-xs font-bold text-gray-400 uppercase">Scheduled Start</p>
-                <p className="text-sm font-semibold text-gray-800">{formatDate(order.scheduled_start)}</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 mt-2 border-t border-gray-200 pt-4">
-              <Clock size={18} className="text-gray-400" />
-              <div>
-                <p className="text-xs font-bold text-gray-400 uppercase">Estimated End</p>
-                <p className="text-sm font-semibold text-gray-800">{formatDate(order.scheduled_end)}</p>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <FileText size={16} className="text-gray-400" />
-              <p className="text-xs font-bold text-gray-400 uppercase">Your Notes</p>
-            </div>
-            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-              <p className="text-sm text-gray-700 italic">
-                {order.notes ? `"${order.notes}"` : 'No additional notes provided.'}
+            <div className="text-left sm:text-right">
+              <p className="text-xs text-slate-500 font-semibold uppercase tracking-wider mb-1">Due Date</p>
+              <p className={`text-lg font-semibold ${invoice.invoice_status === 'OVERDUE' ? 'text-rose-400' : 'text-slate-300'}`}>
+                {formatDate(invoice.due_date)}
               </p>
             </div>
           </div>
 
         </div>
 
-        {/* Modal Footer */}
-        <div className="p-6 border-t border-gray-100 bg-gray-50 text-right">
+        <div className="p-6 border-t border-slate-800 bg-slate-950/30 flex justify-end shrink-0 gap-3">
           <button 
             onClick={onClose}
-            className="bg-gray-200 text-gray-800 px-6 py-2.5 rounded-xl text-sm font-bold shadow-sm hover:bg-gray-300 transition"
+            className="w-full sm:w-auto bg-slate-800 text-slate-200 px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-700 hover:text-white transition-all duration-200 border border-slate-700"
           >
-            Close Details
+            Close
           </button>
+          
+          {invoice.invoice_status !== 'PAID' && (
+            <button 
+              onClick={() => navigate(`/customer/invoices/${invoice.invoice_id}/pay`)}
+              className="w-full sm:w-auto bg-indigo-600 text-white px-8 py-2.5 rounded-xl text-sm font-semibold shadow-lg shadow-indigo-500/20 hover:bg-indigo-500 transition-all duration-200 flex justify-center items-center gap-2"
+            >
+              Proceed to Payment
+            </button>
+          )}
         </div>
 
       </div>

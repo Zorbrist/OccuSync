@@ -1,13 +1,14 @@
 
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../../components/SidebarTemplate';
-import { LayoutDashboard, ShoppingBag, Search, Receipt, Bell, FileText, HelpCircle } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, Search, Receipt, Bell, FileText, HelpCircle} from 'lucide-react';
 
   const navItems = [
     { name: 'Dashboard', path: '/customer', icon: LayoutDashboard },
     { name: 'Find Services', path: '/customer/services', icon: Search },
     { name: 'My Orders', path: '/customer/orders', icon: ShoppingBag },
     { name: 'Invoices', path: '/customer/invoices', icon: Receipt },
+    // { name: 'Payments', path: '/customer/payments', icon: CreditCard },
     { name: 'Notifications', path: '/customer/notifications', icon: Bell, hasBadge: true },
     { name: 'Inquiries', path: '/customer/inquiries', icon: FileText },
   ];

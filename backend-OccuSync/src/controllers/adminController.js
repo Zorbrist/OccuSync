@@ -436,3 +436,69 @@ exports.deleteUser = async (req, res) => {
     res.status(500).json({ error: "Failed to delete user" });
   }
 };
+
+// ==============================
+// Get All Services (Admin)
+// ==============================
+exports.getAllServices = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        s.id, s.name, s.description, s.base_price, s.estimated_duration, s.created_at,
+        b.name AS business_name
+      FROM services s
+      JOIN businesses b ON s.business_id = b.id
+      ORDER BY s.created_at DESC
+    `);
+    res.json({ services: result.rows });
+  } catch (err) {
+    console.error("getAllServices error:", err);
+    res.status(500).json({ error: "Failed to load services" });
+  }
+};
+
+// ==============================
+// Get All Jobs (Admin)
+// ==============================
+exports.getAllJobs = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        j.id, j.status, j.date, j.time_slot, j.created_at,
+        s.name AS service_name,
+        b.name AS business_name,
+        cp.first_name || ' ' || cp.last_name AS customer_name
+      FROM jobs j
+      JOIN services s ON j.service_id = s.id
+      JOIN businesses b ON j.business_id = b.id
+      JOIN customer_profiles cp ON j.customer_id = cp.id
+      ORDER BY j.created_at DESC
+    `);
+    res.json({ jobs: result.rows });
+  } catch (err) {
+    console.error("getAllJobs error:", err);
+    res.status(500).json({ error: "Failed to load jobs" });
+  }
+};
+
+// ==============================
+// Get All Transactions (Admin)
+// ==============================
+exports.getAllTransactions = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        i.id, i.total_amount, i.status, i.due_date, i.created_at, i.job_id,
+        b.name AS business_name,
+        p.method
+      FROM invoices i
+      JOIN businesses b ON i.business_id = b.id
+      LEFT JOIN payments p ON p.invoice_id = i.id
+      ORDER BY i.created_at DESC
+    `);
+    res.json({ transactions: result.rows });
+  } catch (err) {
+    console.error("getAllTransactions error:", err);
+    res.status(500).json({ error: "Failed to load transactions" });
+  }
+};  

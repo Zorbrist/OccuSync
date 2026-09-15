@@ -46,6 +46,9 @@ import StaffRegisterPage from './pages/StaffRegisterPage';
 
 import StaffLayout from './pages/Business/Staff_Layout';
 import UsersManagementPage from './pages/Admin/UserManagementPage';
+import AdminServicesPage from './pages/Admin/AdminServicesPage';
+import AdminJobsPage from './pages/Admin/AdminJobsPage';
+import AdminTransactionsPage from './pages/Admin/AdminTransactionsPage';
 
 
 export default function App() {
@@ -63,6 +66,9 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="users" element={<UsersManagementPage />} />
+            <Route path="services" element={<AdminServicesPage />} />
+            <Route path="jobs" element={<AdminJobsPage />} />
+            <Route path="transactions" element={<AdminTransactionsPage />} />
           </Route>
         </Route>
 

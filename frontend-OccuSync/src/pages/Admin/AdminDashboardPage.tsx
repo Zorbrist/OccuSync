@@ -1,19 +1,20 @@
 // pages/AdminDashboardPage.tsx
 import { useState } from "react";
 import {
-  PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  LineChart, Line,
-} from "recharts";
-import { 
-  Users, 
-  Briefcase, 
-  CheckCircle, 
-  CreditCard,
-  Search,
-  MoreHorizontal,
-  ArrowRight
-} from "lucide-react";
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  LineChart,
+  Line,
+} from  "recharts";
 
 import { useAdminDashboard } from "../../hooks/adminHooks/useAdminDashboard";
 import BusinessApprovalModal from "../../components/Admin/BusinessApprovalModal";

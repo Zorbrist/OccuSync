@@ -12,11 +12,11 @@ import {
 
 const NavItems = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-  { name: 'Users', path: '/admin/users', icon: Users },
-  { name: 'Businesses', path: '/admin/businesses', icon: Briefcase },
-  { name: 'Services', path: '/admin/services', icon: Layers },
-  { name: 'Jobs', path: '/admin/jobs', icon: ClipboardList },
-  { name: 'Transactions', path: '/admin/transactions', icon: CreditCard },
+  { name: 'User Management', path: '/admin/users', icon: UserCheck },
+  { name: 'Services', path: '/admin/services', icon: UserCheck },
+  { name: 'Jobs', path: '/admin/jobs', icon: UserCheck },
+  { name: 'Transactions', path: '/admin/transactions', icon: UserCheck },
+
 ];
 
 export default function AdminLayout() {

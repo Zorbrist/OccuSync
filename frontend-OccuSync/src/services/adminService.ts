@@ -8,6 +8,9 @@ import type {
   UpdateUserResponse,
   DeleteUserResponse,
   UserRole,
+  AdminService,
+  AdminJob,
+  AdminTransaction,
 } from "../types/adminType";
 
 export const getAdminDashboard = async (): Promise<AdminDashboard> => {
@@ -102,4 +105,20 @@ export const deleteUser = async (
   return response.data;
 };
 
+// ==============================
+// Admin services, jobs, and transactions
+// ==============================
+export const getAllServices = async (): Promise<{ services: AdminService[] }> => {
+  const response = await axiosInstance.get("/admin/services");
+  return response.data;
+};
 
+export const getAllJobs = async (): Promise<{ jobs: AdminJob[] }> => {
+  const response = await axiosInstance.get("/admin/jobs");
+  return response.data;
+};
+
+export const getAllTransactions = async (): Promise<{ transactions: AdminTransaction[] }> => {
+  const response = await axiosInstance.get("/admin/transactions");
+  return response.data;
+};

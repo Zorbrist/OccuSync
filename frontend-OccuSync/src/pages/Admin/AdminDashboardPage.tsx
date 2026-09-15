@@ -15,7 +15,7 @@ import {
   CartesianGrid,
   LineChart,
   Line,
-} from "recharts";
+} from  "recharts";
 
 import { useAdminDashboard } from "../../hooks/adminHooks/useAdminDashboard";
 import BusinessApprovalModal from "../../components/Admin/BusinessApprovalModal";

@@ -184,5 +184,39 @@ export type DeleteUserResponse = {
   id: number;
 };
 
+// ==============================
+// Services, Jobs, Transactions Types
+// ==============================
 
+export type AdminService = {
+  id: number;
+  name: string;
+  description: string;
+  base_price: string;
+  estimated_duration: number;
+  created_at: string;
+  business_name: string;
+};
+
+export type AdminJob = {
+  id: number;
+  status: "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED";
+  date: string | null;
+  time_slot: string | null;
+  created_at: string;
+  service_name: string;
+  business_name: string;
+  customer_name: string;
+};
+
+export type AdminTransaction = {
+  id: number;
+  total_amount: string;
+  status: "ISSUED" | "PAID" | "OVERDUE";
+  due_date: string;
+  created_at: string;
+  job_id: number;
+  business_name: string;
+  method: string | null;
+};
 

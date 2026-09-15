@@ -6,7 +6,6 @@ import { LayoutDashboard, UserCheck } from 'lucide-react';
 const NavItems = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
   { name: 'User Management', path: '/admin/users', icon: UserCheck },
-  { name: 'Businesses', path: '/admin/businesses', icon: UserCheck },
   { name: 'Services', path: '/admin/services', icon: UserCheck },
   { name: 'Jobs', path: '/admin/jobs', icon: UserCheck },
   { name: 'Transactions', path: '/admin/transactions', icon: UserCheck },

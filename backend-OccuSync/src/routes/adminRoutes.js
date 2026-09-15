@@ -15,5 +15,9 @@ router.get('/users/:id', adminController.getUserById);
 router.put('/users/:id', adminController.updateUser);
 router.delete('/users/:id', adminController.deleteUser);
 
+router.get('/services', adminController.getAllServices);
+router.get('/jobs', adminController.getAllJobs);
+router.get('/transactions', adminController.getAllTransactions);
+
 
 module.exports = router;

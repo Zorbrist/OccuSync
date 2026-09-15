@@ -300,37 +300,24 @@ CREATE TABLE notifications (
 );
 
 
-CREATE TABLE messages (
-    id SERIAL PRIMARY KEY,
-
-    business_id VARCHAR(20) NOT NULL
-        REFERENCES businesses(id) ON DELETE CASCADE,
-
-    customer_id VARCHAR(20) NOT NULL
-        REFERENCES customer_profiles(id) ON DELETE CASCADE,
-
-    sender_user_id INTEGER NOT NULL
-        REFERENCES users(id) ON DELETE CASCADE,
-
-    message_text TEXT NOT NULL,
-
-    is_read BOOLEAN NOT NULL DEFAULT FALSE,
-
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
-ALTER TABLE messages
-ADD COLUMN service_id INTEGER REFERENCES services(id) ON DELETE SET NULL,
-ADD COLUMN inquiry_status VARCHAR(30) DEFAULT 'NONE' 
-    CHECK (inquiry_status IN ('NONE', 'PENDING', 'PROPOSED', 'ACCEPTED', 'REJECTED'));
-
 CREATE TABLE proposals (
     id SERIAL PRIMARY KEY,
-    message_id INTEGER UNIQUE NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+
+    job_id INTEGER UNIQUE NOT NULL
+        REFERENCES jobs(id) ON DELETE CASCADE,
+
+    message TEXT NOT NULL,
+
     proposed_date DATE NOT NULL,
     proposed_time TIME NOT NULL,
+
     notes TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+    status VARCHAR(30) NOT NULL DEFAULT 'PENDING'
+        CHECK (status IN ('PENDING', 'ACCEPTED', 'REJECTED')),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE business_availability (
@@ -341,3 +328,4 @@ CREATE TABLE business_availability (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (business_id, blocked_date)
 );
+

@@ -85,6 +85,8 @@ export interface CustomerOrder {
   scheduled_start: string;
   scheduled_end: string;
 
+  proposal_status:string;
+
   notes: string | null;
 
   base_price: string;
@@ -109,13 +111,17 @@ export interface CustomerOrderDetails {
   phone: string;
 
   status: string;
+  message: string;
+  inquiry_status: string;
 
-  scheduled_start: string;
-  scheduled_end: string;
+  proposed_time: string;
+  proposed_date: string;
+  proposal_status: string;
 
-  notes: string | null;
+  date: string;
+  time_slot: string;
 
-  assigned_member_id: number | null;
+  assigned_member_id: string | null;
   assigned_member_role: string | null;
 }
 
@@ -135,6 +141,15 @@ export interface UpdateOrderStatusResponse {
     notes: string | null;
     updated_at: string;
   };
+}
+
+
+export interface BusinessMember {
+  member_id: string;
+  role: 'OWNER' | 'STAFF';
+  first_name: string;
+  last_name: string;
+  email: string;
 }
 
 // ============================================================

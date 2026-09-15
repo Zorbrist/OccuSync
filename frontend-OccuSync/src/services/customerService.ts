@@ -37,6 +37,20 @@ export const createOrder = async (payload: OrderPayload): Promise<OrderResponse>
   return response.data.order;
 }
 
+export const updateProposalStatus = async (
+  proposalId: number,
+  status: "ACCEPTED" | "REJECTED"
+) => {
+  const response = await axiosInstance.patch(
+    `/customer/proposals/${proposalId}/status`,
+    {
+      status,
+    }
+  );
+
+  return response.data;
+};
+
 export const getCustomerNotifications = async (): Promise<NotificationResponse[]> => {
   const response = await axiosInstance.get('/customer/notifications');
   

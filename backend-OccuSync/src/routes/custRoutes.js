@@ -20,6 +20,11 @@ router.post("/orders", custController.createCustomerOrder);
 router.get("/notifications", custController.getCustomerNotifications);
 router.put("/notifications/:id/read", custController.markNotificationAsRead);
 
+router.patch(
+  "/proposals/:proposal_id/status",
+  custController.updateProposalStatus
+);
+
 // INVOICES
 router.get("/invoices", custController.getCustomerInvoices);
 router.get("/invoices/:id", custController.getCustomerInvoice);

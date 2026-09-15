@@ -25,11 +25,17 @@ export const useRegisterBusiForm = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]:
+        type === 'checkbox'
+          ? (e.target as HTMLInputElement).checked
+          : value,
     }));
   };
 
@@ -41,10 +47,12 @@ export const useRegisterBusiForm = () => {
       setError('Passwords do not match.');
       return false;
     }
+
     if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters.'); 
+      setError('Password must be at least 8 characters.');
       return false;
     }
+
     if (!formData.termsAgreed) {
       setError('You must agree to the Terms & Conditions.');
       return false;
@@ -66,7 +74,7 @@ export const useRegisterBusiForm = () => {
         full_name: formData.ownerName,
         phone: formData.ownerPhone,
       },
-      email: formData.ownerEmail, 
+      email: formData.ownerEmail,
       password: formData.password,
     };
 

@@ -43,14 +43,26 @@ export interface OrderPayload {
 }
 
 export interface OrderResponse {
-  id: number; 
+id: number;
   service_id: number;
-  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED'; 
-  date: string | null;   // Allow null
-  time_slot: string | null; // Allow null
-  business_name?: string; 
-  service_name?: string;
-  service_description?: string;
+  service_name: string;
+  service_description: string | null;
+  base_price: string;
+  business_id: string;
+  business_name: string;
+  business_phone: string | null;
+  business_email: string;
+  status: 'PENDING' | 'CONFIRMED' | 'COMPLETED' | 'CANCELLED';
+  date: string | null;
+  time_slot: string | null;
+  message_id: number | null;
+  message: string | null;
+  inquiry_status: 'OPEN' | 'PROPOSED' | 'ACCEPTED' | 'REJECTED' | string | null;
+  proposal_status: string | null;
+  proposal_id: number | null;
+  proposed_date: string | null;
+  proposed_time: string | null;
+  proposal_notes: string | null;
 }
 
 export interface NotificationResponse {

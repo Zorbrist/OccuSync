@@ -10,16 +10,16 @@ import {
   Search, 
   ShoppingBag, 
   Receipt, 
-  FileText 
+  Bell 
 } from 'lucide-react';
 
-const navItems = [
-  { name: 'Dashboard', path: '/customer', icon: LayoutDashboard },
-  { name: 'Directory', path: '/customer/services', icon: Search },
-  { name: 'Orders', path: '/customer/orders', icon: ShoppingBag },
-  { name: 'Invoices', path: '/customer/invoices', icon: Receipt },
-  { name: 'Inquiries', path: '/customer/inquiries', icon: FileText },
-];
+  const navItems = [
+    { name: 'Dashboard', path: '/customer', icon: LayoutDashboard },
+    { name: 'Find Services', path: '/customer/services', icon: Search },
+    { name: 'My Orders', path: '/customer/orders', icon: ShoppingBag },
+    { name: 'Invoices', path: '/customer/invoices', icon: Receipt },
+    { name: 'Notifications', path: '/customer/notifications', icon: Bell },
+  ];
 
 export default function CustomerLayout() {
   const { unreadCount } = useNotificationsData();

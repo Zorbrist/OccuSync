@@ -6,8 +6,7 @@ const businessNavItems = [
   { name: 'Dashboard', path: '/business', icon: LayoutDashboard },
   { name: 'Listings', path: '/business/listings', icon: Briefcase },
   { name: 'Customer Orders', path: '/business/orders', icon: ShoppingBag },
-  { name: 'Inquiries', path: '/business/inquiries', icon: MessageSquare },
-  { name: 'Staff Management', path: '/business/staff', icon: PersonStanding },
+  { name: 'Occu Teams', path: '/business/staff', icon: PersonStanding },
   { name: 'Notifications', path: '/business/notifications', icon: Bell },
 ];
 

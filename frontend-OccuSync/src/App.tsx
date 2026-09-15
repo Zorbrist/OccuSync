@@ -3,11 +3,10 @@ import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Public Pages
-import Home from "./pages/Home";
-import RegisterBusiness from "./pages/RegisterBusiness";
-import RegisterCustomer from "./pages/RegisterCustomer";
-import Login from "./pages/Login";
-import AboutUs from "./pages/AboutUs";
+import Home from './pages/Home';
+import RegisterBusiness from './pages/RegisterBusiness';
+import RegisterCustomer from './pages/RegisterCustomer';
+import Login from './pages/Login';
 
 // Dashboard Pages
 import AdminDashboardPage from './pages/Admin/AdminDashboardPage';
@@ -21,8 +20,7 @@ import CustomerOrdersPage from './pages/Business/CustOrdersPage';
 import CustomerOrdersDetailsPage from './pages/Business/CustOrdersDetailsPage';
 import NotificationsPage from './pages/Business/NotificationsPage';
 import MerchantSupportPage from './pages/Business/MerchantSupportPage';
-import StaffInvitePage from './pages/Business/StaffPage';
-import InquiriesPage from './pages/Business/InquiriesPage';
+import StaffInvitePage from './pages/Business/AdminStaffPage';
 import OrderProposalPage from './pages/Business/OrderProposalPage';
 
 // Business Layout
@@ -49,6 +47,8 @@ import UsersManagementPage from './pages/Admin/UserManagementPage';
 import AdminServicesPage from './pages/Admin/AdminServicesPage';
 import AdminJobsPage from './pages/Admin/AdminJobsPage';
 import AdminTransactionsPage from './pages/Admin/AdminTransactionsPage';
+import StaffTasksPage from "./pages/Business/StaffTaskPage";
+import StaffHistoryPage from "./pages/Business/StaffHistoryPage";
 
 
 export default function App() {
@@ -56,7 +56,6 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<AboutUs />} />
         <Route path="/register/business" element={<RegisterBusiness />} />
         <Route path="/register/customer" element={<RegisterCustomer />} />
         <Route path="register/staff" element={<StaffRegisterPage />} />
@@ -90,8 +89,7 @@ export default function App() {
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="support" element={<MerchantSupportPage />} />
             <Route path="staff/invite" element={<StaffInvitePage />} />
-            <Route path="inquiries" element={<InquiriesPage />} />
-            <Route path="proposals/new" element={<OrderProposalPage />} />
+            <Route path="proposals" element={<OrderProposalPage />} />
             <Route path="staff" element={<StaffInvitePage />} />
           </Route>
         </Route>
@@ -105,10 +103,8 @@ export default function App() {
           }
         >
           <Route path="/staff" element={<StaffLayout />}>
-            <Route path="listings" element={<ListingsPage />} />
-            <Route path="listings/:id" element={<ListingDetailsPage />} />
-            <Route path="orders" element={<CustomerOrdersPage />} />
-            <Route path="orders/:id" element={<CustomerOrdersDetailsPage />} />
+            <Route index element={<StaffTasksPage />} />
+            <Route path="history" element={<StaffHistoryPage />} />
           </Route>
         </Route>
 
@@ -124,7 +120,7 @@ export default function App() {
             <Route path="notifications" element={<CustomerNotification />} />
             <Route path="notifications" element={<CustomerNotification />} />
             <Route path="invoices" element={<CustomerInvoices />} />
-           <Route path="/customer/invoices/:id/pay" element={<CustomerPayment />} />
+            <Route path="/customer/invoices/:id/pay" element={<CustomerPayment />} />
           </Route>
         </Route>
       </Routes>

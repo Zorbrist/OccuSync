@@ -12,7 +12,9 @@ import {
   markAllBusinessNotificationsAsRead,
   createBusinessListing,
   updateBusinessListing,
-  deleteBusinessListing
+  deleteBusinessListing,
+  getBusinessMembers,
+  assignOrderMember
 } from '../services/businessService';
 
 import type {
@@ -20,7 +22,8 @@ import type {
   BusinessListingsResponse,
   CustomerOrder,
   CustomerOrderDetails,
-  BusinessNotification
+  BusinessNotification,
+  BusinessMember
 } from '../types/businessTypes';
 
 
@@ -161,6 +164,7 @@ export const useBusinessListingDetails = () => {
   };
 };
 
+
 // ============================================================
 // CREATE BUSINESS LISTING
 // ============================================================
@@ -180,6 +184,7 @@ export const useCreateBusinessListing = () => {
 
     try {
       const data = await createBusinessListing(listing);
+
       return data;
     } catch (error: any) {
       setError(
@@ -187,6 +192,7 @@ export const useCreateBusinessListing = () => {
         error.message ||
         'Failed to create service.'
       );
+
       throw error;
     } finally {
       setLoading(false);
@@ -199,6 +205,7 @@ export const useCreateBusinessListing = () => {
     createListing,
   };
 };
+
 
 // ============================================================
 // UPDATE BUSINESS LISTING
@@ -221,7 +228,12 @@ export const useUpdateBusinessListing = () => {
     setError('');
 
     try {
-      const data = await updateBusinessListing(id, listing);
+      const data =
+        await updateBusinessListing(
+          id,
+          listing
+        );
+
       return data;
     } catch (error: any) {
       setError(
@@ -229,6 +241,7 @@ export const useUpdateBusinessListing = () => {
         error.message ||
         'Failed to update service.'
       );
+
       throw error;
     } finally {
       setLoading(false);
@@ -241,6 +254,7 @@ export const useUpdateBusinessListing = () => {
     updateListing,
   };
 };
+
 
 // ============================================================
 // DELETE BUSINESS LISTING
@@ -255,7 +269,9 @@ export const useDeleteBusinessListing = () => {
     setError('');
 
     try {
-      const data = await deleteBusinessListing(id);
+      const data =
+        await deleteBusinessListing(id);
+
       return data;
     } catch (error: any) {
       setError(
@@ -263,6 +279,7 @@ export const useDeleteBusinessListing = () => {
         error.message ||
         'Failed to delete service.'
       );
+
       throw error;
     } finally {
       setLoading(false);
@@ -275,6 +292,7 @@ export const useDeleteBusinessListing = () => {
     deleteListing,
   };
 };
+
 
 // ============================================================
 // CUSTOMER ORDERS
@@ -371,6 +389,98 @@ export const useBusinessOrder = () => {
 
 
 // ============================================================
+// BUSINESS MEMBERS
+// ============================================================
+
+export const useBusinessMembers = () => {
+  const [data, setData] =
+    useState<BusinessMember[]>([]);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState('');
+
+  const fetchBusinessMembers = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const data =
+        await getBusinessMembers();
+
+      setData(data);
+
+      return data;
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to fetch business members.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    data,
+    loading,
+    error,
+    fetchBusinessMembers,
+  };
+};
+
+
+// ============================================================
+// ASSIGN ORDER MEMBER
+// ============================================================
+
+export const useAssignOrderMember = () => {
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState('');
+
+  const assignMember = async (
+    orderId: number,
+    memberId: string
+  ) => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const data =
+        await assignOrderMember(
+          orderId,
+          memberId
+        );
+
+      return data;
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        error.message ||
+        'Failed to assign order member.'
+      );
+
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    loading,
+    error,
+    assignMember,
+  };
+};
+
+
+// ============================================================
 // UPDATE CUSTOMER ORDER STATUS
 // ============================================================
 
@@ -416,14 +526,20 @@ export const useUpdateBusinessOrderStatus = () => {
   };
 };
 
+
 // ============================================================
 // BUSINESS NOTIFICATIONS
 // ============================================================
 
 export const useBusinessNotifications = () => {
-  const [notifications, setNotifications] = useState<BusinessNotification[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [notifications, setNotifications] =
+    useState<BusinessNotification[]>([]);
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [error, setError] =
+    useState('');
 
   // Fetch business notifications
   const fetchBusinessNotifications = async () => {
@@ -431,7 +547,8 @@ export const useBusinessNotifications = () => {
     setLoading(true);
 
     try {
-      const data = await getBusinessNotifications();
+      const data =
+        await getBusinessNotifications();
 
       setNotifications(data);
 
@@ -453,7 +570,10 @@ export const useBusinessNotifications = () => {
       setNotifications(prev =>
         prev.map(notification =>
           notification.id === id
-            ? { ...notification, is_read: true }
+            ? {
+                ...notification,
+                is_read: true,
+              }
             : notification
         )
       );
@@ -493,9 +613,10 @@ export const useBusinessNotifications = () => {
   };
 
   // Count unread notifications
-  const unreadCount = notifications.filter(
-    notification => !notification.is_read
-  ).length;
+  const unreadCount =
+    notifications.filter(
+      notification => !notification.is_read
+    ).length;
 
   return {
     notifications,

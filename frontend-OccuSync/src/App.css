@@ -5,33 +5,103 @@
 
 @custom-variant dark (&:is(.dark *));
 
-.btn-primary {
-  background-color: #2563eb;
-  color: #fff;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  transition: background-color 200ms, box-shadow 200ms;
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+/* =========================================================
+   OCCUSYNC APPLICATION STYLES
+   ========================================================= */
+
+#root {
+  min-height: 100vh;
 }
 
-.btn-primary:hover {
-  background-color: #1d4ed8;
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+/* Prevent horizontal overflow from decorative gradients */
+
+body {
+  overflow-x: hidden;
 }
 
-.btn-secondary {
-  background-color: #fff;
-  color: #0f172a;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.75rem;
-  transition: background-color 200ms;
+/* =========================================================
+   COMMON SECTION STYLING
+   ========================================================= */
+
+.section-dark {
+  position: relative;
+  background: rgba(3, 3, 8, 0.35);
 }
 
-.btn-secondary:hover {
-  background-color: #f1f5f9;
+.section-dark-alt {
+  position: relative;
+  background: rgba(10, 7, 18, 0.45);
+}
+
+/* =========================================================
+   GLASS CARDS
+   ========================================================= */
+
+.occusync-card {
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 1.25rem;
+
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.20);
+
+  transition:
+    transform 250ms ease,
+    border-color 250ms ease,
+    background-color 250ms ease,
+    box-shadow 250ms ease;
+}
+
+.occusync-card:hover {
+  transform: translateY(-3px);
+
+  background: rgba(255, 255, 255, 0.065);
+
+  border-color: rgba(139, 92, 246, 0.25);
+
+  box-shadow:
+    0 25px 60px rgba(0, 0, 0, 0.30),
+    0 0 35px rgba(124, 58, 237, 0.07);
+}
+
+/* =========================================================
+   TEXT
+   ========================================================= */
+
+.text-primary-light {
+  color: #f8fafc;
+}
+
+.text-secondary-light {
+  color: #cbd5e1;
+}
+
+.text-muted-light {
+  color: #94a3b8;
+}
+
+/* =========================================================
+   DIVIDERS
+   ========================================================= */
+
+.dark-divider {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* =========================================================
+   FOCUS
+   ========================================================= */
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgba(139, 92, 246, 0.8);
+  outline-offset: 2px;
 }
 
 @theme inline {

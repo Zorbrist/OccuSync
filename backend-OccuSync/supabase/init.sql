@@ -319,3 +319,25 @@ CREATE TABLE messages (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+ALTER TABLE messages
+ADD COLUMN service_id INTEGER REFERENCES services(id) ON DELETE SET NULL,
+ADD COLUMN inquiry_status VARCHAR(30) DEFAULT 'NONE' 
+    CHECK (inquiry_status IN ('NONE', 'PENDING', 'PROPOSED', 'ACCEPTED', 'REJECTED'));
+
+CREATE TABLE proposals (
+    id SERIAL PRIMARY KEY,
+    message_id INTEGER UNIQUE NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+    proposed_date DATE NOT NULL,
+    proposed_time TIME NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE business_availability (
+    id SERIAL PRIMARY KEY,
+    business_id VARCHAR(20) NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+    blocked_date DATE NOT NULL,
+    is_available BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (business_id, blocked_date)
+);

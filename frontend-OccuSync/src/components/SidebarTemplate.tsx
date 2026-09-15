@@ -35,14 +35,14 @@ const SIDEBAR_THEMES = {
   },
   admin: {
     logoLabel: 'Admin Portal',
-    container: 'bg-stone-950 border-r border-zinc-800 shadow-[0_0_25px_rgba(255,255,255,0.05)] text-zinc-100',
-    toggleButton: 'bg-white text-emerald-950 hover:bg-emerald-50',
-    logoDot: 'bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 shadow-[0_0_15px_rgba(52,211,153,0.4)]',
+    container: 'bg-violet-950 border-r border-violet-900/60 shadow-[0_0_25px_rgba(139,92,246,0.15)] text-zinc-100',
+    toggleButton: 'bg-white text-violet-950 hover:bg-violet-50',
+    logoDot: 'bg-gradient-to-tr from-violet-600 via-indigo-500 to-purple-500 shadow-[0_0_15px_rgba(139,92,246,0.4)]',
     dotIcon: LucideArrowDownFromLine,
-    navActive: 'bg-zinc-800 text-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.2)] border border-emerald-500/30',
-    navInactive: 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200',
-    logout: 'text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200',
-    logoutbg:''
+    navActive: 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.05)] border border-white/10',
+    navInactive: 'text-violet-200/60 hover:bg-white/5 hover:text-white',
+    logout: 'text-violet-200/60 hover:bg-violet-900/50 hover:text-violet-100',
+    logoutbg: '',
   },
 } as const;
 

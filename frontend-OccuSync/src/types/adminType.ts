@@ -60,3 +60,129 @@ export type AdminDashboard = {
 
   recent_registrations: RecentRegistration[];
 };
+
+
+export type UserRole =
+  | "CUSTOMER"
+  | "BUSINESS_PROVIDER"
+  | "ADMIN";
+
+export type UserListItem = {
+  id: number;
+  email: string;
+  role: UserRole;
+  created_at: string;
+  first_name: string | null;
+  last_name: string | null;
+  phone: string | null;
+};
+
+export type UserPagination = {
+  page: number;
+  limit: number;
+  total: number;
+  total_pages: number;
+};
+
+export type GetAllUsersResponse = {
+  users: UserListItem[];
+  pagination: UserPagination;
+};
+
+// ==============================
+// User Details
+// ==============================
+
+export type CustomerProfile = {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  address_line: string;
+  state: string;
+  postcode: string;
+  country: string;
+};
+
+export type BusinessProviderProfile = {
+  first_name: string;
+  last_name: string;
+  phone: string;
+  profile_picture: string | null;
+};
+
+export type UserBusiness = {
+  membership_id: string;
+  membership_role: "OWNER" | "STAFF";
+  business_id: string;
+  business_name: string;
+  approval_status: "PENDING" | "APPROVED" | "REJECTED";
+};
+
+export type UserDetails = {
+  id: number;
+  email: string;
+  role: UserRole;
+  created_at: string;
+  updated_at: string;
+
+  profile: CustomerProfile | BusinessProviderProfile | null;
+
+  businesses?: UserBusiness[];
+};
+
+export type GetUserByIdResponse = {
+  user: UserDetails;
+};
+
+// ==============================
+// Update User
+// ==============================
+
+export type UpdateCustomerProfile = {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  address_line?: string;
+  state?: string;
+  postcode?: string;
+  country?: string;
+};
+
+export type UpdateBusinessProviderProfile = {
+  first_name?: string;
+  last_name?: string;
+  phone?: string;
+  profile_picture?: string;
+};
+
+export type UpdateUserRequest = {
+  email?: string;
+  role?: UserRole;
+
+  profile?:
+    | UpdateCustomerProfile
+    | UpdateBusinessProviderProfile;
+};
+
+export type UpdateUserResponse = {
+  user: {
+    id: number;
+    email: string;
+    role: UserRole;
+    created_at: string;
+    updated_at: string;
+  };
+};
+
+// ==============================
+// Delete User
+// ==============================
+
+export type DeleteUserResponse = {
+  message: string;
+  id: number;
+};
+
+
+

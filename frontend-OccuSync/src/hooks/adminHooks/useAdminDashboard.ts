@@ -18,7 +18,6 @@ export const useAdminDashboard = () => {
         setData(result);
       } catch (err) {
         console.error("Failed to load admin dashboard:", err);
-
         setError("Failed to load dashboard");
       } finally {
         setLoading(false);
@@ -28,9 +27,25 @@ export const useAdminDashboard = () => {
     fetchDashboard();
   }, []);
 
+  const updateBusinessStatusInDashboard = (id: string) => {
+    setData((currentData) => {
+      if (!currentData) {
+        return currentData;
+      }
+
+      return {
+        ...currentData,
+        pending_businesses: currentData.pending_businesses.filter(
+          (business) => business.id !== id
+        ),
+      };
+    });
+  };
+
   return {
     data,
     loading,
     error,
+    updateBusinessStatusInDashboard,
   };
 };

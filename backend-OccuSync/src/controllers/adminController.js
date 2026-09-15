@@ -173,12 +173,46 @@ exports.getAdminDashboard = async (req, res) => {
   }
 };
 
+exports.updateBusinessStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { approval_status } = req.body;
+
+    if (!['APPROVED', 'REJECTED'].includes(approval_status)) {
+      return res.status(400).json({
+        message: 'Invalid approval status'
+      });
+    }
+
+    const result = await pool.query(
+      `UPDATE businesses
+       SET approval_status = $1
+       WHERE id = $2
+       RETURNING
+         id,
+         name,
+         registration_no,
+         approval_status`,
+      [approval_status, id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        message: 'Business not found'
+      });
+    }
+
+    res.json({
+      message: `Business ${approval_status.toLowerCase()} successfully`,
+      business: result.rows[0]
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 
-/**
- * GET /admin/users?page=1&limit=20&role=CUSTOMER&search=jane
- * Paginated user list with basic profile info flattened in.
- */
+
 exports.getAllUsers = async (req, res) => {
   try {
     const page = Math.max(parseInt(req.query.page) || 1, 1);
@@ -238,11 +272,6 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-/**
- * GET /admin/users/:id
- * Full detail for a single user, including role-specific profile
- * and (for BUSINESS_PROVIDER) their business memberships.
- */
 exports.getUserById = async (req, res) => {
   try {
     const { id } = req.params;
@@ -297,17 +326,7 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-/**
- * PUT /admin/users/:id
- * Updates core user fields (email, role) and, if provided, the
- * matching role-specific profile fields. Runs in a transaction.
- * Body example:
- * {
- *   "email": "new@example.com",
- *   "role": "CUSTOMER",
- *   "profile": { "first_name": "Jane", "phone": "0123456789", ... }
- * }
- */
+
 exports.updateUser = async (req, res) => {
   const client = await pool.connect();
   try {
@@ -397,11 +416,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-/**
- * DELETE /admin/users/:id
- * Deletes a user. Profiles, business memberships, job_logs, notifications,
- * and messages cascade automatically via ON DELETE CASCADE.
- */
+
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -419,43 +434,5 @@ exports.deleteUser = async (req, res) => {
   } catch (err) {
     console.error("deleteUser error:", err);
     res.status(500).json({ error: "Failed to delete user" });
-  }
-};
-
-exports.updateBusinessStatus = async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { approval_status } = req.body;
-
-    if (!['APPROVED', 'REJECTED'].includes(approval_status)) {
-      return res.status(400).json({
-        message: 'Invalid approval status'
-      });
-    }
-
-    const result = await pool.query(
-      `UPDATE businesses
-       SET approval_status = $1
-       WHERE id = $2
-       RETURNING
-         id,
-         name,
-         registration_no,
-         approval_status`,
-      [approval_status, id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: 'Business not found'
-      });
-    }
-
-    res.json({
-      message: `Business ${approval_status.toLowerCase()} successfully`,
-      business: result.rows[0]
-    });
-  } catch (error) {
-    next(error);
   }
 };

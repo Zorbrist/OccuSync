@@ -46,6 +46,7 @@ import AdminLayout from './pages/Admin/AdminLayout';
 import StaffRegisterPage from './pages/StaffRegisterPage';
 
 import StaffLayout from './pages/Business/Staff_Layout';
+import UsersManagementPage from './pages/Admin/UserManagementPage';
 
 
 export default function App() {
@@ -62,6 +63,7 @@ export default function App() {
         <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
+            <Route path="users" element={<UsersManagementPage />} />
           </Route>
         </Route>
 

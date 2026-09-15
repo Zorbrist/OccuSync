@@ -1,716 +1,310 @@
-
+// pages/AdminDashboardPage.tsx
 import { useState } from "react";
-
 import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  LineChart,
-  Line,
+  PieChart, Pie, Cell, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  LineChart, Line,
 } from "recharts";
+import { 
+  Users, 
+  Briefcase, 
+  CheckCircle, 
+  CreditCard,
+  Search,
+  MoreHorizontal,
+  ArrowRight
+} from "lucide-react";
 
 import { useAdminDashboard } from "../../hooks/adminHooks/useAdminDashboard";
 import BusinessApprovalModal from "../../components/Admin/BusinessApprovalModal";
 import type { PendingBusiness } from "../../types/adminType";
 
+import { NumberTicker } from "../../ui/number-ticker";
+import { BlurFade } from "../../ui/blur-fade";
+import { Particles } from "../../ui/particles";
+
 // ==============================
-// Theme
+// Light Theme Chart Config
 // ==============================
-
-const CHART_COLORS = [
-  "#8b5cf6",
-  "#6366f1",
-  "#a855f7",
-];
-
-const GRID_STROKE = "#27272a";
-
-const AXIS_TICK = {
-  fill: "#71717a",
-  fontSize: 12,
-};
+const CHART_COLORS = ["#8b5cf6", "#c084fc", "#e879f9"]; // Violet/Purple accents
+const GRID_STROKE = "#E2E8F0"; // slate-200
+const AXIS_TICK = { fill: "#94A3B8", fontSize: 11, fontWeight: 500 }; // slate-400
 
 const TOOLTIP_STYLE = {
-  backgroundColor: "#18181b",
-  border: "1px solid #3f3f46",
-  borderRadius: "0.75rem",
-  color: "#f4f4f5",
-  fontSize: "0.875rem",
+  backgroundColor: "#FFFFFF",
+  border: "none",
+  borderRadius: "1rem",
+  boxShadow: "0 8px 24px rgba(149,157,165,0.15)",
+  color: "#1E293B",
+  fontSize: "12px",
+  fontWeight: 600,
+  padding: "12px"
 };
 
-const TOOLTIP_LABEL_STYLE = {
-  color: "#f4f4f5",
-};
-
-const LEGEND_STYLE = {
-  color: "#a1a1aa",
-};
+const TOOLTIP_LABEL_STYLE = { color: "#64748B", marginBottom: "4px" };
+const LEGEND_STYLE = { color: "#64748B", fontSize: "12px", paddingTop: "10px" };
 
 // ==============================
 // Component
 // ==============================
-
 export default function AdminDashboard() {
-  const {
-    data,
-    loading,
-    error,
-    updateBusinessStatusInDashboard,
-  } = useAdminDashboard();
-
-  const [selectedBusiness, setSelectedBusiness] =
-    useState<PendingBusiness | null>(null);
-
-  // ==============================
-  // Loading
-  // ==============================
+  const { data, loading, error, updateBusinessStatusInDashboard } = useAdminDashboard();
+  const [selectedBusiness, setSelectedBusiness] = useState<PendingBusiness | null>(null);
 
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center bg-zinc-950">
-        <p className="text-zinc-500">
-          Loading dashboard...
-        </p>
+      <div className="flex min-h-[calc(100vh-80px)] items-center justify-center bg-[#E8EDF2]">
+        <div className="w-8 h-8 border-[3px] border-slate-300 border-t-violet-600 rounded-full animate-spin"></div>
       </div>
     );
   }
-
-  // ==============================
-  // Error
-  // ==============================
 
   if (error || !data) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center bg-zinc-950">
-        <p className="text-red-400">
-          {error || "Failed to load dashboard"}
-        </p>
+      <div className="flex min-h-[calc(100vh-80px)] items-center justify-center bg-[#E8EDF2]">
+        <div className="bg-white p-8 rounded-[2rem] shadow-xl text-center max-w-sm">
+          <h3 className="text-[#1E293B] text-lg font-semibold mb-2">Failed to load</h3>
+          <p className="text-slate-500 text-sm mb-6">{error || "Data unavailable"}</p>
+          <button onClick={() => window.location.reload()} className="px-6 py-2.5 bg-violet-600 text-white rounded-full text-sm font-medium w-full">
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
 
-  // ==============================
-  // Chart Data
-  // ==============================
-
   const userChartData = [
-    {
-      name: "Customers",
-      value: data.user_overview.total_customers,
-    },
-    {
-      name: "Business Providers",
-      value: data.user_overview.total_business_providers,
-    },
+    { name: "Customers", value: data.user_overview.total_customers },
+    { name: "Providers", value: data.user_overview.total_business_providers },
   ];
 
-  const registrationData =
-    data.recent_registrations.map((item) => ({
-      date: new Date(item.date).toLocaleDateString(
-        "en-MY",
-        {
-          day: "2-digit",
-          month: "short",
-        }
-      ),
-      registrations: item.count,
-    }));
+  const registrationData = data.recent_registrations.map((item) => ({
+    date: new Date(item.date).toLocaleDateString("en-MY", { day: "2-digit", month: "short" }),
+    registrations: item.count,
+  }));
 
-  // ==============================
-  // Main
-  // ==============================
+  const scrollbarClasses = "[&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-300";
 
   return (
-    <div className="min-h-screen space-y-6 bg-zinc-950 p-6 text-zinc-100">
+    <div className="min-h-full font-sans text-slate-800 selection:bg-violet-200 relative pb-12 bg-[#E8EDF2]">
+      <Particles className="absolute inset-0 pointer-events-none z-0 opacity-40" quantity={50} ease={80} color="#8b5cf6" />
 
-      {/* =========================================
-          Header
-      ========================================= */}
-
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">
-          Admin Dashboard
-        </h1>
-
-        <p className="mt-1 text-sm text-zinc-400">
-          Overview of OccuSync's platform activity.
-        </p>
-      </div>
-
-      {/* =========================================
-          KPI Cards
-      ========================================= */}
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
-        {/* Total Users */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 transition-colors hover:border-violet-500/20">
-          <p className="text-sm text-zinc-400">
-            Total Users
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-white">
-            {data.user_overview.total_users}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Customers + Business Providers
-          </p>
-        </div>
-
-        {/* Total Services */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 transition-colors hover:border-violet-500/20">
-          <p className="text-sm text-zinc-400">
-            Total Services
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-white">
-            {data.service_job_overview.total_services}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Services available
-          </p>
-        </div>
-
-        {/* Completed Jobs */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 transition-colors hover:border-violet-500/20">
-          <p className="text-sm text-zinc-400">
-            Completed Jobs
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-white">
-            {data.service_job_overview.jobs_completed}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Successfully completed
-          </p>
-        </div>
-
-        {/* Transaction Value */}
-
-        <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5 shadow-[0_0_25px_rgba(139,92,246,0.08)]">
-          <p className="text-sm text-zinc-400">
-            Transaction Value
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-violet-300">
-            RM{" "}
-            {Number(
-              data.total_transaction_value
-            ).toLocaleString("en-MY", {
-              minimumFractionDigits: 2,
-            })}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            From paid invoices
-          </p>
-        </div>
-      </div>
-
-      {/* =========================================
-          Pending Businesses
-      ========================================= */}
-
-      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40">
-
+      <div className="relative z-10 max-w-[1450px] mx-auto px-6 lg:px-10 space-y-6 pt-2">
+        
         {/* Header */}
-
-        <div className="border-b border-zinc-800 px-6 py-5">
-          <div className="flex items-center justify-between">
-
+        <BlurFade delay={0.1}>
+          <div className="flex items-center justify-between py-2">
             <div>
-              <h2 className="text-lg font-semibold text-white">
-                Pending Business Registrations
-              </h2>
+              <h2 className="text-[28px] font-semibold tracking-tight text-[#1E293B]">Platform Overview</h2>
+              <p className="text-[13px] font-medium text-slate-500 mt-1">Admin control center and analytics.</p>
+            </div>
+            <button className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400 hover:text-black transition-colors">
+              <Search size={18} />
+            </button>
+          </div>
+        </BlurFade>
 
-              <p className="mt-1 text-sm text-zinc-400">
-                Businesses waiting for admin approval
-              </p>
+        {/* KPI Panel */}
+        <BlurFade delay={0.2}>
+          <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)]">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              
+              <div className="bg-white rounded-[1.5rem] p-6 shadow-[0_8px_24px_rgba(149,157,165,0.1)] flex flex-col justify-between">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500"><Users size={18} /></div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Users</span>
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold text-[#1E293B]"><NumberTicker value={data.user_overview.total_users} /></h3>
+                  <p className="text-[11px] font-medium text-slate-400 mt-1">Clients & Businesses</p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-[1.5rem] p-6 shadow-[0_8px_24px_rgba(149,157,165,0.1)] flex flex-col justify-between">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500"><Briefcase size={18} /></div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Services</span>
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold text-[#1E293B]"><NumberTicker value={data.service_job_overview.total_services} /></h3>
+                  <p className="text-[11px] font-medium text-slate-400 mt-1">Active directory listings</p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-[1.5rem] p-6 shadow-[0_8px_24px_rgba(149,157,165,0.1)] flex flex-col justify-between">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500"><CheckCircle size={18} /></div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Completed Jobs</span>
+                </div>
+                <div>
+                  <h3 className="text-3xl font-bold text-[#1E293B]"><NumberTicker value={data.service_job_overview.jobs_completed} /></h3>
+                  <p className="text-[11px] font-medium text-slate-400 mt-1">Successfully fulfilled</p>
+                </div>
+              </div>
+
+              <div className="bg-[#1E293B] rounded-[1.5rem] p-6 shadow-[0_15px_30px_rgba(30,41,59,0.2)] flex flex-col justify-between relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-violet-500/20 rounded-full blur-2xl"></div>
+                <div className="flex justify-between items-start mb-4 relative z-10">
+                  <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white"><CreditCard size={18} /></div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-violet-300">Revenue Volume</span>
+                </div>
+                <div className="relative z-10">
+                  <h3 className="text-3xl font-bold text-white">
+                    <span className="text-xl text-violet-400 mr-1">RM</span>
+                    {Number(data.total_transaction_value).toLocaleString("en-MY", { maximumFractionDigits: 0 })}
+                  </h3>
+                  <p className="text-[11px] font-medium text-slate-400 mt-1">Total platform transactions</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </BlurFade>
+
+        {/* Analytics Charts Panel */}
+        <BlurFade delay={0.3}>
+          <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)] grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            <div className="bg-white rounded-[1.5rem] p-6 shadow-[0_8px_24px_rgba(149,157,165,0.05)]">
+              <h3 className="text-[13px] font-bold uppercase tracking-wider text-slate-400 mb-6">User Distribution</h3>
+              <div className="h-[250px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie data={userChartData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={5}>
+                      {userChartData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} stroke="none" />
+                      ))}
+                    </Pie>
+                    <RechartsTooltip contentStyle={TOOLTIP_STYLE} itemStyle={{ color: '#1E293B', fontWeight: 600 }} />
+                    <Legend wrapperStyle={LEGEND_STYLE} iconType="circle" />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
-            <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300">
-              {data.pending_businesses.length} Pending
-            </span>
-
-          </div>
-        </div>
-
-        {/* Table */}
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-
-            <thead className="bg-zinc-900/70 text-xs uppercase tracking-wider text-zinc-500">
-              <tr>
-                <th className="px-6 py-3">
-                  Business
-                </th>
-
-                <th className="px-6 py-3">
-                  Registration No.
-                </th>
-
-                <th className="px-6 py-3">
-                  Industry
-                </th>
-
-                <th className="px-6 py-3">
-                  Email
-                </th>
-
-                <th className="px-6 py-3">
-                  Status
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-zinc-800/70">
-
-              {data.pending_businesses.map(
-                (business) => (
-                  <tr
-                    key={business.id}
-                    onClick={() =>
-                      setSelectedBusiness(business)
-                    }
-                    className="cursor-pointer transition-colors hover:bg-violet-500/5"
-                  >
-
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="font-medium text-zinc-100">
-                          {business.name}
-                        </p>
-
-                        <p className="mt-0.5 text-xs text-zinc-600">
-                          {business.id}
-                        </p>
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4 text-zinc-400">
-                      {business.registration_no}
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <span className="rounded-md bg-zinc-800 px-2 py-1 text-xs text-zinc-300">
-                        {business.industry}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4 text-zinc-400">
-                      {business.email}
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400">
-                        {business.approval_status}
-                      </span>
-                    </td>
-
-                  </tr>
-                )
-              )}
-
-              {data.pending_businesses.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-10 text-center"
-                  >
-                    <p className="text-sm text-zinc-500">
-                      No pending businesses.
-                    </p>
-
-                    <p className="mt-1 text-xs text-zinc-600">
-                      All business registrations have been reviewed.
-                    </p>
-                  </td>
-                </tr>
-              )}
-
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* =========================================
-          Charts
-      ========================================= */}
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-
-        {/* User Distribution */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
-
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-white">
-              User Distribution
-            </h2>
-
-            <p className="mt-1 text-sm text-zinc-400">
-              Customers vs business providers
-            </p>
-          </div>
-
-          <div className="h-[300px]">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <PieChart>
-
-                <Pie
-                  data={userChartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {userChartData.map(
-                    (_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={
-                          CHART_COLORS[
-                            index %
-                              CHART_COLORS.length
-                          ]
-                        }
-                      />
-                    )
-                  )}
-                </Pie>
-
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  labelStyle={TOOLTIP_LABEL_STYLE}
-                />
-
-                <Legend
-                  wrapperStyle={LEGEND_STYLE}
-                />
-
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Business Members */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
-
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-white">
-              Business Members
-            </h2>
-
-            <p className="mt-1 text-sm text-zinc-400">
-              Number of members under each business
-            </p>
-          </div>
-
-          <div className="h-[300px]">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <BarChart
-                data={data.business_analytics}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={GRID_STROKE}
-                />
-
-                <XAxis
-                  dataKey="business_name"
-                  tick={AXIS_TICK}
-                />
-
-                <YAxis
-                  allowDecimals={false}
-                  tick={AXIS_TICK}
-                />
-
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  labelStyle={TOOLTIP_LABEL_STYLE}
-                  cursor={{
-                    fill: "rgba(139,92,246,0.05)",
-                  }}
-                />
-
-                <Bar
-                  dataKey="member_count"
-                  name="Members"
-                  fill="#8b5cf6"
-                  radius={[4, 4, 0, 0]}
-                />
-
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* =========================================
-          Job Overview + Registration Chart
-      ========================================= */}
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-
-        {/* Job Overview */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
-
-          <div className="mb-5">
-            <h2 className="text-lg font-semibold text-white">
-              Job Overview
-            </h2>
-
-            <p className="mt-1 text-sm text-zinc-400">
-              Current job activity
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-violet-500/20">
-              <p className="text-sm text-zinc-400">
-                Completed
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-white">
-                {
-                  data.service_job_overview
-                    .jobs_completed
-                }
-              </p>
-            </div>
-
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-violet-500/20">
-              <p className="text-sm text-zinc-400">
-                In Progress
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-white">
-                {
-                  data.service_job_overview
-                    .jobs_pending_or_confirmed
-                }
-              </p>
+            <div className="bg-white rounded-[1.5rem] p-6 shadow-[0_8px_24px_rgba(149,157,165,0.05)]">
+              <h3 className="text-[13px] font-bold uppercase tracking-wider text-slate-400 mb-6">New Registrations (30 Days)</h3>
+              <div className="h-[250px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={registrationData}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={GRID_STROKE} vertical={false} />
+                    <XAxis dataKey="date" tick={AXIS_TICK} axisLine={false} tickLine={false} dy={10} />
+                    <YAxis allowDecimals={false} tick={AXIS_TICK} axisLine={false} tickLine={false} dx={-10} />
+                    <RechartsTooltip contentStyle={TOOLTIP_STYLE} labelStyle={TOOLTIP_LABEL_STYLE} cursor={{ stroke: '#E2E8F0', strokeWidth: 2 }} />
+                    <Line type="monotone" dataKey="registrations" stroke="#8b5cf6" strokeWidth={3} dot={false} activeDot={{ r: 6, fill: "#8b5cf6", stroke: "#FFFFFF", strokeWidth: 2 }} />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
             </div>
 
           </div>
-        </div>
+        </BlurFade>
 
-        {/* User Registrations */}
+        {/* Data Tables Panel */}
+        <BlurFade delay={0.4}>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            
+            {/* Pending Businesses */}
+            <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)]">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-[#1E293B]">Pending Registrations</h3>
+                <span className="px-3 py-1 bg-amber-100 text-amber-600 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                  {data.pending_businesses.length} Action Needed
+                </span>
+              </div>
+              
+              <div className={`overflow-x-auto pb-4 ${scrollbarClasses}`}>
+                <table className="w-full text-left min-w-[500px]">
+                  <thead>
+                    <tr className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-200">
+                      <th className="pb-4 font-medium pl-2">Business Details</th>
+                      <th className="pb-4 font-medium">Industry</th>
+                      <th className="pb-4 font-medium text-right pr-2">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-[13px]">
+                    {data.pending_businesses.map((business) => (
+                      <tr key={business.id} onClick={() => setSelectedBusiness(business)} className="hover:bg-white/50 transition-colors border-b border-slate-200/50 cursor-pointer group">
+                        <td className="py-4 pl-2">
+                          <p className="font-semibold text-[#1E293B] group-hover:text-violet-600 transition-colors">{business.name}</p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">{business.email}</p>
+                        </td>
+                        <td className="py-4 text-slate-500 font-medium">{business.industry}</td>
+                        <td className="py-4 text-right pr-2">
+                          <button className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-black ml-auto">
+                            <MoreHorizontal size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                    {data.pending_businesses.length === 0 && (
+                      <tr><td colSpan={3} className="py-8 text-center text-slate-400">Queue is clear.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
+            {/* Latest Jobs */}
+            <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)]">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-lg font-semibold text-[#1E293B]">Live Job Feed</h3>
+                <button className="text-[11px] font-bold text-slate-400 hover:text-black uppercase tracking-wider flex items-center gap-1 transition-colors">
+                  View All <ArrowRight size={12} />
+                </button>
+              </div>
+              
+              <div className={`overflow-x-auto pb-4 ${scrollbarClasses}`}>
+                <table className="w-full text-left min-w-[500px]">
+                  <thead>
+                    <tr className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-200">
+                      <th className="pb-4 font-medium pl-2">Service</th>
+                      <th className="pb-4 font-medium">Date</th>
+                      <th className="pb-4 font-medium text-right pr-2">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-[13px]">
+                    {data.latest_jobs.map((job) => (
+                      <tr key={job.id} className="hover:bg-white/50 transition-colors border-b border-slate-200/50">
+                        <td className="py-4 pl-2">
+                          <p className="font-semibold text-[#1E293B]">{job.service_name}</p>
+                          <p className="text-[11px] text-slate-500 mt-0.5">{job.business_name}</p>
+                        </td>
+                        <td className="py-4 text-slate-500 font-medium">
+                          {job.date ? new Date(job.date).toLocaleDateString("en-MY", { day: 'numeric', month: 'short' }) : "-"}
+                        </td>
+                        <td className="py-4 text-right pr-2">
+                          <span className="flex items-center justify-end gap-1.5">
+                            <span className={`w-2 h-2 rounded-full ${
+                              job.status === "COMPLETED" ? "bg-emerald-400" :
+                              job.status === "CANCELLED" ? "bg-red-400" :
+                              job.status === "CONFIRMED" ? "bg-violet-400" : "bg-amber-400"
+                            }`}></span>
+                            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{job.status}</span>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {data.latest_jobs.length === 0 && (
+                      <tr><td colSpan={3} className="py-8 text-center text-slate-400">No recent activity.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
 
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-white">
-              User Registrations
-            </h2>
-
-            <p className="mt-1 text-sm text-zinc-400">
-              Registrations over the last 30 days
-            </p>
           </div>
+        </BlurFade>
 
-          <div className="h-[250px]">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <LineChart
-                data={registrationData}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={GRID_STROKE}
-                />
-
-                <XAxis
-                  dataKey="date"
-                  tick={AXIS_TICK}
-                />
-
-                <YAxis
-                  allowDecimals={false}
-                  tick={AXIS_TICK}
-                />
-
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  labelStyle={TOOLTIP_LABEL_STYLE}
-                />
-
-                <Line
-                  type="monotone"
-                  dataKey="registrations"
-                  name="Registrations"
-                  stroke="#8b5cf6"
-                  strokeWidth={2}
-                  dot={{
-                    fill: "#8b5cf6",
-                    r: 3,
-                  }}
-                  activeDot={{
-                    r: 5,
-                  }}
-                />
-
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
       </div>
-
-      {/* =========================================
-          Latest Jobs
-      ========================================= */}
-
-      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40">
-
-        <div className="border-b border-zinc-800 px-6 py-5">
-          <h2 className="text-lg font-semibold text-white">
-            Latest Jobs
-          </h2>
-
-          <p className="mt-1 text-sm text-zinc-400">
-            The 5 most recently created jobs
-          </p>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-
-            <thead className="bg-zinc-900/70 text-xs uppercase tracking-wider text-zinc-500">
-              <tr>
-                <th className="px-6 py-3">
-                  Service
-                </th>
-
-                <th className="px-6 py-3">
-                  Customer
-                </th>
-
-                <th className="px-6 py-3">
-                  Business
-                </th>
-
-                <th className="px-6 py-3">
-                  Date
-                </th>
-
-                <th className="px-6 py-3">
-                  Status
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-zinc-800/70">
-
-              {data.latest_jobs.map((job) => (
-                <tr
-                  key={job.id}
-                  className="transition-colors hover:bg-violet-500/5"
-                >
-
-                  <td className="px-6 py-4 font-medium text-zinc-100">
-                    {job.service_name}
-                  </td>
-
-                  <td className="px-6 py-4 text-zinc-400">
-                    {job.customer_name}
-                  </td>
-
-                  <td className="px-6 py-4 text-zinc-400">
-                    {job.business_name}
-                  </td>
-
-                  <td className="px-6 py-4 text-zinc-400">
-                    {job.date
-                      ? new Date(
-                          job.date
-                        ).toLocaleDateString(
-                          "en-MY"
-                        )
-                      : "-"}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <span
-                      className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                        job.status === "COMPLETED"
-                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                          : job.status === "CANCELLED"
-                          ? "border-red-500/20 bg-red-500/10 text-red-400"
-                          : job.status === "CONFIRMED"
-                          ? "border-violet-500/20 bg-violet-500/10 text-violet-300"
-                          : "border-amber-500/20 bg-amber-500/10 text-amber-400"
-                      }`}
-                    >
-                      {job.status}
-                    </span>
-                  </td>
-
-                </tr>
-              ))}
-
-              {data.latest_jobs.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-10 text-center text-sm text-zinc-500"
-                  >
-                    No jobs found.
-                  </td>
-                </tr>
-              )}
-
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* =========================================
-          Business Approval Modal
-      ========================================= */}
 
       {selectedBusiness && (
         <BusinessApprovalModal
           business={selectedBusiness}
-          onClose={() =>
-            setSelectedBusiness(null)
-          }
-          onStatusUpdated={
-            updateBusinessStatusInDashboard
-          }
+          onClose={() => setSelectedBusiness(null)}
+          onStatusUpdated={updateBusinessStatusInDashboard}
         />
       )}
     </div>
   );
 }
-

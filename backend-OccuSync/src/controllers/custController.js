@@ -513,3 +513,34 @@ exports.payCustomerInvoice = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get full customer profile for layout/settings
+exports.getCustomerProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const result = await pool.query(
+      `SELECT
+        c.first_name,
+        c.last_name,
+        c.phone,
+        c.address_line,
+        c.state,
+        c.postcode,
+        c.country,
+        u.email
+       FROM customer_profiles c
+       JOIN users u ON c.user_id = u.id
+       WHERE c.user_id = $1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Customer profile not found' });
+    }
+
+    return res.json(result.rows[0]);
+  } catch (error) {
+    next(error);
+  }
+};

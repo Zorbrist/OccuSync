@@ -8,6 +8,7 @@ const requireRole = require('../middleware/roleMiddleware');
 router.use(authMiddleware, requireRole('CUSTOMER'));
 
 router.get("/dashboard", custController.getCustomerDashboard);
+router.get("/profile", custController.getCustomerProfile);
 
 router.get("/services", custController.getCustomerServices);
 router.get("/services/:id", custController.getCustomerService);

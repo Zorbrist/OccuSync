@@ -1,26 +1,32 @@
-
+// layouts/AdminLayout.tsx
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../../components/SidebarTemplate';
-import { LayoutDashboard, UserCheck } from 'lucide-react';
+import { 
+  LayoutDashboard, 
+  Users, 
+  Briefcase, 
+  Layers, 
+  ClipboardList, 
+  CreditCard 
+} from 'lucide-react';
 
 const NavItems = [
   { name: 'Dashboard', path: '/admin', icon: LayoutDashboard },
-  { name: 'User Management', path: '/admin/users', icon: UserCheck },
-  { name: 'Businesses', path: '/admin/businesses', icon: UserCheck },
-  { name: 'Services', path: '/admin/services', icon: UserCheck },
-  { name: 'Jobs', path: '/admin/jobs', icon: UserCheck },
-  { name: 'Transactions', path: '/admin/transactions', icon: UserCheck },
-
+  { name: 'Users', path: '/admin/users', icon: Users },
+  { name: 'Businesses', path: '/admin/businesses', icon: Briefcase },
+  { name: 'Services', path: '/admin/services', icon: Layers },
+  { name: 'Jobs', path: '/admin/jobs', icon: ClipboardList },
+  { name: 'Transactions', path: '/admin/transactions', icon: CreditCard },
 ];
 
 export default function AdminLayout() {
   return (
-    <div className="flex h-screen w-full font-sans bg-zinc-950 text-zinc-100">
+    <div className="flex flex-col h-screen w-full font-sans bg-[#E8EDF2] text-slate-800">
       <Sidebar
         variant="admin"
         navItems={NavItems}
       />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative">
         <Outlet />
       </main>
     </div>

@@ -7,7 +7,7 @@ export function useServicesData() {
   const [services, setServices] = useState<ServiceListing[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState<string>('All');
 
@@ -50,11 +50,11 @@ export function useServicesData() {
 
   const filteredServices = useMemo(() => {
     return services.filter(service => {
-      const matchesSearch = 
+      const matchesSearch =
         service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         service.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         service.description.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       const matchesIndustry = selectedIndustry === 'All' || service.industry === selectedIndustry;
       return matchesSearch && matchesIndustry;
     });
@@ -84,27 +84,34 @@ export function useServicesData() {
     });
   };
 
-// In hooks/useServicesData.ts
+  // In hooks/useServicesData.ts
   const handleInitiateBooking = (service: ServiceListing) => {
     setSelectedService(service);
     setPendingPayload({
       service_id: service.id,
-      date: '', 
+      date: '',
       time_slot: ''
-      // removed "notes" completely
     });
   };
 
-  const handleConfirmBooking = async () => {
+  const handleConfirmBooking = async (message: string) => {
     if (!pendingPayload) return;
-    
+
     setIsSubmitting(true);
     try {
-      await createOrder(pendingPayload);
+
+      const payloadWithMessage = {
+        ...pendingPayload,
+        message, 
+      };
+
+      // 2. Send updated payload to your API/database function
+      await createOrder(payloadWithMessage);
+
       if (selectedService) {
-        setSuccessData({ 
-          serviceName: selectedService.name, 
-          businessName: selectedService.business_name 
+        setSuccessData({
+          serviceName: selectedService.name,
+          businessName: selectedService.business_name
         });
       }
       setSelectedService(null);

@@ -4,8 +4,8 @@ import Sidebar from '../../components/SidebarTemplate';
 import { Briefcase, ShoppingBag, Bell, HelpCircle, } from 'lucide-react';
 
 const businessNavItems = [
-  { name: 'Listings', path: '/staff/listings', icon: Briefcase },
-  { name: 'Customer Orders', path: '/staff/orders', icon: ShoppingBag },
+  { name: 'Tasks', path: '/staff', icon: Briefcase },
+  { name: 'Tasks', path: '/staff/history', icon: Briefcase },
 ];
 
 export default function StaffLayout() {

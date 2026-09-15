@@ -58,6 +58,11 @@ router.put(
   businessController.updateBusinessOrderStatus,
 );
 
+router.patch(
+  "/jobs/:job_id/assign",
+  businessController.assignJobToStaff
+);
+
 // Notifications
 router.get(
   "/notifications",
@@ -71,12 +76,10 @@ router.put(
 );
 router.put(
   "/notifications/read-all",
-  requireBusinessRole("OWNER" , "STAFF"),
+  requireBusinessRole("OWNER", "STAFF"),
   businessController.markAllBusinessNotificationsAsRead,
 );
 
-// Inquiries, Proposals, and Availability
-router.get('/inquiries', requireBusinessRole("OWNER", "STAFF"), businessController.getBusinessInquiries);
 router.post('/proposals', requireBusinessRole("OWNER", "STAFF"), businessController.sendOrderProposal);
 router.post('/availability', requireBusinessRole("OWNER", "STAFF"), businessController.toggleAvailability);
 
@@ -86,6 +89,62 @@ router.post(
   "/staff/invite",
   requireBusinessRole("OWNER"),
   businessController.inviteStaff,
+);
+
+// ============================================================
+// BUSINESS MEMBERS
+// ============================================================
+
+router.get(
+  '/members',
+  businessController.getBusinessMembers
+);
+
+// ============================================================
+// ASSIGN ORDER MEMBER
+// ============================================================
+
+router.patch(
+  '/orders/:id/assign',
+  businessController.assignOrderMember
+);
+
+
+
+router.get(
+  "/tasks",
+  requireBusinessRole("STAFF"),
+  businessController.getStaffTasks,
+);
+
+router.get(
+  "/tasks/:job_id",
+  requireBusinessRole("STAFF"),
+  businessController.getStaffTaskDetails,
+);
+
+router.get(
+  "/tasks/:job_id/logs",
+  requireBusinessRole("STAFF"),
+  businessController.getStaffJobLogs,
+);
+
+router.post(
+  "/tasks/:job_id/logs",
+  requireBusinessRole("STAFF"),
+  businessController.addStaffJobLog,
+);
+
+router.patch(
+  "/tasks/:job_id/status",
+  requireBusinessRole("STAFF"),
+  businessController.updateStaffJobStatus,
+);
+
+router.get(
+  "/history",
+  requireBusinessRole("STAFF"),
+  businessController.getStaffJobHistory,
 );
 
 module.exports = router;

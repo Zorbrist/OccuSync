@@ -4,6 +4,15 @@ import axiosInstance from '../api/axiosInstance';
 // BUSINESS DASHBOARD
 // ============================================================
 
+
+
+import type {
+  StaffTask,
+  StaffTaskDetails,
+  JobLog
+} from "../types/staffType";
+
+
 export const getBusinessDashboard = async () => {
   const response = await axiosInstance.get('/business/dashboard');
   return response.data;
@@ -99,6 +108,20 @@ export const getBusinessOrder = async (id: number) => {
   return response.data;
 };
 
+export const assignJobToStaff = async (
+  jobId: number,
+  memberId: string
+) => {
+  const response = await axiosInstance.patch(
+    `/business/jobs/${jobId}/assign`,
+    {
+      member_id: memberId,
+    }
+  );
+
+  return response.data;
+};
+
 // ============================================================
 // UPDATE CUSTOMER ORDER STATUS
 // ============================================================
@@ -152,10 +175,10 @@ export const getBusinessInquiries = async () => {
 // BUSINESS ORDER PROPOSAL
 // ============================================================
 export const sendOrderProposal = async (data: {
-  inquiry_id: number;
+  job_id: number;
   proposed_date: string;
   proposed_time: string;
-  notes: string;
+  message: string;
 }) => {
   const response = await axiosInstance.post('/business/proposals', data);
   return response.data;
@@ -175,5 +198,97 @@ export const toggleDateAvailability = async (date: string, is_available: boolean
 // ============================================================
 export const getStaffWithTasks = async () => {
   const response = await axiosInstance.get('/business/staff-tasks');
+  return response.data;
+};
+
+// ============================================================
+// BUSINESS MEMBERS
+// ============================================================
+
+export const getBusinessMembers = async () => {
+  const response = await axiosInstance.get('/business/members');
+  return response.data;
+};
+
+// ============================================================
+// ASSIGN ORDER MEMBER
+// ============================================================
+
+export const assignOrderMember = async (
+  orderId: number,
+  memberId: string
+) => {
+  const response = await axiosInstance.patch(
+    `/business/orders/${orderId}/assign`,
+    {
+      member_id: memberId,
+    }
+  );
+
+  return response.data;
+};
+
+
+export const getStaffTasks = async (): Promise<StaffTask[]> => {
+  const response = await axiosInstance.get("/business/tasks");
+
+  return response.data;
+};
+
+export const getStaffTaskDetails = async (
+  jobId: number
+): Promise<StaffTaskDetails> => {
+  const response = await axiosInstance.get(
+    `/business/tasks/${jobId}`
+  );
+
+  return response.data;
+};
+
+export const getStaffJobLogs = async (
+  jobId: number
+): Promise<JobLog[]> => {
+  const response = await axiosInstance.get(
+    `/business/tasks/${jobId}/logs`
+  );
+
+  return response.data;
+};
+
+export const addStaffJobLog = async (
+  jobId: number,
+  notes: string,
+  photoUrl?: string
+) => {
+  const response = await axiosInstance.post(
+    `/business/tasks/${jobId}/logs`,
+    {
+      notes,
+      photo_url: photoUrl || null,
+    }
+  );
+
+  return response.data;
+};
+
+export const updateStaffJobStatus = async (
+  jobId: number,
+  status: "COMPLETED" | "CANCELLED"
+) => {
+  const response = await axiosInstance.patch(
+    `/business/tasks/${jobId}/status`,
+    {
+      status,
+    }
+  );
+
+  return response.data;
+};
+
+export const getStaffJobHistory = async (): Promise<StaffTask[]> => {
+  const response = await axiosInstance.get(
+    "/business/history"
+  );
+
   return response.data;
 };

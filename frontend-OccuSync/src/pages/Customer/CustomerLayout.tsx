@@ -8,9 +8,7 @@ import { LayoutDashboard, ShoppingBag, Search, Receipt, Bell, FileText, HelpCirc
     { name: 'Find Services', path: '/customer/services', icon: Search },
     { name: 'My Orders', path: '/customer/orders', icon: ShoppingBag },
     { name: 'Invoices', path: '/customer/invoices', icon: Receipt },
-    // { name: 'Payments', path: '/customer/payments', icon: CreditCard },
     { name: 'Notifications', path: '/customer/notifications', icon: Bell, hasBadge: true },
-    { name: 'Inquiries', path: '/customer/inquiries', icon: FileText },
   ];
 
 export default function CustomerLayout() {

@@ -165,6 +165,11 @@ export default function CustomerOrdersPage() {
                   {/* Order ID and status */}
                   <div className="flex items-center gap-3 flex-wrap">
                     <span className="font-black text-rose-950">#{order.id}</span>
+                    {order.proposal_status === 'PENDING' && (
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}>
+                        Waiting time confirmation
+                      </span>
+                    )}
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusStyle(order.status)}`}>
                       {getStatusLabel(order.status)}
                     </span>

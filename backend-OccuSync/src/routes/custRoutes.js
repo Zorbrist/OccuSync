@@ -23,4 +23,7 @@ router.put("/notifications/:id/read", custController.markNotificationAsRead);
 router.get("/invoices", custController.getCustomerInvoices);
 router.get("/invoices/:id", custController.getCustomerInvoice);
 
+// Add this right under your other invoice routes
+router.post("/invoices/:id/pay", custController.payCustomerInvoice);
+
 module.exports = router;

@@ -26,7 +26,8 @@ export function useOrdersData() {
     fetchOrders();
   }, []);
 
-  const availableStatuses = ['ALL', 'PENDING', 'CONFIRMED', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED'];
+  // Removed ASSIGNED and IN_PROGRESS to match your DB Schema
+  const availableStatuses = ['ALL', 'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELLED'];
 
   // Calculate counts for each status to power the tab indicators
   const statusCounts = useMemo(() => {
@@ -42,10 +43,12 @@ export function useOrdersData() {
   const filteredOrders = useMemo(() => {
     return orders.filter(order => {
       const orderIdStr = order.id.toString();
+      
+      // Removed 'notes' from the search filter
       const matchesSearch = 
         orderIdStr.includes(searchQuery) ||
         (order.business_name && order.business_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (order.notes && order.notes.toLowerCase().includes(searchQuery.toLowerCase()));
+        (order.service_name && order.service_name.toLowerCase().includes(searchQuery.toLowerCase()));
       
       const matchesStatus = statusFilter === 'ALL' || order.status === statusFilter;
       
@@ -56,7 +59,7 @@ export function useOrdersData() {
   return {
     filteredOrders,
     availableStatuses,
-    statusCounts, // Expose the counts to the UI
+    statusCounts, 
     searchQuery,
     setSearchQuery,
     statusFilter,

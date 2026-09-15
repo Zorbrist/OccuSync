@@ -6,7 +6,6 @@ import {
   FileText,
   Bell,
   ChevronRight,
-  Wrench,
   Sparkles,
   Zap,
 } from "lucide-react";
@@ -83,7 +82,7 @@ export default function CustomerDashboard() {
 
   // Group active orders by date for the calendar view
   const groupedOrders = activeOrders.reduce((acc: Record<string, OrderResponse[]>, order) => {
-    const dateKey = order.service_date ? new Date(order.service_date).toISOString().split('T')[0] : 'TBD';
+    const dateKey = order.date ? new Date(order.date).toISOString().split('T')[0] : 'TBD';
     if (!acc[dateKey]) acc[dateKey] = [];
     acc[dateKey].push(order);
     return acc;

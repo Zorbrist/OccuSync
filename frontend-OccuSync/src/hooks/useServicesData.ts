@@ -84,14 +84,14 @@ export function useServicesData() {
     });
   };
 
-  // Frictionless Booking: Create the payload immediately without a form
+// In hooks/useServicesData.ts
   const handleInitiateBooking = (service: ServiceListing) => {
     setSelectedService(service);
     setPendingPayload({
       service_id: service.id,
-      service_date: new Date().toISOString().split('T')[0], // Placeholder required by backend DB
-      time_slot: 'TBD', // Placeholder
-      notes: 'Standard customer request.'
+      date: '', 
+      time_slot: ''
+      // removed "notes" completely
     });
   };
 

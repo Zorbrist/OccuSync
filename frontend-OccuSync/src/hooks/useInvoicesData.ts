@@ -1,4 +1,3 @@
-// hooks/useInvoicesData.ts
 import { useState, useEffect, useMemo } from 'react';
 import { getCustomerInvoices, getCustomerInvoice } from '../services/customerService';
 import type { InvoiceSummary, InvoiceDetail } from '../types/customerType';
@@ -7,13 +6,11 @@ export function useInvoicesData() {
   const [invoices, setInvoices] = useState<InvoiceSummary[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   
-  // State for the detailed modal
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceDetail | null>(null);
-  const [isDetailLoading, setIsDetailLoading] = useState(false);
+  const [loadingInvoiceId, setLoadingInvoiceId] = useState<number | string | null>(null);
 
   useEffect(() => {
     const fetchInvoices = async () => {
@@ -55,14 +52,14 @@ export function useInvoicesData() {
   }, [invoices, searchQuery, statusFilter]);
 
   const handleOpenInvoice = async (id: number | string) => {
-    setIsDetailLoading(true);
+    setLoadingInvoiceId(id);
     try {
       const detail = await getCustomerInvoice(id);
       setSelectedInvoice(detail);
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to load invoice details');
     } finally {
-      setIsDetailLoading(false);
+      setLoadingInvoiceId(null);
     }
   };
 
@@ -79,6 +76,6 @@ export function useInvoicesData() {
     selectedInvoice,
     setSelectedInvoice,
     handleOpenInvoice,
-    isDetailLoading
+    loadingInvoiceId
   };
 }

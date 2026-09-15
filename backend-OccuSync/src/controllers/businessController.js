@@ -886,3 +886,160 @@ exports.inviteStaff = async (req, res, next) => {
     next(error);
   }
 };
+
+// =====================================================
+// INQUIRIES & PROPOSALS
+// =====================================================
+
+exports.getBusinessInquiries = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    const businessResult = await pool.query(
+      `SELECT business_id FROM business_members WHERE user_id = $1 LIMIT 1`,
+      [userId]
+    );
+
+    if (businessResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Business not found' });
+    }
+    const businessId = businessResult.rows[0].business_id;
+
+    // Fetch messages that are linked to a service (formal inquiries)
+    const result = await pool.query(
+      `SELECT 
+        m.id as inquiry_id, 
+        m.message_text as message, 
+        m.inquiry_status as status, 
+        m.created_at,
+        c.id as customer_id, 
+        c.first_name, 
+        c.last_name, 
+        c.phone, 
+        s.name as service_name
+       FROM messages m
+       JOIN customer_profiles c ON m.customer_id = c.id
+       JOIN services s ON m.service_id = s.id
+       WHERE m.business_id = $1 
+       AND m.service_id IS NOT NULL 
+       ORDER BY m.created_at DESC`,
+      [businessId]
+    );
+
+    return res.json(result.rows);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.sendOrderProposal = async (req, res, next) => {
+  const client = await pool.connect();
+
+  try {
+    const { inquiry_id, proposed_date, proposed_time, notes } = req.body;
+
+    if (!inquiry_id || !proposed_date || !proposed_time) {
+      return res.status(400).json({
+        message: 'Inquiry, proposed date, and proposed time are required'
+      });
+    }
+
+    await client.query('BEGIN');
+    
+    // Create the proposal linked to the message_id
+    await client.query(
+      `INSERT INTO proposals 
+        (message_id, proposed_date, proposed_time, notes)
+       VALUES 
+        ($1, $2, $3, $4)`,
+      [inquiry_id, proposed_date, proposed_time, notes]
+    );
+
+    // Update the message status to PROPOSED
+    await client.query(
+      `UPDATE messages 
+       SET inquiry_status = 'PROPOSED' 
+       WHERE id = $1`,
+      [inquiry_id]
+    );
+
+    await client.query('COMMIT');
+    return res.json({ message: 'Proposal sent successfully' });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    next(error);
+  } finally {
+    client.release();
+  }
+};
+
+// =====================================================
+// CALENDAR AVAILABILITY
+// =====================================================
+
+exports.toggleAvailability = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { date, is_available } = req.body;
+
+    const businessResult = await pool.query(
+      `SELECT business_id FROM business_members WHERE user_id = $1 LIMIT 1`,
+      [userId]
+    );
+    const businessId = businessResult.rows[0].business_id;
+
+    await pool.query(
+      `INSERT INTO business_availability (business_id, blocked_date, is_available)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (business_id, blocked_date) 
+       DO UPDATE SET is_available = EXCLUDED.is_available`,
+      [businessId, date, is_available]
+    );
+
+    return res.json({ message: 'Availability updated' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// =====================================================
+// STAFF TASKS
+// =====================================================
+
+exports.getStaffWithTasks = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    
+    const businessResult = await pool.query(
+      `SELECT business_id FROM business_members WHERE user_id = $1 LIMIT 1`,
+      [userId]
+    );
+    const businessId = businessResult.rows[0].business_id;
+
+    const result = await pool.query(
+      `SELECT 
+        bm.id as member_id, 
+        bmp.first_name, 
+        bmp.last_name, 
+        u.email, 
+        bm.role,
+        COALESCE(
+          json_agg(
+            json_build_object('job_id', j.id, 'service', s.name, 'date', j.date)
+          ) FILTER (WHERE j.id IS NOT NULL), '[]'
+        ) as assigned_tasks
+       FROM business_members bm
+       JOIN users u ON bm.user_id = u.id
+       JOIN business_member_profiles bmp ON u.id = bmp.user_id
+       LEFT JOIN jobs j ON j.assigned_member_id = bm.id AND j.status IN ('PENDING', 'CONFIRMED')
+       LEFT JOIN services s ON j.service_id = s.id
+       WHERE bm.business_id = $1
+       GROUP BY bm.id, bmp.first_name, bmp.last_name, u.email, bm.role`,
+      [businessId]
+    );
+
+    return res.json(result.rows);
+  } catch (error) {
+    next(error);
+  }
+};

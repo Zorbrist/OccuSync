@@ -26,6 +26,8 @@ import CustomerOrdersDetailsPage from './pages/Business/CustOrdersDetailsPage';
 import NotificationsPage from './pages/Business/NotificationsPage';
 import MerchantSupportPage from './pages/Business/MerchantSupportPage';
 import StaffInvitePage from './pages/Business/StaffPage';
+import InquiriesPage from './pages/Business/InquiriesPage';
+import OrderProposalPage from './pages/Business/OrderProposalPage';
 
 // Business Layout
 import BusinessLayout from './pages/Business/Business_Layout';
@@ -78,6 +80,9 @@ export default function App() {
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="support" element={<MerchantSupportPage />} />
             <Route path="staff/invite" element={<StaffInvitePage />} />
+            <Route path="inquiries" element={<InquiriesPage />} />
+            <Route path="proposals/new" element={<OrderProposalPage />} />
+            <Route path="staff" element={<StaffInvitePage />} />
           </Route>
         </Route>
 

@@ -75,7 +75,13 @@ router.put(
   businessController.markAllBusinessNotificationsAsRead,
 );
 
-// Staff Management
+// Inquiries, Proposals, and Availability
+router.get('/inquiries', requireBusinessRole("OWNER", "STAFF"), businessController.getBusinessInquiries);
+router.post('/proposals', requireBusinessRole("OWNER", "STAFF"), businessController.sendOrderProposal);
+router.post('/availability', requireBusinessRole("OWNER", "STAFF"), businessController.toggleAvailability);
+
+// Staff Tasks & Management
+router.get('/staff-tasks', requireBusinessRole("OWNER", "STAFF"), businessController.getStaffWithTasks);
 router.post(
   "/staff/invite",
   requireBusinessRole("OWNER"),

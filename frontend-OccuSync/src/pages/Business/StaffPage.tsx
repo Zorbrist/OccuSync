@@ -1,17 +1,32 @@
 import { useState, useRef, useEffect } from 'react';
-import { Search, Plus, Mail, X, UserPlus } from 'lucide-react';
+import { Search, Plus, Mail, X, UserPlus, Briefcase } from 'lucide-react';
 import { inviteStaff } from '../../services/authService';
+import { getStaffWithTasks } from '../../services/businessService';
 
-export default function StaffInvitePage() {
+export default function StaffPage() {
   const [email, setEmail] = useState('');
   const [search, setSearch] = useState('');
   const [message, setMessage] = useState('');
   const [showInvite, setShowInvite] = useState(false);
   const [renderInvite, setRenderInvite] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  const [staffList, setStaffList] = useState<any[]>([]);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        const data = await getStaffWithTasks();
+        setStaffList(data);
+      } catch (error) {
+        console.error("Failed to fetch staff data:", error);
+      }
+    };
+    fetchStaff();
+  }, []);
 
   // ============================================================
   // MOUNT / UNMOUNT WITH ANIMATION
@@ -85,6 +100,11 @@ export default function StaffInvitePage() {
     }
   };
 
+  const filteredStaff = staffList.filter(member => 
+    `${member.first_name} ${member.last_name}`.toLowerCase().includes(search.toLowerCase()) ||
+    member.email.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <div className="min-h-full bg-slate-50 p-6">
 
@@ -116,7 +136,7 @@ export default function StaffInvitePage() {
           </h1>
 
           <p className="mt-1 text-sm text-slate-400">
-            Manage your staff members and send invitations to new team members.
+            Manage your staff members and view their assigned tasks.
           </p>
         </div>
 
@@ -235,7 +255,7 @@ export default function StaffInvitePage() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search staff..."
+            placeholder="Search staff by name or email..."
             className="w-full rounded-2xl border border-rose-100 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-rose-300"
           />
         </div>
@@ -247,11 +267,7 @@ export default function StaffInvitePage() {
           <thead>
             <tr className="border-b border-rose-100 bg-slate-50">
               <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">
-                Name
-              </th>
-
-              <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">
-                Email
+                Staff Member
               </th>
 
               <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">
@@ -259,36 +275,73 @@ export default function StaffInvitePage() {
               </th>
 
               <th className="px-5 py-3 text-left text-xs font-bold uppercase tracking-wider text-slate-400">
-                Status
-              </th>
-
-              <th className="px-5 py-3 text-right text-xs font-bold uppercase tracking-wider text-slate-400">
-                Actions
+                Active Tasks
               </th>
             </tr>
           </thead>
 
           <tbody>
-            <tr>
-              <td
-                colSpan={5}
-                className="px-5 py-16 text-center"
-              >
-                <div className="flex flex-col items-center">
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-rose-100 to-amber-100">
-                    <UserPlus size={21} className="text-rose-400" />
+            {filteredStaff.length > 0 ? (
+              filteredStaff.map((member) => (
+                <tr key={member.member_id} className="border-b border-slate-100 last:border-none">
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-100 font-bold text-rose-950">
+                        {member.first_name[0]}{member.last_name[0]}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900">
+                          {member.first_name} {member.last_name}
+                        </p>
+                        <p className="text-xs text-slate-400">{member.email}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4">
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+                      {member.role}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4">
+                    {member.assigned_tasks && member.assigned_tasks.length > 0 ? (
+                      <div className="flex flex-col gap-2">
+                        {member.assigned_tasks.map((task: any) => (
+                          <div key={task.job_id} className="flex w-fit items-center gap-2 rounded-xl bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700">
+                            <Briefcase size={14} />
+                            <span>
+                              {task.service} - {new Date(task.date).toLocaleDateString('en-MY')}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-xs italic text-slate-400">No active tasks</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan={3}
+                  className="px-5 py-16 text-center"
+                >
+                  <div className="flex flex-col items-center">
+                    <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-rose-100 to-amber-100">
+                      <UserPlus size={21} className="text-rose-400" />
+                    </div>
+
+                    <p className="text-sm font-bold text-slate-900">
+                      No staff found
+                    </p>
+
+                    <p className="mt-1 text-sm text-slate-400">
+                      {search ? "No staff match your search criteria." : "Add a staff member to get started."}
+                    </p>
                   </div>
-
-                  <p className="text-sm font-bold text-slate-900">
-                    No staff members yet
-                  </p>
-
-                  <p className="mt-1 text-sm text-slate-400">
-                    Add a staff member to get started.
-                  </p>
-                </div>
-              </td>
-            </tr>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

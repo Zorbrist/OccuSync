@@ -139,3 +139,41 @@ export const markAllBusinessNotificationsAsRead = async () => {
 
   return response.data;
 };
+
+// ============================================================
+// BUSINESS INQUIRIES
+// ============================================================
+export const getBusinessInquiries = async () => {
+  const response = await axiosInstance.get('/business/inquiries');
+  return response.data;
+};
+
+// ============================================================
+// BUSINESS ORDER PROPOSAL
+// ============================================================
+export const sendOrderProposal = async (data: {
+  inquiry_id: number;
+  proposed_date: string;
+  proposed_time: string;
+  notes: string;
+}) => {
+  const response = await axiosInstance.post('/business/proposals', data);
+  return response.data;
+};
+
+// ============================================================
+// BUSINESS CALENDAR AVAILABILITY
+// ============================================================
+export const toggleDateAvailability = async (date: string, is_available: boolean) => {
+  // The { date, is_available } object MUST be the second argument
+  const response = await axiosInstance.post('/business/availability', { date, is_available });
+  return response.data;
+};
+
+// ============================================================
+// STAFF WITH TASKS
+// ============================================================
+export const getStaffWithTasks = async () => {
+  const response = await axiosInstance.get('/business/staff-tasks');
+  return response.data;
+};

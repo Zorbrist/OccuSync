@@ -5,9 +5,31 @@ import axiosInstance from '../../api/axiosInstance';
 
 export const getBusinessInquiries = async (): Promise<any[]> => {
   const response = await axiosInstance.get('/business/inquiries');
-  
+
   // Axios automatically parses the JSON and stores it in the 'data' property
-  return response.data; 
+  return response.data;
+};
+
+const getInquiryStatusClasses = (status: string) => {
+  switch (status) {
+    case "NONE":
+      return "bg-zinc-100 text-zinc-700";
+
+    case "PENDING":
+      return "bg-amber-100 text-amber-700";
+
+    case "PROPOSED":
+      return "bg-violet-100 text-violet-700";
+
+    case "ACCEPTED":
+      return "bg-emerald-100 text-emerald-700";
+
+    case "REJECTED":
+      return "bg-red-100 text-red-700";
+
+    default:
+      return "bg-zinc-100 text-zinc-700";
+  }
 };
 
 export default function InquiriesPage() {
@@ -49,7 +71,11 @@ export default function InquiriesPage() {
           >
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 text-xs font-bold">
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${getInquiryStatusClasses(
+                    inquiry.status
+                  )}`}
+                >
                   {inquiry.status}
                 </span>
                 <h3 className="text-lg font-bold text-slate-900">

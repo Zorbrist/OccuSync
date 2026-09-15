@@ -139,7 +139,7 @@ export default function OrderProposalPage() {
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-400">Notes for Customer</label>
+            <label className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-400">Message to Customer</label>
             <textarea rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} className="w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm outline-none transition focus:border-rose-300" />
           </div>
 

@@ -4,11 +4,10 @@ import { LayoutDashboard, Briefcase, ShoppingBag, Bell, HelpCircle, PersonStandi
 
 const businessNavItems = [
   { name: 'Dashboard', path: '/business', icon: LayoutDashboard },
-  { name: 'Inquiries', path: '/business/inquiries', icon: MessageSquare },
-  { name: 'Order Proposals', path: '/business/proposals/new', icon: CalendarPlus },
   { name: 'Listings', path: '/business/listings', icon: Briefcase },
   { name: 'Customer Orders', path: '/business/orders', icon: ShoppingBag },
-  { name: 'Staff Management', path: '/business/staff', icon: PersonStanding},
+  { name: 'Inquiries', path: '/business/inquiries', icon: MessageSquare },
+  { name: 'Staff Management', path: '/business/staff', icon: PersonStanding },
   { name: 'Notifications', path: '/business/notifications', icon: Bell },
 ];
 

@@ -11,7 +11,6 @@ import Home from './pages/Home';
 import RegisterBusiness from './pages/RegisterBusiness';
 import RegisterCustomer from './pages/RegisterCustomer';
 import Login from './pages/Login';
-import AboutUs from './pages/AboutUs';
 
 // Dashboard Pages
 import AdminDashboardPage from './pages/Admin/AdminDashboard';
@@ -53,7 +52,6 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/about" element={<AboutUs />} />
         <Route path="/register/business" element={<RegisterBusiness />} />
         <Route path="/register/customer" element={<RegisterCustomer />} />
         <Route path="register/staff" element={<StaffRegisterPage />} />

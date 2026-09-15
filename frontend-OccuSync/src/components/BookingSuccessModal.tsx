@@ -1,4 +1,4 @@
-import React from "react";
+
 import { CheckCircle, X, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom"; // Import Link for client-side routing
 

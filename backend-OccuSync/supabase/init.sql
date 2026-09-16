@@ -1,4 +1,3 @@
-
 CREATE SEQUENCE customer_id_seq START 1;
 CREATE SEQUENCE business_id_seq START 1;
 CREATE SEQUENCE member_id_seq START 1;
@@ -45,6 +44,7 @@ CREATE TABLE customer_profiles (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 CREATE TABLE business_member_profiles (
     id SERIAL PRIMARY KEY,
 
@@ -72,7 +72,6 @@ CREATE TABLE businesses (
     registration_no VARCHAR(100) UNIQUE NOT NULL,
 
     approval_status VARCHAR(30) NOT NULL DEFAULT 'PENDING' CHECK (
-
         approval_status IN (
             'PENDING',
             'APPROVED',
@@ -81,9 +80,7 @@ CREATE TABLE businesses (
     ),
 
     industry VARCHAR(100) NOT NULL CHECK (
-
         industry IN (
-            
             'PLUMBING',
             'ENERGY',
             'HVAC',
@@ -102,7 +99,6 @@ CREATE TABLE businesses (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 
 CREATE TABLE business_members (
@@ -146,7 +142,6 @@ CREATE TABLE staff_invitations (
 );
 
 
-
 CREATE TABLE services (
     id SERIAL PRIMARY KEY,
 
@@ -166,7 +161,6 @@ CREATE TABLE services (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
 
 
 CREATE TABLE jobs (
@@ -198,9 +192,11 @@ CREATE TABLE jobs (
     time_slot TIME,
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
+    message TEXT
 );
+
 
 CREATE TABLE job_logs (
     id SERIAL PRIMARY KEY,
@@ -280,7 +276,6 @@ CREATE TABLE payments (
             'E_WALLET'
         )
     )
-
 );
 
 
@@ -309,23 +304,36 @@ CREATE TABLE proposals (
     message TEXT NOT NULL,
 
     proposed_date DATE NOT NULL,
+
     proposed_time TIME NOT NULL,
 
     notes TEXT,
 
     status VARCHAR(30) NOT NULL DEFAULT 'PENDING'
-        CHECK (status IN ('PENDING', 'ACCEPTED', 'REJECTED')),
+        CHECK (
+            status IN (
+                'PENDING',
+                'ACCEPTED',
+                'REJECTED'
+            )
+        ),
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+
 CREATE TABLE business_availability (
     id SERIAL PRIMARY KEY,
-    business_id VARCHAR(20) NOT NULL REFERENCES businesses(id) ON DELETE CASCADE,
+
+    business_id VARCHAR(20) NOT NULL
+        REFERENCES businesses(id) ON DELETE CASCADE,
+
     blocked_date DATE NOT NULL,
+
     is_available BOOLEAN NOT NULL DEFAULT TRUE,
+
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
     UNIQUE (business_id, blocked_date)
 );
-

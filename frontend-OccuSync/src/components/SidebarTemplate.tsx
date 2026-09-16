@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bell, User, LogOut, MapPin, Phone, type LucideIcon } from 'lucide-react';
 import LogoutModal from './authentication/LogoutModal';
 
-import occusyncLogo from '../assets/occusync.png';
+import occusyncLogo from '../assets/OccuSync.png';
 
 export interface SidebarNavItem {
   name: string;

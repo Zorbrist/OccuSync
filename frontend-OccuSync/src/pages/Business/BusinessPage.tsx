@@ -6,9 +6,6 @@ import {
   CheckCircle,
   DollarSign,
   ArrowUpRight,
-  CalendarDays,
-  Star,
-  MoreHorizontal
 } from 'lucide-react';
 
 import { useBusinessDashboard } from '../../hooks/useBusinessData';

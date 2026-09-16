@@ -1,4 +1,4 @@
-import { Eye, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useBusinessOrders } from '../../hooks/useBusinessData';

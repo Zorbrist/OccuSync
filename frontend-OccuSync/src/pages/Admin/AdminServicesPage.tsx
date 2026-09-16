@@ -1,6 +1,6 @@
 // pages/Admin/AdminServicesPage.tsx
 import { useEffect, useState } from "react";
-import { Search, Layers, Briefcase, Clock } from "lucide-react";
+import { Search, Briefcase, Clock } from "lucide-react";
 import { getAllServices } from "../../services/adminService";
 
 import { BlurFade } from "../../ui/blur-fade";

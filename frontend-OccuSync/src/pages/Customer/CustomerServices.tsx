@@ -1,6 +1,6 @@
 // pages/CustomerServices.tsx
 import { useState, useRef, useEffect } from 'react';
-import { Search, SlidersHorizontal, MapPin, Clock, Sparkles, Heart, Scale, X, Briefcase, ChevronDown } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, Clock, Scale, X, Briefcase, ChevronDown } from 'lucide-react';
 import { useServicesData } from '../../hooks/useServicesData';
 import BookingSuccessModal from '../../components/BookingSuccessModal';
 import ConfirmBookingModal from '../../components/ConfirmBookingModal';
@@ -27,7 +27,6 @@ export default function CustomerServices() {
     handleConfirmBooking,
     handleCancelConfirmation,
     savedServiceIds,
-    toggleSaved,
     compareList,
     setCompareList,
     toggleCompare,

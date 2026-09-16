@@ -10,7 +10,7 @@ import {
   Search, 
   ShoppingBag, 
   Receipt, 
-  FileText 
+
 } from 'lucide-react';
 
 const navItems = [

@@ -72,15 +72,13 @@ VALUES
 -- ============================================================
 
 INSERT INTO customer_profiles
-(user_id, first_name, last_name, phone,
- address_line, state, postcode, country)
+(user_id, first_name, last_name, phone, state, postcode, country)
 VALUES
 
 (
     (SELECT id FROM users WHERE email = 'amir.hakim@example.com'),
     'Amir', 'Hakim',
     '012-3456789',
-    'No. 18, Jalan Anggerik 2/3',
     'Selangor',
     '40460',
     'Malaysia'
@@ -90,7 +88,6 @@ VALUES
     (SELECT id FROM users WHERE email = 'nur.aisyah@example.com'),
     'Nur Aisyah', 'Rahman',
     '013-4567890',
-    'No. 27, Jalan Setia Perdana',
     'Selangor',
     '40170',
     'Malaysia'

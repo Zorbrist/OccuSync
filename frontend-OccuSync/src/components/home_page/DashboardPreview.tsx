@@ -1,4 +1,4 @@
-import { Calendar, Users, ClipboardList, CheckCircle, Clock3, TrendingUp, MapPin, ArrowUpRight } from "lucide-react";
+import { Calendar, Users, ClipboardList, TrendingUp, MapPin, ArrowUpRight } from "lucide-react";
 
 export default function DashboardPreview() {
   return (

@@ -1,5 +1,5 @@
 // components/InvoiceDetailsModal.tsx
-import { X, Calendar, Clock, Briefcase, FileText, Phone, Mail, Receipt } from 'lucide-react';
+import { X, Calendar, Clock, Briefcase, FileText, Phone, Mail } from 'lucide-react';
 import type { InvoiceDetail } from '../types/customerType';
 
 interface InvoiceDetailsModalProps {

@@ -1,5 +1,5 @@
 // pages/CustomerOrders.tsx
-import { Search, ClipboardList, Sparkles, Calendar, ArrowRight, Briefcase } from 'lucide-react';
+import { Search, ClipboardList, Calendar, ArrowRight, Briefcase } from 'lucide-react';
 import { useOrdersData } from '../../hooks/useOrdersData';
 import OrderDetailsModal from '../../components/OrderDetailsModal';
 

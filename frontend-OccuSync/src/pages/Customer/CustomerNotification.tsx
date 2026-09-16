@@ -1,5 +1,5 @@
 // pages/CustomerNotification.tsx
-import { Bell, Check, Sparkles, AlertCircle, CalendarClock, CreditCard, Box } from 'lucide-react';
+import { Bell, Check, AlertCircle, CalendarClock, CreditCard, Box } from 'lucide-react';
 import { useNotificationsData } from '../../hooks/useNotificationsData';
 
 import { BlurFade } from '../../ui/blur-fade';

@@ -1,5 +1,5 @@
 // pages/CustomerInvoices.tsx
-import { Search, FileText, Sparkles, Receipt, Calendar as CalendarIcon, Briefcase } from 'lucide-react';
+import { Search, FileText, Calendar as  Briefcase } from 'lucide-react';
 import { useInvoicesData } from '../../hooks/useInvoicesData';
 import InvoiceDetailsModal from '../../components/InvoiceDetailsModal';
 

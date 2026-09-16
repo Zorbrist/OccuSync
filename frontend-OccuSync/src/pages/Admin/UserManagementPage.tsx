@@ -7,7 +7,7 @@ import UserModal from "../../components/Admin/UserModal";
 
 import { BlurFade } from "../../ui/blur-fade";
 import { Particles } from "../../ui/particles";
-import { Search, User, Shield } from "lucide-react";
+import { Search, User } from "lucide-react";
 
 export default function UserManagement() {
   const {

@@ -1,6 +1,6 @@
 // pages/Admin/AdminJobsPage.tsx
 import { useEffect, useMemo, useState } from "react";
-import { Search, Filter, ClipboardList, Briefcase, User, Calendar as CalendarIcon } from "lucide-react";
+import { Search, Filter, Briefcase, User, Calendar as CalendarIcon } from "lucide-react";
 import { getAllJobs } from "../../services/adminService";
 
 import { BlurFade } from "../../ui/blur-fade";

@@ -26,7 +26,6 @@ import {
   Briefcase,
   CheckCircle,
   CreditCard,
-  Search,
   Users,
   AlertCircle,
 } from "lucide-react";

@@ -150,26 +150,16 @@ exports.getAdminDashboard = async (req, res) => {
 
     res.json({
       user_overview: userOverview.rows[0],
-
       business_analytics: businessAnalytics.rows,
-
       service_job_overview: serviceJobOverview.rows[0],
-
-      total_transaction_value:
-        totalTransactionValue.rows[0].total_transaction_value,
-
+      total_transaction_value: totalTransactionValue.rows[0].total_transaction_value,
       latest_jobs: latestJobs.rows,
-
       pending_businesses: pendingBusinesses.rows,
-
       recent_registrations: recentRegistrations.rows,
     });
   } catch (err) {
-    console.error("getAdminDashboard error:", err);
-
-    res.status(500).json({
-      error: "Failed to load dashboard",
-    });
+    console.error('getAdminDashboard error:', err);
+    res.status(500).json({ error: 'Failed to load dashboard' });
   }
 };
 
@@ -179,9 +169,7 @@ exports.updateBusinessStatus = async (req, res, next) => {
     const { approval_status } = req.body;
 
     if (!['APPROVED', 'REJECTED'].includes(approval_status)) {
-      return res.status(400).json({
-        message: 'Invalid approval status'
-      });
+      return res.status(400).json({ message: 'Invalid approval status' });
     }
 
     const result = await pool.query(
@@ -197,21 +185,17 @@ exports.updateBusinessStatus = async (req, res, next) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({
-        message: 'Business not found'
-      });
+      return res.status(404).json({ message: 'Business not found' });
     }
 
     res.json({
       message: `Business ${approval_status.toLowerCase()} successfully`,
-      business: result.rows[0]
+      business: result.rows[0],
     });
   } catch (error) {
     next(error);
   }
 };
-
-
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -233,9 +217,7 @@ exports.getAllUsers = async (req, res) => {
       conditions.push(`u.email ILIKE $${values.length}`);
     }
 
-    const whereClause = conditions.length
-      ? `WHERE ${conditions.join(" AND ")}`
-      : "";
+    const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
 
     const countResult = await pool.query(
       `SELECT COUNT(*)::int AS total FROM users u ${whereClause}`,
@@ -267,8 +249,8 @@ exports.getAllUsers = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("getAllUsers error:", err);
-    res.status(500).json({ error: "Failed to load users" });
+    console.error('getAllUsers error:', err);
+    res.status(500).json({ error: 'Failed to load users' });
   }
 };
 
@@ -284,12 +266,12 @@ exports.getUserById = async (req, res) => {
     );
 
     if (userResult.rows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const user = userResult.rows[0];
 
-    if (user.role === "CUSTOMER") {
+    if (user.role === 'CUSTOMER') {
       const profileResult = await pool.query(
         `SELECT id, first_name, last_name, phone, address_line,
                 state, postcode, country
@@ -298,7 +280,7 @@ exports.getUserById = async (req, res) => {
         [id]
       );
       user.profile = profileResult.rows[0] || null;
-    } else if (user.role === "BUSINESS_PROVIDER") {
+    } else if (user.role === 'BUSINESS_PROVIDER') {
       const profileResult = await pool.query(
         `SELECT first_name, last_name, phone, profile_picture
          FROM business_member_profiles
@@ -321,11 +303,10 @@ exports.getUserById = async (req, res) => {
 
     res.json({ user });
   } catch (err) {
-    console.error("getUserById error:", err);
-    res.status(500).json({ error: "Failed to load user" });
+    console.error('getUserById error:', err);
+    res.status(500).json({ error: 'Failed to load user' });
   }
 };
-
 
 exports.updateUser = async (req, res) => {
   const client = await pool.connect();
@@ -333,16 +314,13 @@ exports.updateUser = async (req, res) => {
     const { id } = req.params;
     const { email, role, profile } = req.body;
 
-    await client.query("BEGIN");
+    await client.query('BEGIN');
 
-    const existing = await client.query(
-      `SELECT role FROM users WHERE id = $1 FOR UPDATE`,
-      [id]
-    );
+    const existing = await client.query(`SELECT role FROM users WHERE id = $1 FOR UPDATE`, [id]);
 
     if (existing.rows.length === 0) {
-      await client.query("ROLLBACK");
-      return res.status(404).json({ error: "User not found" });
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'User not found' });
     }
 
     const currentRole = existing.rows[0].role;
@@ -363,18 +341,18 @@ exports.updateUser = async (req, res) => {
       userFields.push(`updated_at = CURRENT_TIMESTAMP`);
       userValues.push(id);
       await client.query(
-        `UPDATE users SET ${userFields.join(", ")} WHERE id = $${userValues.length}`,
+        `UPDATE users SET ${userFields.join(', ')} WHERE id = $${userValues.length}`,
         userValues
       );
     }
 
-    if (profile && typeof profile === "object") {
+    if (profile && typeof profile === 'object') {
       const effectiveRole = role || currentRole;
       const allowedFields =
-        effectiveRole === "CUSTOMER"
-          ? ["first_name", "last_name", "phone", "address_line", "state", "postcode", "country"]
-          : effectiveRole === "BUSINESS_PROVIDER"
-          ? ["first_name", "last_name", "phone", "profile_picture"]
+        effectiveRole === 'CUSTOMER'
+          ? ['first_name', 'last_name', 'phone', 'address_line', 'state', 'postcode', 'country']
+          : effectiveRole === 'BUSINESS_PROVIDER'
+          ? ['first_name', 'last_name', 'phone', 'profile_picture']
           : [];
 
       const profileFields = [];
@@ -390,16 +368,15 @@ exports.updateUser = async (req, res) => {
       if (profileFields.length) {
         profileFields.push(`updated_at = CURRENT_TIMESTAMP`);
         profileValues.push(id);
-        const table =
-          effectiveRole === "CUSTOMER" ? "customer_profiles" : "business_member_profiles";
+        const table = effectiveRole === 'CUSTOMER' ? 'customer_profiles' : 'business_member_profiles';
         await client.query(
-          `UPDATE ${table} SET ${profileFields.join(", ")} WHERE user_id = $${profileValues.length}`,
+          `UPDATE ${table} SET ${profileFields.join(', ')} WHERE user_id = $${profileValues.length}`,
           profileValues
         );
       }
     }
 
-    await client.query("COMMIT");
+    await client.query('COMMIT');
 
     const updated = await pool.query(
       `SELECT id, email, role, created_at, updated_at FROM users WHERE id = $1`,
@@ -408,31 +385,27 @@ exports.updateUser = async (req, res) => {
 
     res.json({ user: updated.rows[0] });
   } catch (err) {
-    await client.query("ROLLBACK");
-    console.error("updateUser error:", err);
-    res.status(500).json({ error: "Failed to update user" });
+    await client.query('ROLLBACK');
+    console.error('updateUser error:', err);
+    res.status(500).json({ error: 'Failed to update user' });
   } finally {
     client.release();
   }
 };
 
-
 exports.deleteUser = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const result = await pool.query(
-      `DELETE FROM users WHERE id = $1 RETURNING id`,
-      [id]
-    );
+    const result = await pool.query(`DELETE FROM users WHERE id = $1 RETURNING id`, [id]);
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: "User not found" });
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    res.json({ message: "User deleted successfully", id: result.rows[0].id });
+    res.json({ message: 'User deleted successfully', id: result.rows[0].id });
   } catch (err) {
-    console.error("deleteUser error:", err);
-    res.status(500).json({ error: "Failed to delete user" });
+    console.error('deleteUser error:', err);
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 };

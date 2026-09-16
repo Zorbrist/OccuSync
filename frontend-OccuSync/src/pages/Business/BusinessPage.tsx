@@ -105,15 +105,6 @@ export default function BusinessPage() {
                   })}
                 </p>
               </div>
-
-              <button
-                type="button"
-                onClick={() => fetchBusinessDashboard()}
-                className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-black transition-colors"
-                title="Refresh dashboard"
-              >
-                <CalendarDays size={16} />
-              </button>
             </div>
 
             {/* BUSINESS STATISTICS PANEL */}
@@ -227,7 +218,7 @@ export default function BusinessPage() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
               
               {/* LEFT PANEL: ACTIVE ORDERS */}
-              <div className="xl:col-span-2 bg-[#F1F5F9] rounded-[2.5rem] p-6 lg:p-8 shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)] space-y-6">
+              <div className="xl:col-span-3 bg-[#F1F5F9] rounded-[2.5rem] p-6 lg:p-8 shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)] space-y-6">
                 <div className="flex items-center justify-between">
                   <h2 className="text-xl font-semibold text-[#1E293B]">
                     Active Orders
@@ -287,99 +278,6 @@ export default function BusinessPage() {
                     </div>
                   )}
                 </div>
-              </div>
-
-              {/* RIGHT PANEL: COMMS & ALERTS */}
-              <div className="bg-[#F1F5F9] rounded-[2.5rem] p-6 lg:p-8 shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)] space-y-8">
-                
-                {/* INQUIRIES */}
-                <div>
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-xl font-semibold text-[#1E293B]">
-                      Inquiries
-                    </h2>
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-red-400 text-white text-[10px] font-bold">
-                      2
-                    </span>
-                  </div>
-
-                  <div className="bg-[#FFFFFF] rounded-[1.5rem] p-6 border border-slate-100 shadow-[0_8px_24px_rgba(149,157,165,0.1)]">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-medium text-[#1E293B] text-sm">Natas</h3>
-                      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">2h ago</span>
-                    </div>
-                    <p className="text-sm text-slate-500 mt-3 leading-relaxed">
-                      "Can you arrange a technician tomorrow for aircond repair?"
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => navigate('/business/orders')}
-                      className="w-full mt-5 py-2.5 rounded-[1rem] bg-[#000000] text-white text-sm font-medium hover:bg-slate-800 transition-colors"
-                    >
-                      Send Quotation
-                    </button>
-                  </div>
-                </div>
-
-                {/* BUSINESS RATING */}
-                <div>
-                  <h2 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-4">
-                    Reputation
-                  </h2>
-                  <button
-                    type="button"
-                    onClick={() => navigate('/business/orders')}
-                    className="w-full text-left bg-[#FFFFFF] rounded-[1.5rem] p-6 border border-slate-100 shadow-[0_8px_24px_rgba(149,157,165,0.1)] hover:-translate-y-1 transition-transform duration-300"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-[#1E293B] text-sm font-medium">Global Rating</span>
-                      <Star size={18} className="text-amber-400 fill-amber-400" />
-                    </div>
-                    <div className="flex items-baseline gap-2 mt-4">
-                      <span className="text-3xl font-semibold text-[#1E293B]">4.9</span>
-                      <span className="text-sm text-slate-400 font-medium">/ 5.0</span>
-                    </div>
-                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mt-2">
-                      Based on 126 reviews
-                    </p>
-                  </button>
-                </div>
-
-                {/* ALERTS */}
-                <div>
-                   <div className="flex items-center justify-between mb-4">
-                     <h2 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                      System Alerts
-                    </h2>
-                     <button
-                        type="button"
-                        className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-black transition-colors"
-                      >
-                        <MoreHorizontal size={16} />
-                      </button>
-                   </div>
-                  
-                  <div className="bg-[#FFFFFF] rounded-[1.5rem] p-6 border border-slate-100 shadow-[0_8px_24px_rgba(149,157,165,0.1)] space-y-5">
-                    <div className="flex items-start gap-4">
-                      <div className="w-2 h-2 mt-1.5 rounded-full bg-blue-500 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-                      <div>
-                        <p className="text-sm font-medium text-[#1E293B]">Payout Processed</p>
-                        <p className="text-xs text-slate-500 mt-1">RM1,250.00 transferred today.</p>
-                      </div>
-                    </div>
-
-                    <div className="w-full h-px bg-slate-50"></div>
-
-                    <div className="flex items-start gap-4">
-                      <div className="w-2 h-2 mt-1.5 rounded-full bg-amber-400 shrink-0 shadow-[0_0_8px_rgba(251,191,36,0.5)]"></div>
-                      <div>
-                        <p className="text-sm font-medium text-[#1E293B]">New 5-Star Review</p>
-                        <p className="text-xs text-slate-500 mt-1">A customer left feedback yesterday.</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
               </div>
             </div>
           </div>

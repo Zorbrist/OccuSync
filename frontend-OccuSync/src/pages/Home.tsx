@@ -11,74 +11,40 @@ export default function Home() {
   return (
     <main
       id="home"
-      className="occusync-page min-h-screen relative overflow-x-hidden flex flex-col bg-[#05030a] text-slate-100"
+      className="occusync-page min-h-screen relative overflow-x-hidden flex flex-col bg-white text-[#1E293B] font-sans"
     >
-
       {/* ========================================
-          GLOBAL BACKGROUND
+          GLOBAL BACKGROUND (PURE WHITE DESIGN)
       ======================================== */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-
-        {/* Top purple glow */}
-        <div className="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-purple-700/20 blur-[150px]" />
-
-        {/* Left maroon glow */}
-        <div className="absolute top-[30%] -left-40 w-[500px] h-[500px] rounded-full bg-fuchsia-900/15 blur-[150px]" />
-
-        {/* Bottom purple glow */}
-        <div className="absolute bottom-[-200px] right-[10%] w-[550px] h-[550px] rounded-full bg-purple-900/20 blur-[160px]" />
-
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden bg-white">
+        {/* Subtle grid pattern kept strictly monochrome */}
+        <div 
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: "linear-gradient(rgba(0,0,0,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.5) 1px, transparent 1px)",
+            backgroundSize: "100px 100px",
+          }}
+        />
       </div>
 
-      {/* ========================================
-          NAVBAR
-      ======================================== */}
       <Navbar />
 
-      {/* ========================================
-          MAIN CONTENT
-      ======================================== */}
       <div className="relative z-10 flex-grow">
-
-        {/* HERO */}
         <Hero />
-
-        {/* ========================================
-            ABOUT / METRICS
-        ======================================== */}
         <Metrics />
-
-        {/* ========================================
-            CUSTOMER CATEGORIES
-        ======================================== */}
         <Categories />
-
-        {/* ========================================
-            SERVICE PROVIDER PORTAL
-        ======================================== */}
         <ServicesGrid />
-
-        {/* ========================================
-            BUSINESS DASHBOARD
-        ======================================== */}
+        
         <section id="dashboard">
           <DashboardPreview />
         </section>
 
-        {/* ========================================
-            CONTACT
-        ======================================== */}
         <section id="contact">
           <ContactUs />
         </section>
-
       </div>
 
-      {/* ========================================
-          FOOTER
-      ======================================== */}
       <Footer />
-
     </main>
   );
 }

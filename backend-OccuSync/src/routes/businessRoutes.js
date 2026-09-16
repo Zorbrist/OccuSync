@@ -150,4 +150,20 @@ router.get(
 // Add this line where your other business routes are defined
 router.get("/profile", businessController.getBusinessProfile);
 
+// ============================================================
+// INVOICES
+// ============================================================
+
+router.get(
+  "/invoices",
+  requireBusinessRole("OWNER", "STAFF"),
+  businessController.getBusinessInvoices
+);
+
+router.get(
+  "/invoices/:id",
+  requireBusinessRole("OWNER", "STAFF"),
+  businessController.getBusinessInvoiceDetails
+);
+
 module.exports = router;

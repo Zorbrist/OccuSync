@@ -183,12 +183,6 @@ export default function CustomerServices() {
                           >
                             <Scale size={14} />
                           </button>
-                          <button 
-                            onClick={() => toggleSaved(service.id)}
-                            className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors border shadow-sm ${isSaved ? 'bg-red-50 border-red-200 text-red-500' : 'bg-white border-slate-100 text-slate-400 hover:text-red-500 hover:bg-red-50'}`}
-                          >
-                            <Heart size={14} fill={isSaved ? "currentColor" : "none"} />
-                          </button>
                         </div>
                       </div>
                       
@@ -207,7 +201,7 @@ export default function CustomerServices() {
                         </div>
                         <div className="flex flex-col items-end gap-1.5 text-xs text-slate-500 font-semibold">
                           <span className="flex items-center gap-1.5"><Clock size={14} className="text-slate-400"/> {service.estimated_duration} mins</span>
-                          <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-400"/> {service.postcode || 'Anywhere'}</span>
+                          <span className="flex items-center gap-1.5"><MapPin size={14} className="text-slate-400"/> {service.postcode || 'Anywhere'}, {service.state || 'Anywhere'}</span>
                         </div>
                       </div>
 

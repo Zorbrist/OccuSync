@@ -28,9 +28,8 @@ const BlurFadeWrapper = ({ children, stateKey }: { children: React.ReactNode, st
 
   return (
     <div
-      className={`transition-all duration-700 ease-out w-full flex-1 ${
-        isVisible ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-md translate-y-4'
-      }`}
+      className={`transition-all duration-700 ease-out w-full flex-1 ${isVisible ? 'opacity-100 blur-0 translate-y-0' : 'opacity-0 blur-md translate-y-4'
+        }`}
     >
       {children}
     </div>
@@ -57,7 +56,7 @@ export default function BusinessPage() {
   return (
     <div className="min-h-screen bg-[#E8EDF2] flex flex-col [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full overflow-y-auto">
       <BlurFadeWrapper stateKey={currentState}>
-        
+
         {/* ========================= */}
         {/* LOADING STATE */}
         {/* ========================= */}
@@ -89,7 +88,7 @@ export default function BusinessPage() {
         {/* ========================= */}
         {!loading && !error && (
           <div className="p-6 lg:p-10 space-y-8">
-            
+
             {/* HEADER */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div>
@@ -109,7 +108,7 @@ export default function BusinessPage() {
 
             {/* BUSINESS STATISTICS PANEL */}
             <div className="bg-[#F1F5F9] rounded-[2.5rem] p-6 lg:p-8 shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)]">
-              
+
               <h2 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-6">
                 Overview Metrics
               </h2>
@@ -216,7 +215,7 @@ export default function BusinessPage() {
 
             {/* LOWER CONTENT SPLIT */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-              
+
               {/* LEFT PANEL: ACTIVE ORDERS */}
               <div className="xl:col-span-3 bg-[#F1F5F9] rounded-[2.5rem] p-6 lg:p-8 shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)] space-y-6">
                 <div className="flex items-center justify-between">
@@ -253,11 +252,18 @@ export default function BusinessPage() {
                           <h3 className="text-[#1E293B] text-lg font-semibold">
                             {order.service_name}
                           </h3>
-                          
+
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-sm text-slate-500">
                             <p>Client: {order.first_name} {order.last_name}</p>
                             <span className="hidden sm:inline text-slate-300">•</span>
-                            <p>{new Date(order.scheduled_start).toLocaleString('en-MY', { dateStyle: 'medium', timeStyle: 'short' })}</p>
+                            <p>
+                              {order.scheduled_start
+                                ? new Date(order.scheduled_start).toLocaleString("en-MY", {
+                                  dateStyle: "medium",
+                                  timeStyle: "short",
+                                })
+                                : "Date to be determined"}
+                            </p>
                           </div>
                         </div>
 

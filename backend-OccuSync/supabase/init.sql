@@ -35,7 +35,6 @@ CREATE TABLE customer_profiles (
 
     phone VARCHAR(30) NOT NULL,
 
-    address_line VARCHAR(100) NOT NULL,
     state VARCHAR(100) NOT NULL,
     postcode VARCHAR(20) NOT NULL,
     country VARCHAR(100) NOT NULL,

@@ -683,29 +683,41 @@ exports.getCustomerInvoice = async (req, res, next) => {
 exports.payCustomerInvoice = async (req, res, next) => {
   try {
     const invoiceId = req.params.id;
-    const { method = 'ONLINE_BANKING', photo_url } = req.body; 
+    
+    // Removed photo_url from req.body
+    const { method = 'ONLINE_BANKING' } = req.body; 
 
-    // 1. Update the invoice status to PAID and retrieve the total_amount
+    // 1. Check if the invoice exists and verify its current status
+    const checkResult = await pool.query(
+      `SELECT id, status FROM invoices WHERE id = $1`,
+      [invoiceId]
+    );
+
+    // Differentiate the errors for better frontend handling
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+
+    if (checkResult.rows[0].status === 'PAID') {
+      return res.status(400).json({ message: 'This invoice has already been paid' });
+    }
+
+    // 2. Update the invoice status to PAID and retrieve the data
     const invoiceResult = await pool.query(
       `UPDATE invoices 
        SET status = 'PAID', updated_at = CURRENT_TIMESTAMP
-       WHERE id = $1 AND status != 'PAID'
+       WHERE id = $1
        RETURNING id, job_id, total_amount`,
       [invoiceId]
     );
 
-    if (invoiceResult.rows.length === 0) {
-      return res.status(400).json({ message: 'Invoice not found or already paid' });
-    }
-
-    // Extract the amount from the updated invoice
     const amountToPay = invoiceResult.rows[0].total_amount;
 
-    // 2. Record the transaction in the payments table WITH the amount
+    // 3. Record the transaction in the payments table (photo_url removed)
     await pool.query(
-      `INSERT INTO payments (invoice_id, amount, method, photo_url) 
-       VALUES ($1, $2, $3, $4)`,
-      [invoiceId, amountToPay, method, photo_url || null] 
+      `INSERT INTO payments (invoice_id, amount, method) 
+       VALUES ($1, $2, $3)`,
+      [invoiceId, amountToPay, method] 
     );
 
     return res.json({ 
@@ -727,7 +739,6 @@ exports.getCustomerProfile = async (req, res, next) => {
         c.first_name,
         c.last_name,
         c.phone,
-        c.address_line,
         c.state,
         c.postcode,
         c.country,

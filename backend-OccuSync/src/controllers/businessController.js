@@ -3,7 +3,7 @@ const pool = require('../config/db');
 
 const {
   sendStaffInvitationEmail
-} = require('../services/emailSerivice');
+} = require('../services/emailService');
 
 
 // =====================================================
@@ -1333,7 +1333,6 @@ exports.getStaffTaskDetails = async (req, res, next) => {
         cp.first_name,
         cp.last_name,
         cp.phone,
-        cp.address_line,
         cp.state,
         cp.postcode,
         cp.country
@@ -1809,6 +1808,106 @@ exports.getBusinessProfile = async (req, res, next) => {
       businessName: row.business_name || 'Unassigned Business',
       phone: row.phone
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// =====================================================
+// INVOICES
+// =====================================================
+
+exports.getBusinessInvoices = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const { status } = req.query;
+
+    let query = `
+      SELECT
+        i.id,
+        i.job_id,
+        i.status,
+        i.issue_date,
+        i.due_date,
+        i.total_amount,
+        cp.first_name,
+        cp.last_name
+      FROM invoices i
+      JOIN jobs j ON i.job_id = j.id
+      JOIN customer_profiles cp ON j.customer_id = cp.id
+      WHERE i.business_id = (
+        SELECT business_id
+        FROM business_members
+        WHERE user_id = $1
+        LIMIT 1
+      )
+    `;
+    
+    const values = [userId];
+
+    if (status && status !== 'ALL') {
+      values.push(status);
+      query += ` AND i.status = $2`;
+    }
+
+    query += ` ORDER BY i.issue_date DESC`;
+
+    const result = await pool.query(query, values);
+    return res.json(result.rows);
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getBusinessInvoiceDetails = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+    const invoiceId = req.params.id;
+
+    // Fetch the main invoice details with job and customer info
+    const invoiceResult = await pool.query(
+      `SELECT
+        i.id,
+        i.job_id,
+        i.status,
+        i.issue_date,
+        i.due_date,
+        i.total_amount,
+        j.date AS job_date,
+        s.name AS service_name,
+        cp.first_name,
+        cp.last_name,
+        cp.phone
+       FROM invoices i
+       JOIN jobs j ON i.job_id = j.id
+       JOIN services s ON j.service_id = s.id
+       JOIN customer_profiles cp ON j.customer_id = cp.id
+       WHERE i.id = $1
+       AND i.business_id = (
+         SELECT business_id
+         FROM business_members
+         WHERE user_id = $2
+         LIMIT 1
+       )`,
+      [invoiceId, userId]
+    );
+
+    if (invoiceResult.rows.length === 0) {
+      return res.status(404).json({ message: 'Invoice not found' });
+    }
+
+    // Fetch associated invoice items
+    const itemsResult = await pool.query(
+      `SELECT id, description, sub_total 
+       FROM invoice_items 
+       WHERE invoice_id = $1`,
+      [invoiceId]
+    );
+
+    const invoice = invoiceResult.rows[0];
+    invoice.items = itemsResult.rows;
+
+    return res.json(invoice);
   } catch (error) {
     next(error);
   }

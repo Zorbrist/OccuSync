@@ -1,3 +1,4 @@
+import type { BusinessInvoice } from '@/types/businessTypes';
 import axiosInstance from '../api/axiosInstance';
 
 // ============================================================
@@ -296,5 +297,21 @@ export const getStaffJobHistory = async (): Promise<StaffTask[]> => {
 // Add this to your business service file (e.g., businessService.ts)
 export const getBusinessProfile = async () => {
   const response = await axiosInstance.get('/business/profile');
+  return response.data;
+};
+
+// ============================================================
+// INVOICES
+// ============================================================
+
+export const getBusinessInvoices = async (status?: string): Promise<BusinessInvoice[]> => {
+  const response = await axiosInstance.get('/business/invoices', {
+    params: status && status !== 'ALL' ? { status } : {}
+  });
+  return response.data;
+};
+
+export const getBusinessInvoiceDetails = async (id: number): Promise<BusinessInvoice> => {
+  const response = await axiosInstance.get(`/business/invoices/${id}`);
   return response.data;
 };

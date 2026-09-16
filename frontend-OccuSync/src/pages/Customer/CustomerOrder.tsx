@@ -50,9 +50,6 @@ export default function CustomerOrders() {
                 Track and manage requested services
               </p>
             </div>
-            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-md text-violet-600">
-              <Sparkles size={20} />
-            </div>
           </div>
         </BlurFade>
 

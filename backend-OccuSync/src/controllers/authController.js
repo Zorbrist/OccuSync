@@ -120,6 +120,7 @@ exports.registerCustomer = async (req, res, next) => {
 
 // register business
 
+// register business
 exports.registerBusiness = async (req, res, next) => {
   const client = await pool.connect();
 
@@ -131,8 +132,16 @@ exports.registerBusiness = async (req, res, next) => {
       password
     } = req.body;
 
-    // Check required sections
-    if (!business || !owner || !email || !password) {
+    // Check required sections including specific owner profile fields
+    if (
+      !business || 
+      !owner || 
+      !owner.first_name || 
+      !owner.last_name || 
+      !owner.phone || 
+      !email || 
+      !password
+    ) {
       return res.status(400).json({
         message: 'All required fields must be provided'
       });
@@ -233,11 +242,25 @@ exports.registerBusiness = async (req, res, next) => {
       ]
     );
 
+    // 4. Create business member profile
+    await client.query(
+      `INSERT INTO business_member_profiles
+        (user_id, first_name, last_name, phone)
+       VALUES
+        ($1, $2, $3, $4)`,
+      [
+        user.id,
+        owner.first_name.trim(),
+        owner.last_name.trim(),
+        owner.phone.trim()
+      ]
+    );
+
     // Save changes
     await client.query('COMMIT');
 
     return res.status(201).json({
-      message: 'Business registered successfully, please wait while we approved your account!',
+      message: 'Business registered successfully, please wait while we approve your account!',
       user,
       business: newBusiness
     });
@@ -342,6 +365,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
+
 // register staff through invitation
 exports.registerStaff = async (req, res, next) => {
   const client = await pool.connect();
@@ -376,7 +400,6 @@ exports.registerStaff = async (req, res, next) => {
     }
 
     // Hash the invitation token
-
     const tokenHash = crypto
       .createHash('sha256')
       .update(token)
@@ -452,7 +475,21 @@ exports.registerStaff = async (req, res, next) => {
       ]
     );
 
-    // 3. Mark invitation as accepted
+    // 3. Create business member profile for the staff
+    await client.query(
+      `INSERT INTO business_member_profiles
+        (user_id, first_name, last_name, phone)
+       VALUES
+        ($1, $2, $3, $4)`,
+      [
+        user.id,
+        first_name.trim(),
+        last_name.trim(),
+        phone.trim()
+      ]
+    );
+
+    // 4. Mark invitation as accepted
     await client.query(
       `UPDATE staff_invitations
        SET accepted_at = CURRENT_TIMESTAMP
@@ -463,7 +500,7 @@ exports.registerStaff = async (req, res, next) => {
     // Save everything
     await client.query('COMMIT');
 
-    // 4. Create JWT
+    // 5. Create JWT
     const tokenJwt = signAccessToken({
       sub: String(user.id),
       email: user.email,

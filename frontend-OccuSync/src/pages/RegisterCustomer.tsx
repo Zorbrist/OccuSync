@@ -148,6 +148,7 @@ export default function RegisterCustomer() {
                         <label htmlFor="country" className={INPUT_LABEL}>Country</label>
                         <input id="country" name="country" value={formData.country} onChange={handleChange} placeholder="Malaysia" className={INPUT_FIELD} required />
                       </div>
+    
                       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                         <div>
                           <label htmlFor="state" className={INPUT_LABEL}>State</label>

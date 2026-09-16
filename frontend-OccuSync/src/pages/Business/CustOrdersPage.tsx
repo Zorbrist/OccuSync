@@ -50,7 +50,7 @@ export default function CustomerOrdersPage() {
   return (
     <div className="min-h-screen bg-[#E8EDF2] p-6 lg:p-10 font-sans [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
       <div className="max-w-7xl mx-auto bg-[#F1F5F9] rounded-[2.5rem] shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)] p-6 md:p-10">
-        
+
         {/* Header */}
         <div className="mb-10">
           <h1 className="text-xl font-semibold text-[#1E293B]">Customer Orders</h1>
@@ -64,11 +64,10 @@ export default function CustomerOrdersPage() {
               key={filter}
               type="button"
               onClick={() => handleFilterChange(filter)}
-              className={`px-5 py-2.5 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-all duration-200 ${
-                activeFilter === filter
+              className={`px-5 py-2.5 rounded-full text-[11px] font-semibold uppercase tracking-wider transition-all duration-200 ${activeFilter === filter
                   ? 'bg-black text-white shadow-md'
                   : 'bg-transparent text-slate-400 hover:text-[#1E293B] hover:bg-white hover:shadow-sm'
-              }`}
+                }`}
             >
               {filter === 'ALL' ? 'All Orders' : filter}
             </button>
@@ -110,7 +109,7 @@ export default function CustomerOrdersPage() {
                 className="group bg-white rounded-[1.5rem] p-6 lg:p-8 border border-slate-50 shadow-[0_8px_24px_rgba(149,157,165,0.05)] hover:shadow-[0_12px_30px_rgba(149,157,165,0.1)] transition-all duration-300"
               >
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  
+
                   <div className="flex-1">
                     <div className="flex items-center gap-4 flex-wrap mb-3">
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
@@ -124,7 +123,7 @@ export default function CustomerOrdersPage() {
                       </div>
                       {order.proposal_status === 'PENDING' && (
                         <div className="flex items-center gap-2 bg-amber-50 px-3 py-1 rounded-full border border-amber-100">
-                           <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">Awaiting Time Confirmation</span>
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-amber-500">Awaiting Time Confirmation</span>
                         </div>
                       )}
                     </div>
@@ -133,7 +132,14 @@ export default function CustomerOrdersPage() {
                     <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-sm text-slate-500">
                       <p>Client: <span className="font-medium text-[#1E293B]">{order.first_name} {order.last_name}</span></p>
                       <span className="hidden sm:inline text-slate-300">•</span>
-                      <p>Slated: <span className="font-medium text-[#1E293B]">{new Date(order.scheduled_start).toLocaleDateString()}</span></p>
+                      <p>
+                        Dated:{" "}
+                        <span className="font-medium text-[#1E293B]">
+                          {order.scheduled_start
+                            ? new Date(order.scheduled_start).toLocaleDateString()
+                            : "To be determined"}
+                        </span>
+                      </p>
                     </div>
                   </div>
 

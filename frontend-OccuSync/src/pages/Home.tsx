@@ -9,16 +9,11 @@ import Footer from '../components/home_page/Footer';
 
 export default function Home() {
   return (
-    <main
-      id="home"
-      className="occusync-page min-h-screen relative overflow-x-hidden flex flex-col bg-white text-[#1E293B] font-sans"
-    >
-      {/* ========================================
-          GLOBAL BACKGROUND (PURE WHITE DESIGN)
-      ======================================== */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden bg-white">
-        {/* Subtle grid pattern kept strictly monochrome */}
-        <div 
+    // Instead of a fixed div overlay:
+    <main id="home" className="occusync-page min-h-screen relative overflow-x-hidden flex flex-col bg-white text-[#1E293B] font-sans">
+      {/* Position absolute moves with the document scroll layer */}
+      <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden bg-white">
+        <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: "linear-gradient(rgba(0,0,0,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.5) 1px, transparent 1px)",
@@ -26,6 +21,7 @@ export default function Home() {
           }}
         />
       </div>
+      ...
 
       <Navbar />
 
@@ -34,7 +30,7 @@ export default function Home() {
         <Metrics />
         <Categories />
         <ServicesGrid />
-        
+
         <section id="dashboard">
           <DashboardPreview />
         </section>

@@ -163,3 +163,30 @@ export interface BusinessNotification {
   is_read: boolean;
   created_at: string;
 }
+
+// ============================================================
+// INVOICES
+// ============================================================
+
+export interface InvoiceItem {
+  id: number;
+  description: string;
+  sub_total: string;
+}
+
+export interface BusinessInvoice {
+  id: number;
+  job_id: number;
+  status: 'ISSUED' | 'PAID' | 'OVERDUE';
+  issue_date: string;
+  due_date: string;
+  total_amount: string;
+  first_name: string;
+  last_name: string;
+  
+  // Extended fields for details
+  job_date?: string;
+  service_name?: string;
+  phone?: string;
+  items?: InvoiceItem[];
+}

@@ -17,15 +17,12 @@ const RegisterBusiness = () => {
   const totalSteps = 3;
   const stepProgress = (currentStep / totalSteps) * 100;
 
-  const steps = [
-    { number: 1, title: "Company Details", description: "Business information" },
-    { number: 2, title: "Owner Details", description: "Primary contact" },
-    { number: 3, title: "Security", description: "Account protection" },
-  ];
-
   const validateStep = (step: number) => {
     if (step === 1) return formData.businessName.trim() !== "" && formData.businessRegNo.trim() !== "" && formData.industry.trim() !== "" && formData.state.trim() !== "" && formData.postcode.trim() !== "" && formData.country.trim() !== "" && formData.businessPhone.trim() !== "" && formData.businessEmail.trim() !== "";
-    if (step === 2) return formData.ownerName.trim() !== "" && formData.ownerEmail.trim() !== "" && formData.ownerPhone.trim() !== "";
+    
+    // UPDATED: Check for first and last name instead of ownerName
+    if (step === 2) return formData.ownerFirstName?.trim() !== "" && formData.ownerLastName?.trim() !== "" && formData.ownerEmail?.trim() !== "" && formData.ownerPhone?.trim() !== "";
+    
     if (step === 3) return formData.password !== "" && formData.confirmPassword !== "" && formData.password === formData.confirmPassword && formData.termsAgreed;
     return true;
   };
@@ -134,10 +131,10 @@ const RegisterBusiness = () => {
                             <select required id="industry" name="industry" value={formData.industry} onChange={handleChange} className={`${INPUT_FIELD} appearance-none pr-10 cursor-pointer`}>
                               <option value="" disabled>Select industry</option>
                               <option value="HVAC">HVAC</option>
-                              <option value="Construction">Construction</option>
-                              <option value="Energy">Energy</option>
-                              <option value="Logistics">Logistics</option>
-                              <option value="Plumbing">Plumbing</option>
+                              <option value="AUTOMOTIVE">Automotive</option>
+                              <option value="ENERGY">Energy</option>
+                              <option value="LOGISTICS">Logistics</option>
+                              <option value="PLUMBING">Plumbing</option>
                             </select>
                             <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                           </div>
@@ -179,10 +176,18 @@ const RegisterBusiness = () => {
                   <div className="animate-in fade-in slide-in-from-right-2 duration-300">
                     <h3 className="text-lg font-semibold text-[#1E293B] mb-6 border-b border-slate-100 pb-4">Owner Details</h3>
                     <div className="space-y-5">
-                      <div>
-                        <label htmlFor="ownerName" className={INPUT_LABEL}>Full Name</label>
-                        <input required id="ownerName" name="ownerName" value={formData.ownerName} onChange={handleChange} placeholder="John Doe" className={INPUT_FIELD} />
+                      {/* UPDATED: Split Full Name into First Name and Last Name */}
+                      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                        <div>
+                          <label htmlFor="ownerFirstName" className={INPUT_LABEL}>First Name</label>
+                          <input required id="ownerFirstName" name="ownerFirstName" value={formData.ownerFirstName} onChange={handleChange} placeholder="John" className={INPUT_FIELD} />
+                        </div>
+                        <div>
+                          <label htmlFor="ownerLastName" className={INPUT_LABEL}>Last Name</label>
+                          <input required id="ownerLastName" name="ownerLastName" value={formData.ownerLastName} onChange={handleChange} placeholder="Doe" className={INPUT_FIELD} />
+                        </div>
                       </div>
+                      
                       <div>
                         <label htmlFor="ownerEmail" className={INPUT_LABEL}>Email Address</label>
                         <input required id="ownerEmail" name="ownerEmail" type="email" value={formData.ownerEmail} onChange={handleChange} placeholder="john@company.com" className={INPUT_FIELD} />

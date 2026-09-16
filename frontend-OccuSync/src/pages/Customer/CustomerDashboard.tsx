@@ -67,9 +67,9 @@ export default function CustomerDashboard() {
     <div className="min-h-full font-sans text-slate-800 selection:bg-violet-200 relative pb-16 bg-[#E8EDF2]">
       {/* Background Particles matched to Admin styling */}
       <Particles className="absolute inset-0 pointer-events-none z-0 opacity-60" quantity={400} ease={80} size={1} color="#7C3AED" />
-      
+
       <div className="relative z-10 max-w-[1500px] mx-auto px-6 lg:px-12 space-y-8 pt-4">
-        
+
         {/* Header Title & Date */}
         <BlurFade delay={0.1}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between py-2 border-b border-slate-200/50 pb-6 gap-4">
@@ -84,7 +84,7 @@ export default function CustomerDashboard() {
                 <p className="text-sm font-semibold text-slate-500 mt-1 uppercase tracking-wider">{currentDate}</p>
               </div>
             </div>
-            
+
             <ShimmerButton
               onClick={() => navigate("/customer/services")}
               shimmerColor="#ffffff"
@@ -111,10 +111,10 @@ export default function CustomerDashboard() {
             </div>
 
             {activeOrders.length === 0 ? (
-               <div className="py-16 flex flex-col items-center justify-center bg-white/50 rounded-[2rem] border border-white/60 shadow-sm">
-                  <ClipboardList size={32} className="text-slate-300 mb-4" />
-                  <p className="text-slate-500 font-semibold text-center">You have no active jobs right now.<br/>Click 'Request New Service' to get started.</p>
-               </div>
+              <div className="py-16 flex flex-col items-center justify-center bg-white/50 rounded-[2rem] border border-white/60 shadow-sm">
+                <ClipboardList size={32} className="text-slate-300 mb-4" />
+                <p className="text-slate-500 font-semibold text-center">You have no active jobs right now.<br />Click 'Request New Service' to get started.</p>
+              </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative px-2">
                 {/* Visual Connection Lines (Desktop Only) */}
@@ -127,14 +127,14 @@ export default function CustomerDashboard() {
                   </div>
                   <div className={`space-y-4 overflow-y-auto pr-2 pb-4 ${scrollbarClasses} flex-1`}>
                     {pendingOrders.map(order => (
-                      <div 
-                        key={order.id} 
+                      <div
+                        key={order.id}
                         // Removed onClick, cursor-pointer, and hover animations
                         className="bg-white rounded-[1.5rem] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col gap-3 group border border-slate-50"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center border border-amber-100 shrink-0">
-                             <Clock size={16} className="text-amber-500" />
+                            <Clock size={16} className="text-amber-500" />
                           </div>
                           <div className="overflow-hidden">
                             <h4 className="text-sm font-bold text-[#0F172A] truncate">{order.service_name}</h4>
@@ -158,18 +158,38 @@ export default function CustomerDashboard() {
                   </div>
                   <div className={`space-y-4 overflow-y-auto pr-2 pb-4 ${scrollbarClasses} flex-1`}>
                     {confirmedOrders.map(order => (
-                      <div 
-                        key={order.id} 
+                      <div
+                        key={order.id}
                         // Removed onClick, cursor-pointer, and hover animations
                         className="bg-white rounded-[1.5rem] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col gap-3 group border border-slate-50"
                       >
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-violet-50 flex items-center justify-center border border-violet-100 shrink-0">
-                             <Calendar size={16} className="text-violet-600" />
+                            <Calendar size={16} className="text-violet-600" />
                           </div>
                           <div className="overflow-hidden">
-                            <h4 className="text-sm font-bold text-[#0F172A] truncate">{order.service_name}</h4>
-                            <p className="text-[11px] font-bold text-violet-600 mt-0.5 truncate">{order.time_slot}</p>
+                            <h4 className="text-sm font-bold text-[#0F172A] truncate">
+                              {order.service_name}
+                            </h4>
+
+                            <p className="text-[11px] font-bold text-violet-600 mt-0.5 truncate">
+                              {order.date
+                                ? new Date(order.date).toLocaleDateString("en-MY", {
+                                  day: "numeric",
+                                  month: "short",
+                                  year: "numeric",
+                                })
+                                : "To be determined"}
+
+                              {" at "}
+
+                              {order.time_slot
+                                ? new Date(`1970-01-01T${order.time_slot}`).toLocaleTimeString("en-MY", {
+                                  hour: "numeric",
+                                  minute: "2-digit",
+                                })
+                                : "To be determined"}
+                            </p>
                           </div>
                         </div>
                         <div className="pt-3 border-t border-slate-100 text-[11px] font-bold text-slate-400 flex justify-between uppercase tracking-wider">
@@ -182,17 +202,42 @@ export default function CustomerDashboard() {
                   </div>
                 </div>
 
-                {/* Column 3: Processing */}
-                <div className="flex flex-col h-[420px] opacity-60">
+                {/* Column 3: Completed Jobs */}
+                <div className="flex flex-col h-[420px]">
                   <div className="text-[11px] font-black text-slate-400 uppercase tracking-widest mb-6 text-center shrink-0">
-                    Jobs In Progress
+                    Completed
                   </div>
-                  <div className="flex flex-col gap-4">
-                     <div className="bg-white rounded-[1.5rem] p-6 text-center border border-slate-200 shadow-sm">
-                        <CheckCircle size={24} className="text-slate-300 mx-auto mb-3" />
-                        <h4 className="text-sm font-bold text-slate-500 mb-1">Awaiting Job Start</h4>
-                        <p className="text-xs font-medium text-slate-400">Scheduled jobs will move here during execution.</p>
-                     </div>
+                  <div className={`space-y-4 overflow-y-auto pr-2 pb-4 ${scrollbarClasses} flex-1`}>
+                    {completedOrders.map(order => (
+                      <div
+                        key={order.id}
+                        className="bg-white rounded-[1.5rem] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.03)] flex flex-col gap-3 group border border-slate-50"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-emerald-50 flex items-center justify-center border border-emerald-100 shrink-0">
+                            <CheckCircle size={16} className="text-emerald-600" />
+                          </div>
+                          <div className="overflow-hidden">
+                            <h4 className="text-sm font-bold text-[#0F172A] truncate">
+                              {order.service_name}
+                            </h4>
+
+                            <p className="text-[11px] font-semibold text-slate-500 mt-0.5 truncate">
+                              {order.business_name}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="pt-3 border-t border-slate-100 text-[11px] font-bold text-slate-400 flex justify-between uppercase tracking-wider">
+                          <span>Status</span>
+                          <span className="text-emerald-600 font-extrabold">Completed</span>
+                        </div>
+                      </div>
+                    ))}
+                    {completedOrders.length === 0 && (
+                      <div className="h-32 border-2 border-dashed border-slate-200 rounded-[1.5rem] flex items-center justify-center text-slate-400 font-semibold text-sm">
+                        None
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -203,48 +248,48 @@ export default function CustomerDashboard() {
 
         {/* BOTTOM SECTION */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-          
+
           {/* Recommended Services */}
           <BlurFade delay={0.3} className="xl:col-span-2 h-full">
             <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_15px_rgba(255,255,255,1)] border border-white/60 h-full flex flex-col">
-               <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-xl font-bold text-[#0F172A]">Recommended Services</h3>
-                  <button 
-                    onClick={() => navigate("/customer/services")} 
-                    className="text-[11px] font-bold text-slate-400 hover:text-black uppercase tracking-wider flex items-center gap-1 transition-colors"
-                  >
-                    View Catalog <ArrowRight size={12} />
-                  </button>
-               </div>
-               
-               <div className={`overflow-x-auto overflow-y-auto max-h-[350px] bg-white rounded-[1.5rem] shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-slate-100 flex-1 ${scrollbarClasses}`}>
-                 <table className="w-full text-left min-w-[500px]">
-                   <thead className="sticky top-0 bg-white z-10">
-                     <tr className="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">
-                       <th className="py-5 pl-6 bg-white rounded-tl-[1.5rem]">Service Name</th>
-                       <th className="py-5 bg-white">Provider</th>
-                       <th className="py-5 pr-6 bg-white rounded-tr-[1.5rem]">Price</th>
-                     </tr>
-                   </thead>
-                   <tbody className="text-sm">
-                     {suggestedServices.length > 0 ? suggestedServices.map((service) => (
-                       <tr key={service.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group">
-                         <td className="py-5 pl-6">
-                           <p className="font-bold text-[#0F172A] group-hover:text-violet-700 transition-colors">{service.name}</p>
-                         </td>
-                         <td className="py-5 text-slate-600 font-semibold">{service.business_name}</td>
-                         <td className="py-5 pr-6">
-                           <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[#0F172A] font-black text-xs tracking-wider shadow-sm">
-                             RM {Number(service.base_price).toFixed(0)}
-                           </span>
-                         </td>
-                       </tr>
-                     )) : (
-                       <tr><td colSpan={3} className="py-12 text-center text-slate-500 font-semibold bg-slate-50">No recommendations right now.</td></tr>
-                     )}
-                   </tbody>
-                 </table>
-               </div>
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-bold text-[#0F172A]">Recommended Services</h3>
+                <button
+                  onClick={() => navigate("/customer/services")}
+                  className="text-[11px] font-bold text-slate-400 hover:text-black uppercase tracking-wider flex items-center gap-1 transition-colors"
+                >
+                  View Catalog <ArrowRight size={12} />
+                </button>
+              </div>
+
+              <div className={`overflow-x-auto overflow-y-auto max-h-[350px] bg-white rounded-[1.5rem] shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-slate-100 flex-1 ${scrollbarClasses}`}>
+                <table className="w-full text-left min-w-[500px]">
+                  <thead className="sticky top-0 bg-white z-10">
+                    <tr className="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">
+                      <th className="py-5 pl-6 bg-white rounded-tl-[1.5rem]">Service Name</th>
+                      <th className="py-5 bg-white">Provider</th>
+                      <th className="py-5 pr-6 bg-white rounded-tr-[1.5rem]">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {suggestedServices.length > 0 ? suggestedServices.map((service) => (
+                      <tr key={service.id} className="hover:bg-slate-50 transition-colors border-b border-slate-100 group">
+                        <td className="py-5 pl-6">
+                          <p className="font-bold text-[#0F172A] group-hover:text-violet-700 transition-colors">{service.name}</p>
+                        </td>
+                        <td className="py-5 text-slate-600 font-semibold">{service.business_name}</td>
+                        <td className="py-5 pr-6">
+                          <span className="inline-flex items-center justify-center px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[#0F172A] font-black text-xs tracking-wider shadow-sm">
+                            RM {Number(service.base_price).toFixed(0)}
+                          </span>
+                        </td>
+                      </tr>
+                    )) : (
+                      <tr><td colSpan={3} className="py-12 text-center text-slate-500 font-semibold bg-slate-50">No recommendations right now.</td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </BlurFade>
 
@@ -252,12 +297,12 @@ export default function CustomerDashboard() {
           <BlurFade delay={0.4} className="xl:col-span-1 h-full">
             <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_15px_rgba(255,255,255,1)] border border-white/60 h-full flex flex-col">
               <h3 className="text-xl font-bold text-[#0F172A] mb-8">My Summary</h3>
-              
+
               <div className="flex flex-col gap-6 flex-1">
-                
+
                 {/* Metric 1: Invoices */}
-                <div 
-                  onClick={() => navigate("/customer/invoices")} 
+                <div
+                  onClick={() => navigate("/customer/invoices")}
                   className="bg-white rounded-[1.5rem] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col justify-between border border-slate-50 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all cursor-pointer flex-1"
                 >
                   <div className="flex justify-between items-start mb-6">
@@ -274,12 +319,12 @@ export default function CustomerDashboard() {
                 </div>
 
                 {/* Metric 2: History */}
-                <div 
-                  onClick={() => navigate("/customer/orders")} 
+                <div
+                  onClick={() => navigate("/customer/orders")}
                   className="bg-white rounded-[1.5rem] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col justify-between border border-slate-50 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:-translate-y-1 transition-all cursor-pointer flex-1"
                 >
                   <div className="flex justify-between items-start mb-6">
-                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Completed Jobs</span>
+                    <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">Completed Orders</span>
                     <CheckCircle size={20} className="text-emerald-500" />
                   </div>
                   <div>

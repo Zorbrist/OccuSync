@@ -10,7 +10,7 @@ const businessNavItems = [
   { name: 'Listings', path: '/business/listings', icon: Briefcase },
   { name: 'Orders', path: '/business/orders', icon: ShoppingBag },
   { name: 'Staff', path: '/business/staff', icon: Users },
-  { name: 'Billings', path: '/business/billings', icon: CreditCard },
+  { name: 'Billings', path: '/business/invoices', icon: CreditCard },
 ];
 
 export default function BusinessLayout() {

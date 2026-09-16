@@ -117,7 +117,7 @@ export default function CustomerPayment() {
                 </div>
 
                 {/* Receipt Upload Section */}
-                {selectedMethod === 'ONLINE_BANKING' && (
+                {/* {selectedMethod === 'ONLINE_BANKING' && (
                   <div className="bg-white border border-slate-100 rounded-[1.5rem] p-6 mt-6 shadow-sm">
                     <h3 className="text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4 flex items-center gap-1.5">
                       <UploadCloud size={14} className="text-violet-500" /> Upload Transfer Receipt
@@ -145,7 +145,7 @@ export default function CustomerPayment() {
                       </p>
                     )}
                   </div>
-                )}
+                )} */}
               </div>
             </BlurFade>
           </div>

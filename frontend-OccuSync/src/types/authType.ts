@@ -1,3 +1,5 @@
+// authType.ts
+
 export interface BusinessPayload {
   name: string;
   registration_no: string;
@@ -11,7 +13,8 @@ export interface BusinessPayload {
 }
 
 export interface OwnerPayload {
-  full_name: string;
+  first_name: string;
+  last_name: string;
   phone: string;
 }
 
@@ -21,6 +24,8 @@ export interface BusinessRegistrationPayload {
   email: string;
   password: string;
 }
+
+// ... (keep the rest of your types exactly the same)
 
 export interface CustomerRegistrationPayload {
   first_name: string;

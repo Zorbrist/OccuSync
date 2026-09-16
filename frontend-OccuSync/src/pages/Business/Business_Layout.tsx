@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../../components/SidebarTemplate';
-import { LayoutDashboard, Briefcase, ShoppingBag, Users } from 'lucide-react';
+import { LayoutDashboard, Briefcase, ShoppingBag, Users, CreditCard } from 'lucide-react';
 import { getBusinessProfile } from '../../services/businessService'; 
 
 const businessNavItems = [
@@ -10,6 +10,7 @@ const businessNavItems = [
   { name: 'Listings', path: '/business/listings', icon: Briefcase },
   { name: 'Orders', path: '/business/orders', icon: ShoppingBag },
   { name: 'Staff', path: '/business/staff', icon: Users },
+  { name: 'Billings', path: '/business/billings', icon: CreditCard },
 ];
 
 export default function BusinessLayout() {

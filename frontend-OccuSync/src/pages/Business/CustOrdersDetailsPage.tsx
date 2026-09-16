@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import {
   ArrowLeft,
@@ -10,7 +9,6 @@ import {
   CalendarPlus
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
-
 import {
   useBusinessOrder,
   useUpdateBusinessOrderStatus,
@@ -22,694 +20,307 @@ export default function CustOrdersDetailsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-
-
-  // ============================================================
-  // ORDER DETAILS
-  // ============================================================
-
-  const {
-    data: order,
-    loading,
-    error,
-    fetchBusinessOrder,
-  } = useBusinessOrder();
-
-  // ============================================================
-  // UPDATE ORDER STATUS
-  // ============================================================
-
-  const {
-    loading: updating,
-    error: updateError,
-    updateOrderStatus,
-  } = useUpdateBusinessOrderStatus();
-
-  // ============================================================
-  // BUSINESS MEMBERS
-  // ============================================================
-
-  const {
-    data: members,
-    loading: membersLoading,
-    error: membersError,
-    fetchBusinessMembers,
-  } = useBusinessMembers();
-
-  // ============================================================
-  // ASSIGN ORDER MEMBER
-  // ============================================================
-
-  const {
-    loading: assigning,
-    error: assignError,
-    assignMember,
-  } = useAssignOrderMember();
-
-  // ============================================================
-  // STATE
-  // ============================================================
+  const { data: order, loading, error, fetchBusinessOrder } = useBusinessOrder();
+  const { loading: updating, error: updateError, updateOrderStatus } = useUpdateBusinessOrderStatus();
+  const { data: members, loading: membersLoading, error: membersError, fetchBusinessMembers } = useBusinessMembers();
+  const { loading: assigning, error: assignError, assignMember } = useAssignOrderMember();
 
   const [status, setStatus] = useState('');
   const [selectedMemberId, setSelectedMemberId] = useState('');
 
-  // ============================================================
-  // FETCH ORDER + MEMBERS
-  // ============================================================
-
   useEffect(() => {
     if (!id) return;
-
     const orderId = Number(id);
-
     if (!Number.isNaN(orderId)) {
       fetchBusinessOrder(orderId);
       fetchBusinessMembers();
     }
   }, [id]);
 
-  // ============================================================
-  // SET ORDER STATE
-  // ============================================================
-
   useEffect(() => {
     if (order) {
       setStatus(order.status);
-
-      setSelectedMemberId(
-        order.assigned_member_id || ''
-      );
+      setSelectedMemberId(order.assigned_member_id || '');
     }
   }, [order]);
 
-  // ============================================================
-  // UPDATE STATUS
-  // ============================================================
-
   const handleStatusUpdate = async () => {
     if (!id || !status) return;
-
     try {
-      await updateOrderStatus(
-        Number(id),
-        status
-      );
-
-      await fetchBusinessOrder(
-        Number(id)
-      );
-    } catch {
-      // Error is handled by the hook
-    }
+      await updateOrderStatus(Number(id), status);
+      await fetchBusinessOrder(Number(id));
+    } catch {}
   };
-
-  // ============================================================
-  // ASSIGN MEMBER
-  // ============================================================
 
   const handleAssignMember = async () => {
     if (!id || !selectedMemberId) return;
-
     try {
-      await assignMember(
-        Number(id),
-        selectedMemberId
-      );
-
-      await fetchBusinessOrder(
-        Number(id)
-      );
-    } catch {
-      // Error is handled by the hook
-    }
+      await assignMember(Number(id), selectedMemberId);
+      await fetchBusinessOrder(Number(id));
+    } catch {}
   };
-
-  // ============================================================
-  // FORMAT STATUS
-  // ============================================================
 
   const getStatusLabel = (value: string) => {
     switch (value) {
-      case 'IN_PROGRESS':
-        return 'In Progress';
-
-      case 'COMPLETED':
-        return 'Completed';
-
-      case 'CANCELLED':
-        return 'Cancelled';
-
-      case 'CONFIRMED':
-        return 'Confirmed';
-
-      case 'ASSIGNED':
-        return 'Assigned';
-
-      case 'PENDING':
-        return 'Pending';
-
-      default:
-        return value;
+      case 'IN_PROGRESS': return 'In Progress';
+      case 'COMPLETED': return 'Completed';
+      case 'CANCELLED': return 'Cancelled';
+      case 'CONFIRMED': return 'Confirmed';
+      case 'ASSIGNED': return 'Assigned';
+      case 'PENDING': return 'Pending';
+      default: return value;
     }
   };
 
-  // ============================================================
-  // STATUS BADGE STYLE
-  // ============================================================
-
-  const getStatusStyle = (value: string) => {
+  const getDotColor = (value: string) => {
     switch (value) {
-      case 'COMPLETED':
-        return 'bg-green-100 text-green-700';
-
-      case 'IN_PROGRESS':
-        return 'bg-blue-100 text-blue-700';
-
-      case 'CONFIRMED':
-        return 'bg-purple-100 text-purple-700';
-
-      case 'ASSIGNED':
-        return 'bg-indigo-100 text-indigo-700';
-
-      case 'CANCELLED':
-        return 'bg-red-100 text-red-700';
-
-      default:
-        return 'bg-amber-100 text-amber-700';
+      case 'COMPLETED': return 'bg-emerald-400';
+      case 'IN_PROGRESS': return 'bg-blue-500';
+      case 'CONFIRMED': return 'bg-indigo-400';
+      case 'ASSIGNED': return 'bg-blue-400';
+      case 'CANCELLED': return 'bg-red-400';
+      default: return 'bg-amber-400';
     }
   };
-
-  // ============================================================
-  // LOADING
-  // ============================================================
 
   if (loading) {
     return (
-      <div className="p-8">
-        <p className="text-sm text-slate-500">
-          Loading order details...
-        </p>
+      <div className="min-h-screen bg-[#E8EDF2] p-8 flex items-center justify-center">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Loading details...</p>
       </div>
     );
   }
 
-  // ============================================================
-  // ERROR
-  // ============================================================
-
-  if (error) {
+  if (error || !order) {
     return (
-      <div className="p-8">
+      <div className="min-h-screen bg-[#E8EDF2] p-8">
         <button
           type="button"
-          onClick={() =>
-            navigate('/business/orders')
-          }
-          className="mb-6 flex items-center gap-2 text-sm text-slate-600 hover:text-rose-950"
+          onClick={() => navigate('/business/orders')}
+          className="mb-8 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-black transition-colors"
         >
-          <ArrowLeft size={18} />
+          <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center border border-slate-100">
+            <ArrowLeft size={16} />
+          </div>
           Back to Orders
         </button>
-
-        <div className="rounded-3xl border border-red-100 bg-red-50 p-6">
-          <p className="text-sm font-medium text-red-600">
-            {error}
-          </p>
+        <div className="max-w-xl mx-auto bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] p-8 text-center border border-slate-50">
+          <p className="text-sm text-slate-500">{error || 'Order not found.'}</p>
         </div>
       </div>
     );
   }
-
-  // ============================================================
-  // ORDER NOT FOUND
-  // ============================================================
-
-  if (!order) {
-    return (
-      <div className="p-8">
-        <button
-          type="button"
-          onClick={() =>
-            navigate('/business/orders')
-          }
-          className="mb-6 flex items-center gap-2 text-sm text-slate-600 hover:text-rose-950"
-        >
-          <ArrowLeft size={18} />
-          Back to Orders
-        </button>
-
-        <div className="rounded-3xl border border-rose-100 bg-white p-8 text-center">
-          <p className="text-sm text-slate-500">
-            Order not found.
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // ============================================================
-  // PAGE
-  // ============================================================
 
   return (
-    <div className="p-8">
-
-      {/* ========================================================
-          HEADER
-      ======================================================== */}
-
-      <div className="mb-8">
+    <div className="min-h-screen bg-[#E8EDF2] p-6 lg:p-10 font-sans [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+      
+      <div className="max-w-7xl mx-auto mb-6">
         <button
           type="button"
-          onClick={() =>
-            navigate('/business/orders')
-          }
-          className="mb-5 flex items-center gap-2 text-sm font-semibold text-slate-500 hover:text-rose-950"
+          onClick={() => navigate('/business/orders')}
+          className="mb-6 flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-black transition-colors w-fit"
         >
-          <ArrowLeft size={18} />
+          <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center border border-slate-100 group-hover:shadow-md transition-all">
+            <ArrowLeft size={16} />
+          </div>
           Back to Orders
         </button>
+      </div>
 
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-
+      <div className="max-w-7xl mx-auto bg-[#F1F5F9] rounded-[2.5rem] shadow-[inset_0_2px_10px_rgba(255,255,255,0.7)] p-6 md:p-10">
+        
+        {/* Header */}
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between mb-10">
           <div>
-            <p className="text-sm font-semibold text-slate-400">
-              Order #{order.id}
-            </p>
-
-            <h1 className="mt-1 text-3xl font-extrabold text-rose-950">
-              Order Details
-            </h1>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Order #{order.id}</p>
+            <h1 className="text-xl font-semibold text-[#1E293B] mt-1">Order Details</h1>
           </div>
 
-          {order.status === 'PENDING' && (
-            <div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-[0_2px_8px_rgba(149,157,165,0.1)] border border-slate-50">
+              <div className={`w-2 h-2 rounded-full ${getDotColor(order.status)}`} />
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-600">
+                {getStatusLabel(order.status)}
+              </span>
+            </div>
+
+            {order.status === 'PENDING' && (
               <button
-                onClick={() =>
-                 
-                    navigate(`/business/proposals?jobId=${order.id}`)
-                  
-                }
-                disabled={
-                  order.proposal_status === 'PENDING'
-                }
-                className="flex items-center gap-2 whitespace-nowrap rounded-xl bg-rose-950 px-5 py-2.5 text-sm font-bold text-white transition hover:bg-rose-900 disabled:cursor-not-allowed disabled:bg-slate-300"
+                onClick={() => navigate(`/business/proposals?jobId=${order.id}`)}
+                disabled={order.proposal_status === 'PENDING'}
+                className="flex items-center gap-2 rounded-xl bg-black px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 disabled:opacity-50 shadow-md"
               >
                 <CalendarPlus size={16} />
-
-                {order.proposal_status === 'PENDING'
-                  ? 'Date Proposed'
-                  : 'Propose Date'}
+                {order.proposal_status === 'PENDING' ? 'Date Proposed' : 'Propose Date'}
               </button>
-            </div>
-          )}
-
-          <span
-            className={`w-fit rounded-full px-4 py-2 text-sm font-bold ${getStatusStyle(
-              order.status
-            )}`}
-          >
-            {getStatusLabel(order.status)}
-          </span>
-
-        </div>
-      </div>
-
-      {/* ========================================================
-          CONTENT
-      ======================================================== */}
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-
-        {/* ======================================================
-            MAIN INFORMATION
-        ====================================================== */}
-
-        <div className="space-y-6 lg:col-span-2">
-
-          {/* ====================================================
-              SERVICE
-          ==================================================== */}
-
-          <div className="rounded-3xl border border-rose-100 bg-white p-6 shadow-xl shadow-rose-950/5">
-
-            <div className="mb-5 flex items-center gap-3">
-
-              <div className="rounded-xl bg-rose-50 p-3 text-rose-950">
-                <Wrench size={20} />
-              </div>
-
-              <div>
-                <p className="text-xs font-bold uppercase text-slate-400">
-                  Service
-                </p>
-
-                <h2 className="text-xl font-bold text-slate-900">
-                  {order.service_name}
-                </h2>
-              </div>
-
-            </div>
-
-            <p className="text-sm leading-6 text-slate-500">
-              {order.service_description ||
-                'No service description available.'}
-            </p>
-
-            <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-
-              <div className="rounded-2xl bg-slate-50 p-4">
-
-                <p className="text-xs font-bold uppercase text-slate-400">
-                  Service Price
-                </p>
-
-                <p className="mt-1 text-xl font-black text-rose-950">
-                  RM
-                  {Number(
-                    order.base_price
-                  ).toLocaleString()}
-                </p>
-
-              </div>
-
-              <div className="rounded-2xl bg-slate-50 p-4">
-
-                <p className="text-xs font-bold uppercase text-slate-400">
-                  Service ID
-                </p>
-
-                <p className="mt-1 text-xl font-black text-slate-900">
-                  #{order.service_id}
-                </p>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* ====================================================
-              CUSTOMER
-          ==================================================== */}
-
-          <div className="rounded-3xl border border-rose-100 bg-white p-6 shadow-xl shadow-rose-950/5">
-
-            <div className="mb-5 flex items-center gap-3">
-
-              <div className="rounded-xl bg-rose-50 p-3 text-rose-950">
-                <User size={20} />
-              </div>
-
-              <div>
-
-                <p className="text-xs font-bold uppercase text-slate-400">
-                  Customer
-                </p>
-
-                <h2 className="text-xl font-bold text-slate-900">
-                  {order.first_name}{' '}
-                  {order.last_name}
-                </h2>
-
-              </div>
-
-            </div>
-
-            <div className="flex items-center gap-3 text-sm text-slate-600">
-
-              <Phone
-                size={17}
-                className="text-slate-400"
-              />
-
-              {order.phone ||
-                'No phone number available'}
-
-            </div>
-
-          </div>
-
-          {/* ====================================================
-              APPOINTMENT
-          ==================================================== */}
-
-          <div className="rounded-3xl border border-rose-100 bg-white p-6 shadow-xl shadow-rose-950/5">
-
-            <div className="mb-5 flex items-center gap-3">
-
-              <div className="rounded-xl bg-rose-50 p-3 text-rose-950">
-                <CalendarDays size={20} />
-              </div>
-
-              <div>
-
-                <p className="text-xs font-bold uppercase text-slate-400">
-                  Appointment
-                </p>
-
-                <h2 className="text-xl font-bold text-slate-900">
-                  Scheduled Service
-                </h2>
-
-              </div>
-
-            </div>
-
-            {order.proposal_status === 'PENDING' && (
-              <p className="mt-1 text-sm font-medium text-amber-600">
-                Date and time proposed. Waiting for customer confirmation.
-              </p>
             )}
+            </div>
+          </div>
 
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-
-              <div className="rounded-2xl bg-slate-50 p-4">
-
-                <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400">
-
-                  <CalendarDays size={15} />
-
-                  Date
-
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+          
+          {/* Main Content */}
+          <div className="space-y-8 lg:col-span-2">
+            
+            {/* Service */}
+            <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] p-8 border border-slate-50 transition-all hover:shadow-[0_12px_30px_rgba(149,157,165,0.15)]">
+              <div className="mb-6 flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-[#F1F5F9] shadow-inner flex items-center justify-center text-[#1E293B]">
+                  <Wrench size={20} />
                 </div>
-                <p className="mt-2 text-sm font-semibold text-slate-800">
-                  {order.inquiry_status === 'PROPOSED'
-                    ? order.proposed_date
-                    : order.date ?? 'To be decided'}
-                </p>
-
-              </div>
-
-              <div className="rounded-2xl bg-slate-50 p-4">
-
-                <div className="flex items-center gap-2 text-xs font-bold uppercase text-slate-400">
-
-                  <Clock size={15} />
-
-                  Time Slot
-
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Service Category</p>
+                  <h2 className="text-[#1E293B] text-lg font-semibold">{order.service_name}</h2>
                 </div>
-
-                <p className="mt-2 text-sm font-semibold text-slate-800">
-                  {order.inquiry_status === 'PROPOSED'
-                    ? order.proposed_time
-                    : order.time_slot ?? 'To be Decided'}
-                </p>
-
               </div>
-
+              <p className="text-sm text-slate-500 leading-relaxed mb-6">
+                {order.service_description || 'No service description available.'}
+              </p>
+              
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div className="bg-[#F1F5F9] rounded-[1rem] p-5 shadow-inner">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Service Price</p>
+                  <p className="mt-1 text-lg font-semibold text-[#1E293B]">RM{Number(order.base_price).toLocaleString()}</p>
+                </div>
+                <div className="bg-[#F1F5F9] rounded-[1rem] p-5 shadow-inner">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Service Reference</p>
+                  <p className="mt-1 text-lg font-semibold text-[#1E293B]">#{order.service_id}</p>
+                </div>
+              </div>
             </div>
 
-          </div>
+            {/* Customer & Appointment Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] p-8 border border-slate-50">
+                <div className="mb-6 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-[#F1F5F9] shadow-inner flex items-center justify-center text-[#1E293B]">
+                    <User size={20} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Customer</p>
+                    <h2 className="text-[#1E293B] font-semibold">{order.first_name} {order.last_name}</h2>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-slate-500 bg-[#F1F5F9] rounded-[1rem] p-4 shadow-inner">
+                  <Phone size={16} className="text-slate-400" />
+                  {order.phone || 'No contact provided'}
+                </div>
+              </div>
 
-          {/* ====================================================
-              CUSTOMER NOTES
-          ==================================================== */}
+              <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] p-8 border border-slate-50">
+                <div className="mb-4 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-full bg-[#F1F5F9] shadow-inner flex items-center justify-center text-[#1E293B]">
+                    <CalendarDays size={20} />
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Schedule</p>
+                    <h2 className="text-[#1E293B] font-semibold">Appointment Details</h2>
+                  </div>
+                </div>
+                {order.proposal_status === 'PENDING' && (
+                  <p className="mb-4 text-[11px] font-semibold uppercase tracking-wider text-amber-500 bg-amber-50 p-2 rounded-lg inline-block">
+                    Awaiting Client Confirmation
+                  </p>
+                )}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-sm text-slate-500">
+                    <span className="flex items-center gap-2"><CalendarDays size={14} className="text-slate-400"/> Date</span>
+                    <span className="font-medium text-[#1E293B]">
+                      {order.inquiry_status === 'PROPOSED' ? order.proposed_date : order.date ?? 'TBD'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm text-slate-500">
+                    <span className="flex items-center gap-2"><Clock size={14} className="text-slate-400"/> Time</span>
+                    <span className="font-medium text-[#1E293B]">
+                      {order.inquiry_status === 'PROPOSED' ? order.proposed_time : order.time_slot ?? 'TBD'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-          <div className="rounded-3xl border border-rose-100 bg-white p-6 shadow-xl shadow-rose-950/5">
-
-            <p className="text-xs font-bold uppercase text-slate-400">
-              Customer Notes
-            </p>
-
-            <p className="mt-3 text-sm leading-6 text-slate-600">
-              {order.message ||
-                'No notes provided by the customer.'}
-            </p>
-
-          </div>
-
-        </div>
-
-        {/* ======================================================
-            SIDEBAR
-        ====================================================== */}
-
-        <div className="space-y-6">
-
-          {/* ====================================================
-              UPDATE STATUS
-          ==================================================== */}
-
-          <div className="rounded-3xl border border-rose-100 bg-white p-6 shadow-xl shadow-rose-950/5">
-
-            <h2 className="text-lg font-bold text-slate-900">
-              Manage Order
-            </h2>
-
-            <p className="mt-1 text-sm text-slate-400">
-              Update the current order status.
-            </p>
-
-            <label className="mt-5 block text-sm font-semibold text-slate-700">
-              Order Status
-            </label>
-
-            <select
-              value={status}
-              onChange={(event) =>
-                setStatus(event.target.value)
-              }
-              className="mt-2 w-full rounded-xl border border-slate-300 px-4 py-3 text-sm outline-none focus:border-rose-950"
-            >
-              <option value="PENDING">
-                Pending
-              </option>
-
-              <option value="CONFIRMED">
-                Confirmed
-              </option>
-
-              <option value="COMPLETED">
-                Completed
-              </option>
-
-              <option value="CANCELLED">
-                Cancelled
-              </option>
-            </select>
-
-            {updateError && (
-              <p className="mt-3 text-sm text-red-600">
-                {updateError}
+            {/* Notes */}
+            <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] p-8 border border-slate-50">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-3">Customer Notes</p>
+              <p className="text-sm text-slate-500 leading-relaxed p-4 bg-[#F1F5F9] rounded-[1rem] shadow-inner">
+                {order.message || 'No additional notes provided.'}
               </p>
-            )}
-
-            <button
-              type="button"
-              onClick={handleStatusUpdate}
-              disabled={
-                updating ||
-                status === order.status
-              }
-              className="mt-4 w-full rounded-xl bg-rose-950 px-4 py-3 text-sm font-bold text-white hover:bg-rose-900 disabled:cursor-not-allowed disabled:bg-slate-300"
-            >
-              {updating
-                ? 'Updating...'
-                : 'Update Status'}
-            </button>
-
+            </div>
           </div>
 
-          {/* ====================================================
-              ASSIGNED MEMBER
-          ==================================================== */}
-
-          <div className="rounded-3xl border border-rose-100 bg-white p-6 shadow-xl shadow-rose-950/5">
-
-            <p className="text-xs font-bold uppercase text-slate-400">
-              Assigned Member
-            </p>
-
-            <p className="mt-1 text-sm text-slate-400">
-              Select a staff member to handle this order.
-            </p>
-
-            {/* Members error */}
-
-            {membersError && (
-              <p className="mt-3 text-sm text-red-600">
-                {membersError}
-              </p>
-            )}
-
-            {/* Member dropdown */}
-
-            <select
-              value={selectedMemberId}
-              onChange={(event) =>
-                setSelectedMemberId(
-                  event.target.value
-                )
-              }
-              disabled={membersLoading}
-              className="mt-4 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-rose-950 disabled:bg-slate-100"
-            >
-
-              <option value="">
-                {membersLoading
-                  ? 'Loading members...'
-                  : 'Select a member'}
-              </option>
-
-              {members.map((member) => (
-                <option
-                  key={member.member_id}
-                  value={member.member_id}
+          {/* Sidebar */}
+          <div className="space-y-8">
+            
+            {/* Status Update */}
+            <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] p-8 border border-slate-50">
+              <h2 className="text-[#1E293B] font-semibold text-lg">Manage Status</h2>
+              <p className="mt-1 text-sm text-slate-400 mb-6">Modify the order's current phase.</p>
+              
+              <div className="space-y-4">
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  className="w-full rounded-[1rem] border-none bg-[#F1F5F9] shadow-inner px-4 py-3.5 text-sm text-[#1E293B] outline-none focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer"
                 >
-                  {member.first_name}{' '}
-                  {member.last_name}
-                </option>
-              ))}
+                  <option value="PENDING">Pending</option>
+                  <option value="CONFIRMED">Confirmed</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+                {updateError && <p className="text-[11px] font-semibold text-red-500 uppercase">{updateError}</p>}
+                
+                <button
+                  type="button"
+                  onClick={handleStatusUpdate}
+                  disabled={updating || status === order.status}
+                  className="w-full rounded-[1rem] bg-black px-4 py-3 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                >
+                  {updating ? 'Updating...' : 'Save Changes'}
+                </button>
+              </div>
+            </div>
 
-            </select>
+            {/* Assignment */}
+            <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] p-8 border border-slate-50">
+              <h2 className="text-[#1E293B] font-semibold text-lg">Delegation</h2>
+              <p className="mt-1 text-sm text-slate-400 mb-6">Assign an internal staff member.</p>
 
-            {/* Current assignment */}
+              <div className="space-y-4">
+                <select
+                  value={selectedMemberId}
+                  onChange={(e) => setSelectedMemberId(e.target.value)}
+                  disabled={membersLoading}
+                  className="w-full rounded-[1rem] border-none bg-[#F1F5F9] shadow-inner px-4 py-3.5 text-sm text-[#1E293B] outline-none focus:ring-2 focus:ring-slate-200 transition-all cursor-pointer disabled:opacity-70"
+                >
+                  <option value="">{membersLoading ? 'Loading roster...' : 'Select team member'}</option>
+                  {members.map((member) => (
+                    <option key={member.member_id} value={member.member_id}>
+                      {member.first_name} {member.last_name}
+                    </option>
+                  ))}
+                </select>
 
-            {order.assigned_member_id && (
-              <p className="mt-3 text-xs text-slate-500">
-                Currently assigned to member{' '}
-                <span className="font-semibold text-slate-700">
-                  {order.assigned_member_id}
-                </span>
-              </p>
-            )}
-
-            {/* Assignment error */}
-
-            {assignError && (
-              <p className="mt-3 text-sm text-red-600">
-                {assignError}
-              </p>
-            )}
-
-            {/* Assign button */}
-
-            <button
-              type="button"
-              onClick={handleAssignMember}
-              disabled={
-                assigning ||
-                !selectedMemberId ||
-                selectedMemberId ===
-                order.assigned_member_id
-              }
-              className="mt-4 w-full rounded-xl bg-rose-950 px-4 py-3 text-sm font-bold text-white hover:bg-rose-900 disabled:cursor-not-allowed disabled:bg-slate-300"
-            >
-              {assigning
-                ? 'Assigning...'
-                : order.assigned_member_id
-                  ? 'Reassign Member'
-                  : 'Assign Member'}
-            </button>
+                {order.assigned_member_id && (
+                  <div className="bg-blue-50 text-blue-600 rounded-[1rem] p-3 text-xs font-medium text-center">
+                    Current: {order.assigned_member_id}
+                  </div>
+                )}
+                {assignError && <p className="text-[11px] font-semibold text-red-500 uppercase">{assignError}</p>}
+                
+                <button
+                  type="button"
+                  onClick={handleAssignMember}
+                  disabled={assigning || !selectedMemberId || selectedMemberId === order.assigned_member_id}
+                  className="w-full rounded-[1rem] bg-black px-4 py-3 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                >
+                  {assigning ? 'Assigning...' : order.assigned_member_id ? 'Reassign Member' : 'Assign Member'}
+                </button>
+              </div>
+            </div>
 
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 }

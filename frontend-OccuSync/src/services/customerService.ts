@@ -7,7 +7,8 @@ import type {
   OrderPayload,
   NotificationResponse, 
   InvoiceSummary, // Add this
-  InvoiceDetail ,
+  InvoiceDetail, 
+  CustomerProfile,
 } from '../types/customerType';
 
 import type { PaymentPayload } from '../types/customerType';
@@ -75,5 +76,11 @@ export const getCustomerInvoice = async (id: string | number): Promise<InvoiceDe
 
 export const processPayment = async (invoiceId: number | string, payload: PaymentPayload): Promise<void> => {
   await axiosInstance.post(`/customer/invoices/${invoiceId}/pay`, payload);
+};
+
+// Add this new function to customerService.ts
+export const getCustomerProfile = async (): Promise<CustomerProfile> => {
+  const response = await axiosInstance.get('/customer/profile');
+  return response.data;
 };
 

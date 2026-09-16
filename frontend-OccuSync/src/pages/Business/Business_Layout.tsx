@@ -1,24 +1,43 @@
+// layouts/Business_Layout.tsx
+import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../../components/SidebarTemplate';
-import { LayoutDashboard, Briefcase, ShoppingBag, Bell, HelpCircle, PersonStanding, MessageSquare, CalendarPlus } from 'lucide-react';
+import { LayoutDashboard, Briefcase, ShoppingBag, Users, CreditCard } from 'lucide-react';
+import { getBusinessProfile } from '../../services/businessService'; 
 
 const businessNavItems = [
   { name: 'Dashboard', path: '/business', icon: LayoutDashboard },
   { name: 'Listings', path: '/business/listings', icon: Briefcase },
-  { name: 'Customer Orders', path: '/business/orders', icon: ShoppingBag },
-  { name: 'Occu Teams', path: '/business/staff', icon: PersonStanding },
-  { name: 'Notifications', path: '/business/notifications', icon: Bell },
+  { name: 'Orders', path: '/business/orders', icon: ShoppingBag },
+  { name: 'Staff', path: '/business/staff', icon: Users },
+  { name: 'Billings', path: '/business/billings', icon: CreditCard },
 ];
 
 export default function BusinessLayout() {
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    getBusinessProfile()
+      .then(data => setProfile(data))
+      .catch(err => console.error("Failed to load business profile:", err));
+  }, []);
+
+  // Format the profile exactly like AdminLayout, mapping the business name to "location" if that's what the Sidebar expects
+  const formattedProfile = profile ? {
+    name: profile.name || "Vendor",
+    email: profile.email,
+    location: profile.businessName || "Business Profile"
+  } : undefined;
+
   return (
-    <div className="flex h-screen w-full font-sans bg-stone-100 overflow-hidden">
+    <div className="flex flex-col h-screen w-full font-sans bg-[#E8EDF2] text-slate-800">
       <Sidebar
         variant="business"
         navItems={businessNavItems}
-        bottomLink={{ name: 'Merchant Support', path: '/business/support', icon: HelpCircle }}
+        userProfile={formattedProfile}
+        showNotifications={true}
       />
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto relative">
         <Outlet />
       </main>
     </div>

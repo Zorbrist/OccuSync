@@ -1,716 +1,522 @@
-
+// pages/AdminDashboardPage.tsx
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom"; // <-- Imported useNavigate
 import {
   PieChart,
   Pie,
   Cell,
-  Tooltip,
+  Tooltip as RechartsTooltip,
   Legend,
   ResponsiveContainer,
-  BarChart,
-  Bar,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
-  LineChart,
-  Line,
 } from "recharts";
 
 import { useAdminDashboard } from "../../hooks/adminHooks/useAdminDashboard";
 import BusinessApprovalModal from "../../components/Admin/BusinessApprovalModal";
 import type { PendingBusiness } from "../../types/adminType";
 
+import { BlurFade } from "../../ui/blur-fade";
+import { Particles } from "../../ui/particles";
+import {
+  ArrowRight,
+  Briefcase,
+  CheckCircle,
+  CreditCard,
+  Users,
+  AlertCircle,
+} from "lucide-react";
+
 // ==============================
-// Theme
+// Light Theme Chart Config
 // ==============================
-
-const CHART_COLORS = [
-  "#8b5cf6",
-  "#6366f1",
-  "#a855f7",
-];
-
-const GRID_STROKE = "#27272a";
-
-const AXIS_TICK = {
-  fill: "#71717a",
-  fontSize: 12,
-};
+const CHART_COLORS = ["#7C3AED", "#A78BFA"];
+const GRID_STROKE = "#E2E8F0";
+const AXIS_TICK = { fill: "#64748B", fontSize: 12, fontWeight: 600 };
 
 const TOOLTIP_STYLE = {
-  backgroundColor: "#18181b",
-  border: "1px solid #3f3f46",
-  borderRadius: "0.75rem",
-  color: "#f4f4f5",
-  fontSize: "0.875rem",
+  backgroundColor: "#FFFFFF",
+  border: "1px solid #F1F5F9",
+  borderRadius: "1rem",
+  boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
+  color: "#0F172A",
+  fontSize: "13px",
+  fontWeight: 700,
+  padding: "16px",
 };
 
 const TOOLTIP_LABEL_STYLE = {
-  color: "#f4f4f5",
+  color: "#64748B",
+  marginBottom: "6px",
+  fontWeight: 600,
 };
-
 const LEGEND_STYLE = {
-  color: "#a1a1aa",
+  color: "#475569",
+  fontSize: "13px",
+  fontWeight: 600,
+  paddingTop: "12px",
 };
 
 // ==============================
 // Component
 // ==============================
-
 export default function AdminDashboard() {
-  const {
-    data,
-    loading,
-    error,
-    updateBusinessStatusInDashboard,
-  } = useAdminDashboard();
-
+  const navigate = useNavigate(); // <-- Initialized hook for routing
+  const { data, loading, error, updateBusinessStatusInDashboard } =
+    useAdminDashboard();
   const [selectedBusiness, setSelectedBusiness] =
     useState<PendingBusiness | null>(null);
 
-  // ==============================
-  // Loading
-  // ==============================
-
   if (loading) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center bg-zinc-950">
-        <p className="text-zinc-500">
-          Loading dashboard...
-        </p>
+      <div className="flex min-h-[calc(100vh-80px)] items-center justify-center bg-[#E8EDF2]">
+        <div className="w-10 h-10 border-[4px] border-slate-300 border-t-violet-600 rounded-full animate-spin"></div>
       </div>
     );
   }
-
-  // ==============================
-  // Error
-  // ==============================
 
   if (error || !data) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center bg-zinc-950">
-        <p className="text-red-400">
-          {error || "Failed to load dashboard"}
-        </p>
+      <div className="flex min-h-[calc(100vh-80px)] items-center justify-center bg-[#E8EDF2]">
+        <div className="bg-white p-8 rounded-[2rem] shadow-xl text-center max-w-sm">
+          <h3 className="text-[#0F172A] text-xl font-bold mb-2">
+            Failed to load
+          </h3>
+          <p className="text-slate-600 text-sm mb-6 font-medium">
+            {error || "Data unavailable"}
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="px-6 py-3 bg-violet-600 text-white rounded-full text-sm font-bold w-full shadow-md"
+          >
+            Retry Connection
+          </button>
+        </div>
       </div>
     );
   }
 
-  // ==============================
-  // Chart Data
-  // ==============================
-
   const userChartData = [
-    {
-      name: "Customers",
-      value: data.user_overview.total_customers,
-    },
-    {
-      name: "Business Providers",
-      value: data.user_overview.total_business_providers,
-    },
+    { name: "Customers", value: data.user_overview.total_customers },
+    { name: "Providers", value: data.user_overview.total_business_providers },
   ];
 
-  const registrationData =
-    data.recent_registrations.map((item) => ({
-      date: new Date(item.date).toLocaleDateString(
-        "en-MY",
-        {
-          day: "2-digit",
-          month: "short",
-        }
-      ),
-      registrations: item.count,
-    }));
+  const registrationData = data.recent_registrations.map((item) => ({
+    date: new Date(item.date).toLocaleDateString("en-MY", {
+      day: "2-digit",
+      month: "short",
+    }),
+    registrations: item.count,
+  }));
 
-  // ==============================
-  // Main
-  // ==============================
+  const scrollbarClasses =
+    "[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-slate-400";
 
   return (
-    <div className="min-h-screen space-y-6 bg-zinc-950 p-6 text-zinc-100">
+    <div className="min-h-full font-sans text-slate-800 selection:bg-violet-200 relative pb-16 bg-[#E8EDF2]">
+      <Particles
+        className="absolute inset-0 pointer-events-none z-0 opacity-60"
+        quantity={400}
+        ease={80}
+        size={1}
+        color="#7C3AED"
+      />
 
-      {/* =========================================
-          Header
-      ========================================= */}
-
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-white">
-          Admin Dashboard
-        </h1>
-
-        <p className="mt-1 text-sm text-zinc-400">
-          Overview of OccuSync's platform activity.
-        </p>
-      </div>
-
-      {/* =========================================
-          KPI Cards
-      ========================================= */}
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-
-        {/* Total Users */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 transition-colors hover:border-violet-500/20">
-          <p className="text-sm text-zinc-400">
-            Total Users
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-white">
-            {data.user_overview.total_users}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Customers + Business Providers
-          </p>
-        </div>
-
-        {/* Total Services */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 transition-colors hover:border-violet-500/20">
-          <p className="text-sm text-zinc-400">
-            Total Services
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-white">
-            {data.service_job_overview.total_services}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Services available
-          </p>
-        </div>
-
-        {/* Completed Jobs */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-5 transition-colors hover:border-violet-500/20">
-          <p className="text-sm text-zinc-400">
-            Completed Jobs
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-white">
-            {data.service_job_overview.jobs_completed}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            Successfully completed
-          </p>
-        </div>
-
-        {/* Transaction Value */}
-
-        <div className="rounded-xl border border-violet-500/20 bg-violet-500/5 p-5 shadow-[0_0_25px_rgba(139,92,246,0.08)]">
-          <p className="text-sm text-zinc-400">
-            Transaction Value
-          </p>
-
-          <p className="mt-2 text-3xl font-bold text-violet-300">
-            RM{" "}
-            {Number(
-              data.total_transaction_value
-            ).toLocaleString("en-MY", {
-              minimumFractionDigits: 2,
-            })}
-          </p>
-
-          <p className="mt-1 text-xs text-zinc-500">
-            From paid invoices
-          </p>
-        </div>
-      </div>
-
-      {/* =========================================
-          Pending Businesses
-      ========================================= */}
-
-      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40">
-
+      <div className="relative z-10 max-w-[1500px] mx-auto px-6 lg:px-12 space-y-8 pt-4">
         {/* Header */}
-
-        <div className="border-b border-zinc-800 px-6 py-5">
-          <div className="flex items-center justify-between">
-
+        <BlurFade delay={0.1}>
+          <div className="flex items-center justify-between py-2 border-b border-slate-200/50 pb-4">
             <div>
-              <h2 className="text-lg font-semibold text-white">
-                Pending Business Registrations
+              <h2 className="text-3xl font-bold tracking-tight text-[#0F172A]">
+                Platform Overview
               </h2>
-
-              <p className="mt-1 text-sm text-zinc-400">
-                Businesses waiting for admin approval
+              <p className="text-sm font-semibold text-slate-500 mt-1.5 uppercase tracking-wider">
+                Admin control center and analytics
               </p>
             </div>
-
-            <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-medium text-violet-300">
-              {data.pending_businesses.length} Pending
-            </span>
-
           </div>
-        </div>
+        </BlurFade>
 
-        {/* Table */}
+        {/* SECTION 1: Key Performance Indicators (Clickable) */}
+        <BlurFade delay={0.2}>
+          <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_15px_rgba(255,255,255,1)] border border-white/60">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* Added onClick and hover effects */}
+              <div
+                onClick={() => navigate("/admin/users")}
+                className="bg-white rounded-[1.5rem] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col justify-between border border-slate-50 hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all cursor-pointer"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
+                    <Users size={20} />
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                    Total Users
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-4xl font-black text-[#0F172A]">
+                    {data.user_overview.total_users}
+                  </h3>
+                  <p className="text-xs font-semibold text-slate-500 mt-1.5">
+                    Clients & Businesses
+                  </p>
+                </div>
+              </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+              {/* Added onClick and hover effects */}
+              <div
+                onClick={() => navigate("/admin/services")}
+                className="bg-white rounded-[1.5rem] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col justify-between border border-slate-50 hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all cursor-pointer"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
+                    <Briefcase size={20} />
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                    Services
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-4xl font-black text-[#0F172A]">
+                    {data.service_job_overview.total_services}
+                  </h3>
+                  <p className="text-xs font-semibold text-slate-500 mt-1.5">
+                    Active directory listings
+                  </p>
+                </div>
+              </div>
 
-            <thead className="bg-zinc-900/70 text-xs uppercase tracking-wider text-zinc-500">
-              <tr>
-                <th className="px-6 py-3">
-                  Business
-                </th>
+              {/* Added onClick and hover effects */}
+              <div
+                onClick={() => navigate("/admin/jobs")}
+                className="bg-white rounded-[1.5rem] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col justify-between border border-slate-50 hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all cursor-pointer"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-emerald-600">
+                    <CheckCircle size={20} />
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">
+                    Completed
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-4xl font-black text-[#0F172A]">
+                    {data.service_job_overview.jobs_completed}
+                  </h3>
+                  <p className="text-xs font-semibold text-slate-500 mt-1.5">
+                    Jobs successfully fulfilled
+                  </p>
+                </div>
+              </div>
 
-                <th className="px-6 py-3">
-                  Registration No.
-                </th>
+              {/* Added onClick and hover effects */}
+              <div
+                onClick={() => navigate("/admin/transactions")}
+                className="bg-white rounded-[1.5rem] p-7 shadow-[0_8px_30px_rgba(0,0,0,0.04)] flex flex-col justify-between border border-slate-50 hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] hover:-translate-y-1 transition-all cursor-pointer"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <div className="w-12 h-12 rounded-full bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600">
+                    <CreditCard size={20} />
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-widest text-violet-400">
+                    Revenue Volume
+                  </span>
+                </div>
+                <div>
+                  <h3 className="text-4xl font-black text-[#0F172A]">
+                    <span className="text-2xl text-violet-500 mr-1.5">RM</span>
+                    {Number(data.total_transaction_value).toLocaleString(
+                      "en-MY",
+                      { maximumFractionDigits: 0 },
+                    )}
+                  </h3>
+                  <p className="text-xs font-semibold text-slate-500 mt-1.5">
+                    Total platform transactions
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </BlurFade>
 
-                <th className="px-6 py-3">
-                  Industry
-                </th>
+        {/* SECTION 2: Pending Registrations */}
+        <BlurFade delay={0.3}>
+          <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_15px_rgba(255,255,255,1)] border border-white/60">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h3 className="text-xl font-bold text-[#0F172A] flex items-center gap-3">
+                  Pending Registrations
+                  {data.pending_businesses.length > 0 && (
+                    <span className="px-3.5 py-1.5 bg-amber-100 text-amber-700 text-[11px] font-black rounded-full uppercase tracking-wider flex items-center gap-1.5">
+                      <AlertCircle size={14} /> Action Needed (
+                      {data.pending_businesses.length})
+                    </span>
+                  )}
+                </h3>
+              </div>
+            </div>
 
-                <th className="px-6 py-3">
-                  Email
-                </th>
-
-                <th className="px-6 py-3">
-                  Status
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-zinc-800/70">
-
-              {data.pending_businesses.map(
-                (business) => (
-                  <tr
-                    key={business.id}
-                    onClick={() =>
-                      setSelectedBusiness(business)
-                    }
-                    className="cursor-pointer transition-colors hover:bg-violet-500/5"
-                  >
-
-                    <td className="px-6 py-4">
-                      <div>
-                        <p className="font-medium text-zinc-100">
+            {/* Kept visible scrollbar for data tables that may get very long, removed p-2 to stop underlap */}
+            <div
+              className={`overflow-x-auto overflow-y-auto max-h-[400px] bg-white rounded-[1.5rem] shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-slate-100 ${scrollbarClasses}`}
+            >
+              <table className="w-full text-left min-w-[800px]">
+                <thead className="sticky top-0 z-10">
+                  {/* Added bg-white to <th> to prevent underlap */}
+                  <tr className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">
+                    <th className="py-5 pl-8 bg-white rounded-tl-[1.5rem]">
+                      Business Entity
+                    </th>
+                    <th className="py-5 bg-white">Industry</th>
+                    <th className="py-5 bg-white">Contact Details</th>
+                    <th className="py-5 text-right pr-8 bg-white rounded-tr-[1.5rem]">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {data.pending_businesses.map((business) => (
+                    <tr
+                      key={business.id}
+                      onClick={() => setSelectedBusiness(business)}
+                      className="hover:bg-slate-50 transition-colors border-b border-slate-100 cursor-pointer group"
+                    >
+                      <td className="py-5 pl-8">
+                        <p className="font-bold text-[#0F172A] group-hover:text-violet-700 transition-colors">
                           {business.name}
                         </p>
-
-                        <p className="mt-0.5 text-xs text-zinc-600">
-                          {business.id}
+                        <p className="text-xs font-semibold text-slate-500 mt-1">
+                          Reg No: {business.registration_no || "N/A"}
                         </p>
-                      </div>
-                    </td>
-
-                    <td className="px-6 py-4 text-zinc-400">
-                      {business.registration_no}
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <span className="rounded-md bg-zinc-800 px-2 py-1 text-xs text-zinc-300">
+                      </td>
+                      <td className="py-5 text-slate-600 font-semibold">
                         {business.industry}
-                      </span>
-                    </td>
-
-                    <td className="px-6 py-4 text-zinc-400">
-                      {business.email}
-                    </td>
-
-                    <td className="px-6 py-4">
-                      <span className="rounded-full border border-amber-500/20 bg-amber-500/10 px-3 py-1 text-xs font-medium text-amber-400">
-                        {business.approval_status}
-                      </span>
-                    </td>
-
-                  </tr>
-                )
-              )}
-
-              {data.pending_businesses.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-10 text-center"
-                  >
-                    <p className="text-sm text-zinc-500">
-                      No pending businesses.
-                    </p>
-
-                    <p className="mt-1 text-xs text-zinc-600">
-                      All business registrations have been reviewed.
-                    </p>
-                  </td>
-                </tr>
-              )}
-
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* =========================================
-          Charts
-      ========================================= */}
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-
-        {/* User Distribution */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
-
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-white">
-              User Distribution
-            </h2>
-
-            <p className="mt-1 text-sm text-zinc-400">
-              Customers vs business providers
-            </p>
-          </div>
-
-          <div className="h-[300px]">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <PieChart>
-
-                <Pie
-                  data={userChartData}
-                  dataKey="value"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={100}
-                  label
-                >
-                  {userChartData.map(
-                    (_, index) => (
-                      <Cell
-                        key={`cell-${index}`}
-                        fill={
-                          CHART_COLORS[
-                            index %
-                              CHART_COLORS.length
-                          ]
-                        }
-                      />
-                    )
+                      </td>
+                      <td className="py-5 text-slate-500 font-medium">
+                        {business.email}
+                      </td>
+                      <td className="py-5 text-right pr-8">
+                        <button className="px-5 py-2.5 bg-slate-100 text-slate-600 rounded-full font-bold text-xs hover:bg-[#0F172A] hover:text-white transition-colors uppercase tracking-wider shadow-sm">
+                          Review
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {data.pending_businesses.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="py-12 text-center text-slate-500 font-semibold bg-slate-50"
+                      >
+                        The registration queue is currently clear.
+                      </td>
+                    </tr>
                   )}
-                </Pie>
-
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  labelStyle={TOOLTIP_LABEL_STYLE}
-                />
-
-                <Legend
-                  wrapperStyle={LEGEND_STYLE}
-                />
-
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Business Members */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
-
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-white">
-              Business Members
-            </h2>
-
-            <p className="mt-1 text-sm text-zinc-400">
-              Number of members under each business
-            </p>
-          </div>
-
-          <div className="h-[300px]">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <BarChart
-                data={data.business_analytics}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={GRID_STROKE}
-                />
-
-                <XAxis
-                  dataKey="business_name"
-                  tick={AXIS_TICK}
-                />
-
-                <YAxis
-                  allowDecimals={false}
-                  tick={AXIS_TICK}
-                />
-
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  labelStyle={TOOLTIP_LABEL_STYLE}
-                  cursor={{
-                    fill: "rgba(139,92,246,0.05)",
-                  }}
-                />
-
-                <Bar
-                  dataKey="member_count"
-                  name="Members"
-                  fill="#8b5cf6"
-                  radius={[4, 4, 0, 0]}
-                />
-
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* =========================================
-          Job Overview + Registration Chart
-      ========================================= */}
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-
-        {/* Job Overview */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
-
-          <div className="mb-5">
-            <h2 className="text-lg font-semibold text-white">
-              Job Overview
-            </h2>
-
-            <p className="mt-1 text-sm text-zinc-400">
-              Current job activity
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-violet-500/20">
-              <p className="text-sm text-zinc-400">
-                Completed
-              </p>
-
-              <p className="mt-2 text-2xl font-bold text-white">
-                {
-                  data.service_job_overview
-                    .jobs_completed
-                }
-              </p>
+                </tbody>
+              </table>
             </div>
+          </div>
+        </BlurFade>
 
-            <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4 transition-colors hover:border-violet-500/20">
-              <p className="text-sm text-zinc-400">
-                In Progress
-              </p>
+        {/* SECTION 3: Split Data Panels (Analytics & Live Feed) */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Analytics Panel */}
+          <BlurFade delay={0.4} className="h-full">
+            <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_15px_rgba(255,255,255,1)] border border-white/60 h-full flex flex-col">
+              <h3 className="text-xl font-bold text-[#0F172A] mb-8">
+                Growth Analytics
+              </h3>
 
-              <p className="mt-2 text-2xl font-bold text-white">
-                {
-                  data.service_job_overview
-                    .jobs_pending_or_confirmed
-                }
-              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1">
+                <div className="bg-white rounded-[1.5rem] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-slate-100 min-h-[250px] flex flex-col">
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-6">
+                    Registrations (30 Days)
+                  </h4>
+                  <div className="h-[200px] flex-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={registrationData}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke={GRID_STROKE}
+                          vertical={false}
+                        />
+                        <XAxis
+                          dataKey="date"
+                          tick={AXIS_TICK}
+                          axisLine={false}
+                          tickLine={false}
+                          dy={10}
+                        />
+                        <YAxis
+                          allowDecimals={false}
+                          tick={AXIS_TICK}
+                          axisLine={false}
+                          tickLine={false}
+                          dx={-10}
+                          width={30}
+                        />
+                        <RechartsTooltip
+                          contentStyle={TOOLTIP_STYLE}
+                          labelStyle={TOOLTIP_LABEL_STYLE}
+                          cursor={{ stroke: "#E2E8F0", strokeWidth: 2 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="registrations"
+                          stroke="#7C3AED"
+                          strokeWidth={4}
+                          dot={false}
+                          activeDot={{
+                            r: 7,
+                            fill: "#7C3AED",
+                            stroke: "#FFFFFF",
+                            strokeWidth: 3,
+                          }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-[1.5rem] p-6 shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-slate-100 min-h-[250px] flex flex-col">
+                  <h4 className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-6">
+                    User Distribution
+                  </h4>
+                  <div className="h-[200px] flex-1">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={userChartData}
+                          dataKey="value"
+                          nameKey="name"
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={50}
+                          outerRadius={80}
+                          paddingAngle={4}
+                        >
+                          {userChartData.map((_, index) => (
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={CHART_COLORS[index % CHART_COLORS.length]}
+                              stroke="none"
+                            />
+                          ))}
+                        </Pie>
+                        <RechartsTooltip
+                          contentStyle={TOOLTIP_STYLE}
+                          itemStyle={{ color: "#0F172A", fontWeight: 700 }}
+                        />
+                        <Legend wrapperStyle={LEGEND_STYLE} iconType="circle" />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
             </div>
+          </BlurFade>
 
-          </div>
-        </div>
-
-        {/* User Registrations */}
-
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
-
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold text-white">
-              User Registrations
-            </h2>
-
-            <p className="mt-1 text-sm text-zinc-400">
-              Registrations over the last 30 days
-            </p>
-          </div>
-
-          <div className="h-[250px]">
-            <ResponsiveContainer
-              width="100%"
-              height="100%"
-            >
-              <LineChart
-                data={registrationData}
-              >
-
-                <CartesianGrid
-                  strokeDasharray="3 3"
-                  stroke={GRID_STROKE}
-                />
-
-                <XAxis
-                  dataKey="date"
-                  tick={AXIS_TICK}
-                />
-
-                <YAxis
-                  allowDecimals={false}
-                  tick={AXIS_TICK}
-                />
-
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  labelStyle={TOOLTIP_LABEL_STYLE}
-                />
-
-                <Line
-                  type="monotone"
-                  dataKey="registrations"
-                  name="Registrations"
-                  stroke="#8b5cf6"
-                  strokeWidth={2}
-                  dot={{
-                    fill: "#8b5cf6",
-                    r: 3,
-                  }}
-                  activeDot={{
-                    r: 5,
-                  }}
-                />
-
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
-
-      {/* =========================================
-          Latest Jobs
-      ========================================= */}
-
-      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40">
-
-        <div className="border-b border-zinc-800 px-6 py-5">
-          <h2 className="text-lg font-semibold text-white">
-            Latest Jobs
-          </h2>
-
-          <p className="mt-1 text-sm text-zinc-400">
-            The 5 most recently created jobs
-          </p>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-
-            <thead className="bg-zinc-900/70 text-xs uppercase tracking-wider text-zinc-500">
-              <tr>
-                <th className="px-6 py-3">
-                  Service
-                </th>
-
-                <th className="px-6 py-3">
-                  Customer
-                </th>
-
-                <th className="px-6 py-3">
-                  Business
-                </th>
-
-                <th className="px-6 py-3">
-                  Date
-                </th>
-
-                <th className="px-6 py-3">
-                  Status
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y divide-zinc-800/70">
-
-              {data.latest_jobs.map((job) => (
-                <tr
-                  key={job.id}
-                  className="transition-colors hover:bg-violet-500/5"
+          {/* Live Job Feed */}
+          <BlurFade delay={0.5} className="h-full">
+            <div className="bg-[#F1F5F9] rounded-[2.5rem] p-8 shadow-[inset_0_2px_15px_rgba(255,255,255,1)] border border-white/60 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-8">
+                <h3 className="text-xl font-bold text-[#0F172A]">
+                  Live Job Feed
+                </h3>
+                <button
+                  onClick={() => navigate("/admin/jobs")}
+                  className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400 hover:text-black transition-colors"
                 >
+                  <ArrowRight size={18} />
+                </button>
+              </div>
 
-                  <td className="px-6 py-4 font-medium text-zinc-100">
-                    {job.service_name}
-                  </td>
-
-                  <td className="px-6 py-4 text-zinc-400">
-                    {job.customer_name}
-                  </td>
-
-                  <td className="px-6 py-4 text-zinc-400">
-                    {job.business_name}
-                  </td>
-
-                  <td className="px-6 py-4 text-zinc-400">
-                    {job.date
-                      ? new Date(
-                          job.date
-                        ).toLocaleDateString(
-                          "en-MY"
-                        )
-                      : "-"}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <span
-                      className={`rounded-full border px-3 py-1 text-xs font-medium ${
-                        job.status === "COMPLETED"
-                          ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
-                          : job.status === "CANCELLED"
-                          ? "border-red-500/20 bg-red-500/10 text-red-400"
-                          : job.status === "CONFIRMED"
-                          ? "border-violet-500/20 bg-violet-500/10 text-violet-300"
-                          : "border-amber-500/20 bg-amber-500/10 text-amber-400"
-                      }`}
-                    >
-                      {job.status}
-                    </span>
-                  </td>
-
-                </tr>
-              ))}
-
-              {data.latest_jobs.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={5}
-                    className="px-6 py-10 text-center text-sm text-zinc-500"
-                  >
-                    No jobs found.
-                  </td>
-                </tr>
-              )}
-
-            </tbody>
-          </table>
+              {/* Applied hidden scrollbar class and removed p-2 to stop underlap */}
+              <div className="overflow-x-auto overflow-y-auto max-h-[350px] bg-white rounded-[1.5rem] shadow-[0_8px_30px_rgba(0,0,0,0.03)] border border-slate-100 flex-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+                <table className="w-full text-left min-w-[500px]">
+                  <thead className="sticky top-0 z-10">
+                    {/* Added bg-white to <th> to prevent underlap */}
+                    <tr className="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-200">
+                      <th className="py-4 pl-6 bg-white rounded-tl-[1.5rem]">
+                        Service Required
+                      </th>
+                      <th className="py-4 bg-white">Scheduled For</th>
+                      <th className="py-4 text-right pr-6 bg-white rounded-tr-[1.5rem]">
+                        Current Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-sm">
+                    {data.latest_jobs.map((job) => (
+                      <tr
+                        key={job.id}
+                        className="hover:bg-slate-50 transition-colors border-b border-slate-100"
+                      >
+                        <td className="py-4 pl-6">
+                          <p className="font-bold text-[#0F172A]">
+                            {job.service_name}
+                          </p>
+                          <p className="text-xs font-semibold text-slate-500 mt-1">
+                            {job.business_name}
+                          </p>
+                        </td>
+                        <td className="py-4 text-slate-600 font-semibold">
+                          {job.date
+                            ? new Date(job.date).toLocaleDateString("en-MY", {
+                                day: "numeric",
+                                month: "short",
+                              })
+                            : "Pending Date"}
+                        </td>
+                        <td className="py-4 text-right pr-6">
+                          <span className="inline-flex items-center justify-end gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-100">
+                            <span
+                              className={`w-2 h-2 rounded-full ${
+                                job.status === "COMPLETED"
+                                  ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"
+                                  : job.status === "CANCELLED"
+                                    ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]"
+                                    : job.status === "CONFIRMED"
+                                      ? "bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.5)]"
+                                      : "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.5)]"
+                              }`}
+                            ></span>
+                            <span className="text-[11px] font-black uppercase tracking-wider text-slate-600">
+                              {job.status}
+                            </span>
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {data.latest_jobs.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={3}
+                          className="py-12 text-center text-slate-500 font-semibold bg-slate-50 rounded-xl"
+                        >
+                          No active jobs in the feed.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </BlurFade>
         </div>
       </div>
-
-      {/* =========================================
-          Business Approval Modal
-      ========================================= */}
 
       {selectedBusiness && (
         <BusinessApprovalModal
           business={selectedBusiness}
-          onClose={() =>
-            setSelectedBusiness(null)
-          }
-          onStatusUpdated={
-            updateBusinessStatusInDashboard
-          }
+          onClose={() => setSelectedBusiness(null)}
+          onStatusUpdated={updateBusinessStatusInDashboard}
         />
       )}
     </div>
   );
 }
-

@@ -20,34 +20,20 @@ const SelectProfileModal: React.FC<SelectProfileModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
 
       {/* =========================================================
-          BACKDROP
+          BACKDROP (UPDATED TO NEW LIGHT UI)
       ========================================================= */}
       <div
-        className="absolute inset-0 bg-[#030208]/80 backdrop-blur-xl"
+        className="absolute inset-0 bg-[#E8EDF2]/70 backdrop-blur-md transition-all"
         onClick={onClose}
       />
 
       {/* =========================================================
-          AMBIENT BACKGROUND
+          MODAL PARENT PANEL (PILLOWY UI)
       ========================================================= */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-700/[0.10] blur-[140px]" />
-
-        <div className="absolute -right-32 top-10 h-[300px] w-[300px] rounded-full bg-fuchsia-700/[0.08] blur-[120px]" />
-
-        <div className="absolute -bottom-32 -left-20 h-[350px] w-[350px] rounded-full bg-purple-700/[0.08] blur-[130px]" />
-      </div>
-
-      {/* =========================================================
-          MODAL
-      ========================================================= */}
-      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-[28px] border border-white/[0.10] bg-[#090711]/95 shadow-2xl shadow-purple-950/50 backdrop-blur-2xl animate-in fade-in zoom-in duration-200">
-
-        {/* Top accent */}
-        <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-violet-500 to-fuchsia-500" />
+      <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-[2.5rem] border border-white bg-[#F1F5F9] shadow-[inset_0_2px_10px_rgba(255,255,255,0.7),0_20px_40px_rgba(149,157,165,0.15)] p-6 md:p-8 animate-in fade-in zoom-in duration-200">
 
         {/* =====================================================
             CLOSE BUTTON
@@ -55,7 +41,7 @@ const SelectProfileModal: React.FC<SelectProfileModalProps> = ({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-5 top-5 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-white/[0.08] bg-white/[0.025] text-slate-500 transition-all duration-300 hover:border-white/[0.15] hover:bg-white/[0.06] hover:text-white"
+          className="absolute right-6 top-6 z-10 flex h-8 w-8 items-center justify-center rounded-full border border-slate-50 bg-white text-slate-400 shadow-sm transition-all hover:text-black hover:shadow-md"
           aria-label="Close modal"
         >
           <X className="h-4 w-4" />
@@ -64,29 +50,29 @@ const SelectProfileModal: React.FC<SelectProfileModalProps> = ({
         {/* =====================================================
             HEADER
         ===================================================== */}
-        <div className="px-7 pb-5 pt-8 text-center sm:px-9">
+        <div className="px-4 pb-6 pt-4 text-center">
 
-          <div className="mb-4 flex justify-center">
-            <Sparkles className="h-5 w-5 text-violet-300" />
+          <div className="mb-3 flex justify-center text-slate-400">
+            <Sparkles className="h-5 w-5" />
           </div>
 
-          <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-violet-300">
-            JOIN OCCUSYNC
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            Join OccuSync
           </p>
 
-          <h2 className="text-2xl font-black tracking-tight text-white sm:text-3xl">
+          <h2 className="text-xl font-semibold text-[#1E293B] mt-1">
             Choose your account
           </h2>
 
-          <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-slate-500">
+          <p className="mx-auto mt-1 max-w-xs text-sm text-slate-500">
             Select how you would like to use OccuSync.
           </p>
         </div>
 
         {/* =====================================================
-            PROFILE OPTIONS
+            PROFILE OPTIONS (ELEVATED CHILD CARDS)
         ===================================================== */}
-        <div className="space-y-3 px-7 pb-8 sm:px-9">
+        <div className="space-y-4 px-2 pb-2">
 
           {/* =================================================
               CUSTOMER
@@ -94,29 +80,26 @@ const SelectProfileModal: React.FC<SelectProfileModalProps> = ({
           <Link
             to="/register/customer"
             onClick={onClose}
-            className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-violet-400/30 hover:bg-violet-500/[0.06] hover:shadow-[0_10px_40px_rgba(139,92,246,0.12)]"
+            className="group relative flex items-center gap-4 overflow-hidden rounded-[1.5rem] border border-slate-50 bg-white p-5 shadow-[0_8px_24px_rgba(149,157,165,0.1)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(149,157,165,0.15)]"
           >
-            {/* Hover glow */}
-            <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-violet-500/[0.10] blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
             {/* Icon */}
-            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-violet-400/[0.12] bg-violet-500/[0.08] text-violet-300 transition-all duration-300 group-hover:border-violet-400/30 group-hover:bg-violet-500/15">
+            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F1F5F9] shadow-inner text-[#1E293B]">
               <User className="h-5 w-5" />
             </div>
 
             {/* Content */}
             <div className="relative min-w-0 flex-1 text-left">
-              <h3 className="text-sm font-semibold text-white transition-colors group-hover:text-violet-200">
+              <h3 className="text-sm font-semibold text-[#1E293B]">
                 Customer Account
               </h3>
 
-              <p className="mt-1 text-xs leading-5 text-slate-500">
+              <p className="mt-1 text-xs text-slate-500">
                 Find services, book providers and track your requests.
               </p>
             </div>
 
-            {/* Arrow */}
-            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-600 transition-all duration-300 group-hover:bg-violet-500/10 group-hover:text-violet-300">
+            {/* Action Icon */}
+            <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 group-hover:text-black border border-slate-50 transition-all shrink-0">
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
             </div>
           </Link>
@@ -127,29 +110,26 @@ const SelectProfileModal: React.FC<SelectProfileModalProps> = ({
           <Link
             to="/register/business"
             onClick={onClose}
-            className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-fuchsia-400/30 hover:bg-fuchsia-500/[0.05] hover:shadow-[0_10px_40px_rgba(217,70,239,0.10)]"
+            className="group relative flex items-center gap-4 overflow-hidden rounded-[1.5rem] border border-slate-50 bg-white p-5 shadow-[0_8px_24px_rgba(149,157,165,0.1)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(149,157,165,0.15)]"
           >
-            {/* Hover glow */}
-            <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-fuchsia-500/[0.10] blur-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-
             {/* Icon */}
-            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-fuchsia-400/[0.12] bg-fuchsia-500/[0.08] text-fuchsia-300 transition-all duration-300 group-hover:border-fuchsia-400/30 group-hover:bg-fuchsia-500/15">
+            <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#F1F5F9] shadow-inner text-[#1E293B]">
               <Building2 className="h-5 w-5" />
             </div>
 
             {/* Content */}
             <div className="relative min-w-0 flex-1 text-left">
-              <h3 className="text-sm font-semibold text-white transition-colors group-hover:text-fuchsia-200">
+              <h3 className="text-sm font-semibold text-[#1E293B]">
                 Business Account
               </h3>
 
-              <p className="mt-1 text-xs leading-5 text-slate-500">
+              <p className="mt-1 text-xs text-slate-500">
                 Offer services, manage customers, teams and operations.
               </p>
             </div>
 
-            {/* Arrow */}
-            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-slate-600 transition-all duration-300 group-hover:bg-fuchsia-500/10 group-hover:text-fuchsia-300">
+            {/* Action Icon */}
+            <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 group-hover:text-black border border-slate-50 transition-all shrink-0">
               <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
             </div>
           </Link>
@@ -157,24 +137,22 @@ const SelectProfileModal: React.FC<SelectProfileModalProps> = ({
           {/* =================================================
               DIVIDER
           ================================================= */}
-          <div className="flex items-center gap-3 py-2">
-            <div className="h-px flex-1 bg-white/[0.06]" />
-
-            <span className="text-[9px] font-medium uppercase tracking-[0.15em] text-slate-700">
+          <div className="flex items-center gap-3 py-3">
+            <div className="h-px flex-1 bg-slate-200" />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
               OccuSync
             </span>
-
-            <div className="h-px flex-1 bg-white/[0.06]" />
+            <div className="h-px flex-1 bg-slate-200" />
           </div>
 
           {/* =================================================
               BACK TO HOME
           ================================================= */}
-          <div className="pt-1 text-center">
+          <div className="text-center pb-2">
             <Link
               to="/"
               onClick={onClose}
-              className="inline-flex items-center gap-2 text-xs font-medium text-slate-600 transition-colors duration-300 hover:text-violet-300"
+              className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition-colors duration-300 hover:text-black"
             >
               <span>←</span>
               Back to Home

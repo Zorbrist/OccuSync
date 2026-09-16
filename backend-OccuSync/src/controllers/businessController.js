@@ -1773,3 +1773,43 @@ exports.addStaffJobLog = async (req, res, next) => {
     next(error);
   }
 };
+
+// Add this to your businessController.js
+exports.getBusinessProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Fetch user, their specific profile, and their business name
+    const result = await pool.query(
+      `SELECT 
+         u.email, 
+         u.role,
+         bmp.first_name,
+         bmp.last_name,
+         bmp.phone,
+         b.name AS business_name
+       FROM users u
+       LEFT JOIN business_member_profiles bmp ON bmp.user_id = u.id
+       LEFT JOIN business_members bm ON bm.user_id = u.id
+       LEFT JOIN businesses b ON b.id = bm.business_id
+       WHERE u.id = $1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Business profile not found' });
+    }
+
+    const row = result.rows[0];
+
+    return res.json({
+      name: `${row.first_name} ${row.last_name}`.trim() || 'Vendor',
+      email: row.email,
+      role: row.role,
+      businessName: row.business_name || 'Unassigned Business',
+      phone: row.phone
+    });
+  } catch (error) {
+    next(error);
+  }
+};

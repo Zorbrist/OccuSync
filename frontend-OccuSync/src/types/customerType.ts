@@ -104,3 +104,14 @@ export interface PaymentPayload {
   method: 'CASH' | 'CARD' | 'ONLINE_BANKING' | 'E_WALLET';
   photo_url?: string;
 }
+
+export interface CustomerProfile {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string;
+  address_line: string;
+  state: string;
+  postcode: string;
+  country: string;
+}

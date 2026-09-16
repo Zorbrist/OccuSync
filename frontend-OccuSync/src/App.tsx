@@ -10,7 +10,6 @@ import Login from './pages/Login';
 
 // Dashboard Pages
 import AdminDashboardPage from './pages/Admin/AdminDashboardPage';
-// import UserManagementPage from './pages/Admin/UserManagementPage';
 // Business Pages
 import BusinessPage from './pages/Business/BusinessPage';
 import ListingsPage from './pages/Business/ListingsPage';
@@ -44,7 +43,12 @@ import StaffRegisterPage from './pages/StaffRegisterPage';
 
 import StaffLayout from './pages/Business/Staff_Layout';
 import UsersManagementPage from './pages/Admin/UserManagementPage';
-import StaffPage from "./pages/Business/AdminStaffPage";
+import AdminServicesPage from './pages/Admin/AdminServicesPage';
+import AdminJobsPage from './pages/Admin/AdminJobsPage';
+import AdminTransactionsPage from './pages/Admin/AdminTransactionsPage';
+
+// Staff Pages
+import StaffDashboardPage from "./pages/Business/StaffDashboard";
 import StaffTasksPage from "./pages/Business/StaffTaskPage";
 import StaffHistoryPage from "./pages/Business/StaffHistoryPage";
 
@@ -63,6 +67,9 @@ export default function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminDashboardPage />} />
             <Route path="users" element={<UsersManagementPage />} />
+            <Route path="services" element={<AdminServicesPage />} />
+            <Route path="jobs" element={<AdminJobsPage />} />
+            <Route path="transactions" element={<AdminTransactionsPage />} />
           </Route>
         </Route>
 
@@ -99,7 +106,10 @@ export default function App() {
         >
           <Route path="/staff" element={<StaffLayout />}>
             <Route index element={<StaffTasksPage />} />
+            <Route path="dashboard" element={<StaffDashboardPage />} />
             <Route path="history" element={<StaffHistoryPage />} />
+            {/* ADDED: Staff Notifications Route */}
+            <Route path="notifications" element={<NotificationsPage />} />
           </Route>
         </Route>
 
@@ -112,7 +122,6 @@ export default function App() {
             <Route path="orders" element={<CustomerOrder />} />
             <Route path="compare" element={<CustomerCompare />} />
             <Route path="saved" element={<CustomerSave />} />
-            <Route path="notifications" element={<CustomerNotification />} />
             <Route path="notifications" element={<CustomerNotification />} />
             <Route path="invoices" element={<CustomerInvoices />} />
             <Route path="/customer/invoices/:id/pay" element={<CustomerPayment />} />

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import { useStaff } from "../../hooks/useStaff";
 
 interface StaffTaskDetailsProps {
@@ -6,10 +7,7 @@ interface StaffTaskDetailsProps {
   onClose: () => void;
 }
 
-const StaffTaskDetails = ({
-  jobId,
-  onClose,
-}: StaffTaskDetailsProps) => {
+const StaffTaskDetails = ({ jobId, onClose }: StaffTaskDetailsProps) => {
   const {
     taskDetails,
     jobLogs,
@@ -30,144 +28,87 @@ const StaffTaskDetails = ({
 
   const handleAddLog = async () => {
     if (!notes.trim()) return;
-
-    const result = await createJobLog(
-      jobId,
-      notes
-    );
-
-    if (result) {
-      setNotes("");
-    }
+    const result = await createJobLog(jobId, notes);
+    if (result) setNotes("");
   };
 
-  const handleStatusChange = async (
-    status: "COMPLETED" | "CANCELLED"
-  ) => {
+  const handleStatusChange = async (status: "COMPLETED" | "CANCELLED") => {
     await changeJobStatus(jobId, status);
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl border border-gray-800 bg-gray-900 p-6 text-white">
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/20 backdrop-blur-sm p-4">
+      <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto bg-[#F1F5F9] rounded-[2.5rem] shadow-[inset_0_2px_10px_rgba(255,255,255,0.7),0_20px_40px_rgba(0,0,0,0.1)] p-6 md:p-10 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+        
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h2 className="text-xl font-semibold">
-              Task Details
-            </h2>
-
-            <p className="text-sm text-gray-400">
-              Job #{jobId}
-            </p>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Job #{jobId}</p>
+            <h2 className="text-xl font-semibold text-[#1E293B]">Task Details</h2>
           </div>
-
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-white"
+            className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-black border border-slate-50 transition-colors"
           >
-            ✕
+            <X size={16} />
           </button>
         </div>
 
         {loading && !taskDetails ? (
-          <div className="py-10 text-center text-gray-400">
-            Loading...
+          <div className="py-12 text-center text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            Loading details...
           </div>
         ) : error ? (
-          <div className="py-10 text-center text-red-400">
+          <div className="py-12 text-center text-sm font-medium text-red-500">
             {error}
           </div>
         ) : taskDetails ? (
-          <div className="mt-6 space-y-6">
+          <div className="space-y-6">
 
-            {/* Service */}
-            <div>
-              <h3 className="mb-2 text-sm font-medium text-gray-400">
-                SERVICE
-              </h3>
+            {/* Service & Schedule Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] border border-slate-50 p-6">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-4">Service</h3>
+                <h4 className="text-sm font-semibold text-[#1E293B]">{taskDetails.service_name}</h4>
+                <p className="mt-1 text-sm text-slate-500 line-clamp-2">{taskDetails.service_description}</p>
+                <p className="mt-4 text-sm font-semibold text-[#1E293B]">RM {taskDetails.base_price}</p>
+              </div>
 
-              <div className="rounded-lg border border-gray-800 bg-gray-950 p-4">
-                <h4 className="font-medium">
-                  {taskDetails.service_name}
-                </h4>
-
-                <p className="mt-1 text-sm text-gray-400">
-                  {taskDetails.service_description}
-                </p>
-
-                <p className="mt-3 text-sm">
-                  RM {taskDetails.base_price}
-                </p>
+              <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] border border-slate-50 p-6">
+                <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-4">Schedule</h3>
+                <p className="text-sm font-semibold text-[#1E293B]">{taskDetails.date}</p>
+                <p className="mt-1 text-sm text-slate-500">{taskDetails.time_slot}</p>
               </div>
             </div>
 
             {/* Customer */}
-            <div>
-              <h3 className="mb-2 text-sm font-medium text-gray-400">
-                CUSTOMER
-              </h3>
-
-              <div className="rounded-lg border border-gray-800 bg-gray-950 p-4">
-                <p>
-                  {taskDetails.first_name}{" "}
-                  {taskDetails.last_name}
-                </p>
-
-                <p className="mt-1 text-sm text-gray-400">
-                  {taskDetails.phone}
-                </p>
-
-                <p className="mt-3 text-sm text-gray-400">
-                  {taskDetails.address_line}
-                  <br />
-                  {taskDetails.state},{" "}
-                  {taskDetails.postcode}
-                  <br />
-                  {taskDetails.country}
-                </p>
-              </div>
-            </div>
-
-            {/* Schedule */}
-            <div>
-              <h3 className="mb-2 text-sm font-medium text-gray-400">
-                SCHEDULE
-              </h3>
-
-              <div className="rounded-lg border border-gray-800 bg-gray-950 p-4">
-                <p>{taskDetails.date}</p>
-                <p className="text-sm text-gray-400">
-                  {taskDetails.time_slot}
-                </p>
+            <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] border border-slate-50 p-6">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-4">Customer Details</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-semibold text-[#1E293B]">{taskDetails.first_name} {taskDetails.last_name}</p>
+                  <p className="text-sm text-slate-500 mt-1">{taskDetails.phone}</p>
+                </div>
+                <div className="text-sm text-slate-500">
+                  <p>{taskDetails.address_line}</p>
+                  <p>{taskDetails.state}, {taskDetails.postcode}</p>
+                  <p>{taskDetails.country}</p>
+                </div>
               </div>
             </div>
 
             {/* Job Logs */}
-            <div>
-              <h3 className="mb-2 text-sm font-medium text-gray-400">
-                JOB LOGS
-              </h3>
-
-              <div className="space-y-3">
+            <div className="bg-white rounded-[1.5rem] shadow-[0_8px_24px_rgba(149,157,165,0.1)] border border-slate-50 p-6">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-4">Job Logs</h3>
+              <div className="space-y-3 mb-6">
                 {jobLogs.length === 0 ? (
-                  <p className="text-sm text-gray-500">
-                    No job logs yet.
-                  </p>
+                  <p className="text-sm text-slate-400 p-4 bg-[#F1F5F9] rounded-[1rem] shadow-inner text-center">No job logs yet.</p>
                 ) : (
                   jobLogs.map((log) => (
-                    <div
-                      key={log.id}
-                      className="rounded-lg border border-gray-800 bg-gray-950 p-4"
-                    >
-                      <p className="text-sm">
-                        {log.notes}
-                      </p>
-
-                      <p className="mt-2 text-xs text-gray-500">
-                        {new Date(
-                          log.created_at
-                        ).toLocaleString()}
+                    <div key={log.id} className="bg-[#F1F5F9] rounded-[1rem] p-4 shadow-inner">
+                      <p className="text-sm text-[#1E293B]">{log.notes}</p>
+                      <p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                        {new Date(log.created_at).toLocaleString()}
                       </p>
                     </div>
                   ))
@@ -175,47 +116,42 @@ const StaffTaskDetails = ({
               </div>
 
               {/* Add Log */}
-              <div className="mt-4">
+              <div className="relative">
                 <textarea
                   value={notes}
-                  onChange={(e) =>
-                    setNotes(e.target.value)
-                  }
+                  onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add a job note..."
-                  className="w-full rounded-lg border border-gray-800 bg-gray-950 p-3 text-sm text-white outline-none focus:border-gray-600"
-                  rows={3}
+                  className="w-full bg-[#F1F5F9] rounded-[1rem] border-none shadow-inner p-4 text-sm text-[#1E293B] outline-none focus:ring-2 focus:ring-slate-200 resize-none transition-all"
+                  rows={2}
                 />
-
-                <button
-                  onClick={handleAddLog}
-                  disabled={!notes.trim()}
-                  className="mt-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-black disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  Add Log
-                </button>
+                <div className="mt-3 flex justify-end">
+                  <button
+                    onClick={handleAddLog}
+                    disabled={!notes.trim()}
+                    className="rounded-[1rem] bg-black px-5 py-2.5 text-sm font-medium text-white shadow-md hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                  >
+                    Add Log
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Actions */}
-            <div className="flex justify-end gap-3 border-t border-gray-800 pt-5">
+            <div className="flex justify-end gap-4 pt-4">
               <button
-                onClick={() =>
-                  handleStatusChange("CANCELLED")
-                }
-                className="rounded-md border border-red-500/40 px-4 py-2 text-sm text-red-400 hover:bg-red-500/10"
+                onClick={() => handleStatusChange("CANCELLED")}
+                className="rounded-[1rem] px-5 py-2.5 text-sm font-medium text-slate-500 hover:text-red-500 hover:bg-red-50 transition-colors"
               >
                 Cancel Job
               </button>
-
               <button
-                onClick={() =>
-                  handleStatusChange("COMPLETED")
-                }
-                className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-500"
+                onClick={() => handleStatusChange("COMPLETED")}
+                className="rounded-[1rem] bg-black px-6 py-2.5 text-sm font-medium text-white shadow-[0_4px_14px_rgba(0,0,0,0.2)] hover:bg-slate-800 transition-all"
               >
                 Complete Job
               </button>
             </div>
+
           </div>
         ) : null}
       </div>

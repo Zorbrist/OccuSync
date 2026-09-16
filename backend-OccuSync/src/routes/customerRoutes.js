@@ -1,34 +1,42 @@
 const express = require('express');
 const router = express.Router();
 
-const custController = require('../controllers/customerController');
+const customerController = require('../controllers/customerController');
 const authMiddleware = require('../middleware/authMiddleware');
 const requireRole = require('../middleware/roleMiddleware');
 
+// All customer routes require a valid session + CUSTOMER role
 router.use(authMiddleware, requireRole('CUSTOMER'));
 
-router.get("/dashboard", custController.getCustomerDashboard);
+// DASHBOARD
+router.get('/dashboard', customerController.getCustomerDashboard);
 
-router.get("/services", custController.getCustomerServices);
-router.get("/services/:id", custController.getCustomerService);
+// SERVICES
+router.get('/services', customerController.getCustomerServices);
+router.get('/services/:id', customerController.getCustomerService);
 
-router.get("/orders", custController.getCustomerOrders);
-router.get("/orders/:id", custController.getCustomerOrder);
-router.post("/orders", custController.createCustomerOrder);
+// ORDERS
+router.get('/orders', customerController.getCustomerOrders);
+router.get('/orders/:id', customerController.getCustomerOrder);
+router.post('/orders', customerController.createCustomerOrder);
 
-router.get("/notifications", custController.getCustomerNotifications);
-router.put("/notifications/:id/read", custController.markNotificationAsRead);
-
+// PROPOSALS
 router.patch(
-  "/proposals/:proposal_id/status",
-  custController.updateProposalStatus
+  '/proposals/:proposal_id/status',
+  customerController.updateProposalStatus
+);
+
+
+// NOTIFICATIONS
+router.get('/notifications', customerController.getCustomerNotifications);
+router.put(
+  '/notifications/:id/read',
+  customerController.markNotificationAsRead
 );
 
 // INVOICES
-router.get("/invoices", custController.getCustomerInvoices);
-router.get("/invoices/:id", custController.getCustomerInvoice);
-
-// Add this right under your other invoice routes
-router.post("/invoices/:id/pay", custController.payCustomerInvoice);
+router.get('/invoices', customerController.getCustomerInvoices);
+router.get('/invoices/:id', customerController.getCustomerInvoice);
+router.post('/invoices/:id/pay', customerController.payCustomerInvoice);
 
 module.exports = router;

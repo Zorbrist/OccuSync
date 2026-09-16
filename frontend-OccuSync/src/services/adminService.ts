@@ -122,3 +122,9 @@ export const getAllTransactions = async (): Promise<{ transactions: AdminTransac
   const response = await axiosInstance.get("/admin/transactions");
   return response.data;
 };
+
+// Add this to your admin hooks/services file
+export const getAdminProfile = async () => {
+  const response = await axiosInstance.get('/admin/profile');
+  return response.data;
+};

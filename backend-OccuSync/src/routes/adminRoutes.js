@@ -8,6 +8,8 @@ const requireRole = require('../middleware/roleMiddleware');
 router.use(authMiddleware, requireRole('ADMIN'));
 
 router.get("/dashboard", adminController.getAdminDashboard);
+// Add this line where your other admin routes are defined
+router.get("/profile", adminController.getAdminProfile);
 router.patch('/businesses/:id/status', adminController.updateBusinessStatus)
 
 router.get('/users', adminController.getAllUsers);

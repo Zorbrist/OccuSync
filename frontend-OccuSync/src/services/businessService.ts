@@ -292,3 +292,9 @@ export const getStaffJobHistory = async (): Promise<StaffTask[]> => {
 
   return response.data;
 };
+
+// Add this to your business service file (e.g., businessService.ts)
+export const getBusinessProfile = async () => {
+  const response = await axiosInstance.get('/business/profile');
+  return response.data;
+};

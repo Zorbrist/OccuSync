@@ -147,4 +147,7 @@ router.get(
   businessController.getStaffJobHistory,
 );
 
+// Add this line where your other business routes are defined
+router.get("/profile", businessController.getBusinessProfile);
+
 module.exports = router;

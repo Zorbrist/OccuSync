@@ -501,4 +501,30 @@ exports.getAllTransactions = async (req, res) => {
     console.error("getAllTransactions error:", err);
     res.status(500).json({ error: "Failed to load transactions" });
   }
-};  
+}; 
+
+// Get admin profile for the top navigation dropdown
+exports.getAdminProfile = async (req, res, next) => {
+  try {
+    const userId = req.user.id;
+
+    // Assuming admins just use the base 'users' table
+    const result = await pool.query(
+      `SELECT email, role FROM users WHERE id = $1`,
+      [userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'Admin not found' });
+    }
+
+    return res.json({
+      name: 'System Administrator', // You can replace this if your users table has a name column
+      email: result.rows[0].email,
+      role: result.rows[0].role,
+      location: 'HQ / System Admin'
+    });
+  } catch (error) {
+    next(error);
+  }
+};

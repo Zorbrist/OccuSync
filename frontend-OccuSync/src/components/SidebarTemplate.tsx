@@ -12,7 +12,6 @@ export interface SidebarNavItem {
   icon: LucideIcon;
 }
 
-// Optional User Profile Interface for the Dropdown
 export interface UserProfileData {
   name: string;
   email: string;
@@ -44,11 +43,19 @@ interface TopNavProps {
   variant: SidebarVariant;
   navItems: SidebarNavItem[];
   userProfile?: UserProfileData; 
-  unreadCount?: number;          
+  unreadCount?: number;
+  showNotifications?: boolean; // <-- NEW PROP HERE
   onLogout?: () => void;
 }
 
-export default function Sidebar({ variant, navItems, userProfile, unreadCount = 0, onLogout }: TopNavProps) {
+export default function Sidebar({ 
+  variant, 
+  navItems, 
+  userProfile, 
+  unreadCount = 0, 
+  showNotifications = true, // <-- Default to true
+  onLogout 
+}: TopNavProps) {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -78,7 +85,6 @@ export default function Sidebar({ variant, navItems, userProfile, unreadCount = 
     navigate('/');
   };
 
-  // Safe fallbacks if no profile data is provided by the parent
   const firstName = userProfile?.name?.split(" ")[0] || "User";
   const fullName = userProfile?.name || "Guest User";
   const email = userProfile?.email || "No email provided";
@@ -119,18 +125,21 @@ export default function Sidebar({ variant, navItems, userProfile, unreadCount = 
         {/* Right: Actions & Profile Dropdown */}
         <div className="flex items-center gap-4 shrink-0">
           
-          {/* Notification Icon */}
-          <Link 
-            to={`/${variant}/notifications`}
-            className="relative w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400 hover:text-black hover:shadow-md transition-all duration-300 ease-in-out"
-          >
-            <Bell size={18} />
-            {unreadCount > 0 && (
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            )}
-          </Link>
-
-          <div className="h-6 w-[1px] bg-slate-300 mx-0.5 hidden sm:block"></div>
+          {/* CONDITIONAL NOTIFICATION RENDER */}
+          {showNotifications && (
+            <>
+              <Link 
+                to={`/${variant}/notifications`}
+                className="relative w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm text-slate-400 hover:text-black hover:shadow-md transition-all duration-300 ease-in-out"
+              >
+                <Bell size={18} />
+                {unreadCount > 0 && (
+                  <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                )}
+              </Link>
+              <div className="h-6 w-[1px] bg-slate-300 mx-0.5 hidden sm:block"></div>
+            </>
+          )}
 
           {/* Profile Dropdown Container */}
           <div className="relative" ref={dropdownRef}>
@@ -156,7 +165,7 @@ export default function Sidebar({ variant, navItems, userProfile, unreadCount = 
                   <p className="text-[11px] font-medium text-slate-500 truncate">{email}</p>
                 </div>
 
-                {/* Additional Profile Data (Only renders if data was passed down) */}
+                {/* Additional Profile Data */}
                 {(userProfile?.phone || userProfile?.location) && (
                   <div className="px-5 py-3 border-b border-slate-100 space-y-3">
                     {userProfile.phone && (

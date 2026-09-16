@@ -1,12 +1,6 @@
+// components/OrderDetailsModal.tsx
 import { useState } from "react";
-import {
-  X,
-  Calendar,
-  Clock,
-  Briefcase,
-  FileText,
-  Hash,
-} from "lucide-react";
+import { X, Calendar, Clock, Briefcase, FileText, MessageSquare } from "lucide-react";
 import type { OrderResponse } from "../types/customerType";
 import { updateProposalStatus } from "../services/customerService";
 
@@ -16,34 +10,22 @@ interface OrderDetailsModalProps {
   onClose: () => void;
 }
 
-export default function OrderDetailsModal({
-  order,
-  isOpen,
-  onClose,
-}: OrderDetailsModalProps) {
+export default function OrderDetailsModal({ order, isOpen, onClose }: OrderDetailsModalProps) {
   if (!isOpen) return null;
 
   const [isUpdatingProposal, setIsUpdatingProposal] = useState(false);
   const [proposalError, setProposalError] = useState("");
 
-  const handleProposalStatus = async (
-    status: "ACCEPTED" | "REJECTED"
-  ) => {
+  const handleProposalStatus = async (status: "ACCEPTED" | "REJECTED") => {
     if (!order.proposal_id) return;
-
     setIsUpdatingProposal(true);
     setProposalError("");
 
     try {
       await updateProposalStatus(order.proposal_id, status);
-
       onClose();
     } catch (error: any) {
-      setProposalError(
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to update proposal."
-      );
+      setProposalError(error.response?.data?.message || error.message || "Failed to update proposal.");
     } finally {
       setIsUpdatingProposal(false);
     }
@@ -51,340 +33,167 @@ export default function OrderDetailsModal({
 
   const getStatusStyle = (status: OrderResponse["status"]) => {
     switch (status) {
-      case "PENDING":
-        return "bg-amber-500/10 text-amber-400 border-amber-500/20";
-
-      case "CONFIRMED":
-        return "bg-sky-500/10 text-sky-400 border-sky-500/20";
-
-      case "COMPLETED":
-        return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-
-      case "CANCELLED":
-        return "bg-rose-500/10 text-rose-400 border-rose-500/20";
-
-      default:
-        return "bg-slate-800 text-slate-300 border-slate-700";
+      case "PENDING": return "bg-amber-50 text-amber-500 border-amber-100";
+      case "CONFIRMED": return "bg-violet-50 text-violet-600 border-violet-200";
+      case "COMPLETED": return "bg-emerald-50 text-emerald-500 border-emerald-100";
+      case "CANCELLED": return "bg-red-50 text-red-500 border-red-100";
+      default: return "bg-slate-50 text-slate-500 border-slate-200";
     }
   };
 
   const formatDate = (dateString: string | null) => {
-    if (!dateString) return "To be determined";
-
-    return new Date(dateString).toLocaleDateString("en-MY", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    });
-  };
-
-  const formatStatus = (status: OrderResponse["status"]) => {
-    return status.replace("_", " ");
+    if (!dateString) return "TBD";
+    return new Date(dateString).toLocaleDateString("en-MY", { year: "numeric", month: "short", day: "numeric" });
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4 py-6">
-      <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-full">
+    <div 
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div 
+        // Reduced from max-w-2xl to max-w-lg for a much tighter, more compact layout
+        className="bg-white border border-white rounded-[2rem] w-full max-w-lg shadow-[0_20px_60px_rgba(0,0,0,0.15)] flex flex-col max-h-[85vh] animate-in zoom-in-95 overflow-hidden relative"
+        onClick={(e) => e.stopPropagation()}
+      >
 
         {/* Header */}
-        <div className="p-6 md:p-8 border-b border-slate-800 bg-slate-950/30 flex justify-between items-start shrink-0">
-
-          <div className="flex gap-4 items-start">
-
-            <div className="w-14 h-14 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-center text-indigo-400 shrink-0">
-              <Briefcase size={28} />
-            </div>
-
-            <div>
-              <div className="flex flex-wrap items-center gap-3 mb-1">
-
-                <h2 className="text-2xl font-semibold text-slate-100 tracking-tight">
-                  Order #{order.id}
-                </h2>
-
-                <span
-                  className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider border ${getStatusStyle(
-                    order.status
-                  )}`}
-                >
-                  {formatStatus(order.status)}
-                </span>
-
-              </div>
-
-              <p className="text-sm font-medium text-slate-500">
-                Service Order
-              </p>
-            </div>
-
+        <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-[#F1F5F9]/50 shrink-0">
+          <div>
+            <h2 className="text-lg font-bold text-[#0F172A] flex items-center gap-2.5">
+              Order #{order.id}
+              <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider border shadow-sm ${getStatusStyle(order.status)}`}>
+                {order.status.replace("_", " ")}
+              </span>
+            </h2>
           </div>
-
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors"
-          >
-            <X size={20} />
+          <button onClick={onClose} className="w-7 h-7 rounded-full bg-white shadow-sm flex items-center justify-center text-slate-400 hover:text-black hover:bg-slate-50 transition-all border border-slate-100">
+            <X size={14} />
           </button>
-
         </div>
 
-        {/* Content */}
-        <div className="p-6 md:p-8 space-y-6 overflow-y-auto">
+        {/* Scrollable Body - Reduced padding and gaps */}
+        <div className="px-6 py-5 space-y-4 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-slate-200 [&::-webkit-scrollbar-thumb]:rounded-full">
 
-          {/* Service Details */}
-          <div className="p-5 bg-slate-950/50 border border-slate-800/50 rounded-2xl">
-
-            <div className="flex items-center gap-3 mb-4">
-              <FileText size={16} className="text-indigo-400" />
-
-              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">
-                Service Details
-              </h3>
-            </div>
-
-            <div className="mb-4 pb-4 border-b border-slate-800/50">
-
-              <p className="text-lg font-semibold text-slate-100 mb-2">
-                {order.service_name || "Service Request"}
-              </p>
-
-              <p className="text-sm text-slate-500 leading-relaxed">
-                {order.service_description ||
-                  "No service description available."}
-              </p>
-
-            </div>
-
-            <div>
-              <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">
-                Service ID
-              </p>
-
-              <p className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-                <Hash size={14} className="text-indigo-400" />
-                {order.service_id}
-              </p>
-            </div>
-
-          </div>
-
-          {/* Provider */}
-          <div className="p-5 bg-slate-950/50 border border-slate-800/50 rounded-2xl">
-
-            <div className="flex items-center gap-3 mb-4">
-              <Briefcase size={16} className="text-indigo-400" />
-
-              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">
-                Service Provider
-              </h3>
-            </div>
-
-            <p className="text-lg font-bold text-slate-100">
-              {order.business_name || "Provider not assigned"}
-            </p>
-
-          </div>
-
-          {/* Schedule */}
-          <div className="p-5 bg-slate-950/50 border border-slate-800/50 rounded-2xl">
-
-            <div className="flex items-center gap-3 mb-4">
-              <Calendar size={16} className="text-indigo-400" />
-
-              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">
-                Schedule
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-              {/* Date */}
+          {/* Combined Service & Provider Block */}
+          <div className="p-4 bg-slate-50 border border-slate-100 rounded-[1.25rem]">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">
-                  Service Date
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <FileText size={12} /> Service
                 </p>
-
-                <p
-                  className={`text-sm font-semibold flex items-center gap-2 ${order.date ? "text-slate-300" : "text-slate-500"
-                    }`}
-                >
-                  <Calendar size={14} className="text-indigo-400" />
-                  {formatDate(order.date)}
-                </p>
+                <p className="text-sm font-black text-[#0F172A] leading-tight">{order.service_name || "Service Request"}</p>
+                <p className="text-[10px] font-semibold text-slate-500 mt-0.5">ID: #{order.service_id}</p>
               </div>
-
-              {/* Time */}
+              
               <div>
-                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">
-                  Time Slot
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 flex items-center gap-1.5">
+                  <Briefcase size={12} /> Provider
                 </p>
-
-                <p
-                  className={`text-sm font-semibold flex items-center gap-2 ${order.date ? "text-slate-300" : "text-slate-500"
-                    }`}
-                >
-                  <Clock size={14} className="text-indigo-400" />
-
-                  {order.time_slot || "To be determined"}
-                </p>
+                <p className="text-sm font-black text-[#0F172A] leading-tight">{order.business_name || "Unassigned"}</p>
               </div>
-
             </div>
 
+            {order.service_description && (
+              <div className="mt-3 pt-3 border-t border-slate-200/60">
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                  <MessageSquare size={12} /> Description
+                </p>
+                <p className="text-xs font-medium text-slate-600 leading-relaxed">
+                  {order.service_description}
+                </p>
+              </div>
+            )}
           </div>
 
-          {/* Proposal */}
-          {order.proposal_status === "PENDING" && order.proposal_id && (
-            <div className="p-5 bg-amber-500/5 border border-amber-500/20 rounded-2xl">
-
-              <div className="flex items-center gap-3 mb-4">
-                <Calendar size={16} className="text-amber-400" />
-
-                <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">
-                  Proposed Schedule
-                </h3>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-                {/* Proposed Date */}
+          {/* Standard Schedule (Shown if not pending proposal) */}
+          {order.proposal_status !== "PENDING" && (
+            <div className="p-4 bg-slate-50 border border-slate-100 rounded-[1.25rem]">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5 border-b border-slate-200/60 pb-2">
+                <Calendar size={12} /> Approved Schedule
+              </p>
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">
-                    Proposed Date
-                  </p>
-
-                  <p className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-                    <Calendar size={14} className="text-amber-400" />
-                    {formatDate(order.proposed_date)}
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Date</p>
+                  <p className={`text-sm font-bold flex items-center gap-1.5 ${order.date ? "text-[#0F172A]" : "text-slate-400 italic"}`}>
+                    <Calendar size={12} className={order.date ? "text-violet-500" : "text-slate-300"} />
+                    {formatDate(order.date)}
                   </p>
                 </div>
-
-                {/* Proposed Time */}
                 <div>
-                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">
-                    Proposed Time
-                  </p>
-
-                  <p className="text-sm font-semibold text-slate-300 flex items-center gap-2">
-                    <Clock size={14} className="text-amber-400" />
-                    {order.proposed_time || "Not specified"}
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Time Slot</p>
+                  <p className={`text-sm font-bold flex items-center gap-1.5 ${order.date ? "text-[#0F172A]" : "text-slate-400 italic"}`}>
+                    <Clock size={12} className={order.date ? "text-violet-500" : "text-slate-300"} />
+                    {order.time_slot || "TBD"}
                   </p>
                 </div>
-
               </div>
-
-              {/* Message */}
-              {order.message && (
-                <div className="mt-4 pt-4 border-t border-amber-500/10">
-                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">
-                    Message from Provider
-                  </p>
-
-                  <p className="text-sm text-slate-300 leading-relaxed">
-                    {order.message}
-                  </p>
-                </div>
-              )}
-
-              {/* Notes */}
-              {order.proposal_notes && (
-                <div className="mt-4">
-                  <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-2">
-                    Notes
-                  </p>
-
-                  <p className="text-sm text-slate-300 leading-relaxed">
-                    {order.proposal_notes}
-                  </p>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex flex-col sm:flex-row gap-3 mt-5">
-
-                {/* Actions */}
-                {proposalError && (
-                  <p className="mt-4 text-sm text-rose-400">
-                    {proposalError}
-                  </p>
-                )}
-
-                <div className="flex flex-col sm:flex-row gap-3 mt-5">
-
-                  <button
-                    type="button"
-                    disabled={isUpdatingProposal}
-                    onClick={() => handleProposalStatus("ACCEPTED")}
-                    className="flex-1 bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-emerald-600 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isUpdatingProposal ? "Updating..." : "Approve"}
-                  </button>
-
-                  <button
-                    type="button"
-                    disabled={isUpdatingProposal}
-                    onClick={() => handleProposalStatus("REJECTED")}
-                    className="flex-1 bg-rose-500/10 text-rose-400 px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-rose-500/20 border border-rose-500/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isUpdatingProposal ? "Updating..." : "Decline"}
-                  </button>
-
-                </div>
-
-              </div>
-
             </div>
           )}
 
-          {/* Order Information */}
-          <div className="p-5 bg-indigo-500/5 border border-indigo-500/20 rounded-2xl">
-
-            <div className="flex items-center gap-3 mb-4">
-              <Hash size={16} className="text-indigo-400" />
-
-              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">
-                Order Information
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-
-              <div>
-                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">
-                  Order ID
-                </p>
-
-                <p className="text-sm font-semibold text-slate-300">
-                  #{order.id}
-                </p>
+          {/* Actionable Proposal Block */}
+          {order.proposal_status === "PENDING" && order.proposal_id && (
+            <div className="p-4 bg-amber-50 border border-amber-100 rounded-[1.25rem] shadow-sm">
+              <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-3 flex items-center gap-1.5 border-b border-amber-200/60 pb-2">
+                <Calendar size={12} /> Provider Proposed Schedule
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-[10px] font-bold text-amber-600/70 uppercase tracking-widest mb-0.5">Date</p>
+                  <p className="text-sm font-black text-[#0F172A] flex items-center gap-1.5">
+                    <Calendar size={12} className="text-amber-500" /> {formatDate(order.proposed_date)}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-amber-600/70 uppercase tracking-widest mb-0.5">Time</p>
+                  <p className="text-sm font-black text-[#0F172A] flex items-center gap-1.5">
+                    <Clock size={12} className="text-amber-500" /> {order.proposed_time || "Not specified"}
+                  </p>
+                </div>
               </div>
 
-              <div>
-                <p className="text-xs text-slate-500 font-medium uppercase tracking-wider mb-1">
-                  Status
-                </p>
+              {(order.message || order.proposal_notes) && (
+                <div className="mb-4 bg-white p-3 rounded-xl border border-amber-100">
+                  <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">Provider Notes</p>
+                  <p className="text-xs font-medium text-slate-600 leading-relaxed">
+                    {order.message || order.proposal_notes}
+                  </p>
+                </div>
+              )}
 
-                <p className="text-sm font-semibold text-slate-300">
-                  {formatStatus(order.status)}
-                </p>
+              {proposalError && <p className="mb-3 text-[11px] font-bold text-red-500 text-center">{proposalError}</p>}
+
+              <div className="flex gap-2.5">
+                <button
+                  type="button"
+                  disabled={isUpdatingProposal}
+                  onClick={() => handleProposalStatus("REJECTED")}
+                  className="flex-1 bg-white text-red-600 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider border border-red-200 hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  Decline
+                </button>
+                <button
+                  type="button"
+                  disabled={isUpdatingProposal}
+                  onClick={() => handleProposalStatus("ACCEPTED")}
+                  className="flex-1 bg-[#0F172A] text-white py-2 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-md hover:bg-black hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:transform-none"
+                >
+                  {isUpdatingProposal ? "Updating..." : "Accept"}
+                </button>
               </div>
-
             </div>
-
-          </div>
-
+          )}
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-slate-800 bg-slate-950/30 flex justify-end shrink-0">
-
+        <div className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-end shrink-0">
           <button
             onClick={onClose}
-            className="w-full sm:w-auto bg-slate-800 text-slate-200 px-6 py-2.5 rounded-xl text-sm font-semibold hover:bg-slate-700 hover:text-white transition-all duration-200 border border-slate-700"
+            className="w-full sm:w-auto bg-white text-slate-600 px-6 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider hover:bg-slate-100 transition-colors border border-slate-200 shadow-sm"
           >
-            Close
+            Close Details
           </button>
-
         </div>
 
       </div>
